@@ -14,7 +14,7 @@
  * - In sviluppo: `npm run start:events` (watch + theme dev con --standard-events-inspector).
  */
 
-import { refreshCartSections } from './cart-api.js';
+import { announceCartStatus, refreshCartSections } from './cart-api.js';
 
 const STANDARD_EVENTS_URL = 'https://cdn.shopify.com/storefront/standard-events.js';
 
@@ -179,6 +179,27 @@ export async function withSearchUpdateEvent({ target, payload, run }) {
 }
 
 /**
+ * Riscontro di una modifica al carrello arrivata da fuori (Shopify.actions.updateCart):
+ * - carrello in vista (cassetto aperto o pagina carrello): il contenuto è già cambiato sotto gli occhi del cliente,
+ *   basta l'annuncio nella regione live del carrello;
+ * - altrimenti cambia solo il contatore dell'header: toast "Carrello aggiornato" con il link al carrello.
+ * toast.js (e Motion) si caricano solo qui, fuori dal bundle globale.
+ */
+function notifyExternalCartUpdate() {
+  const element = document.querySelector('cart-drawer');
+  // Solo se il custom element è già definito (cart.js caricato): altrimenti il link porta alla pagina carrello
+  const drawer = typeof element?.open === 'function' ? element : null;
+  const message = document.querySelector('[data-cart-status]')?.dataset.updated;
+  if (element?.querySelector('dialog')?.open || document.documentElement.dataset.template === 'cart') {
+    if (message) announceCartStatus(message);
+    return;
+  }
+  import('./toast.js')
+    .then(({ showCartUpdatedToast }) => showCartUpdatedToast(drawer))
+    .catch(() => {});
+}
+
+/**
  * Configura le azioni standard. Chiamata dal listener DOMContentLoaded dichiarato nel layout PRIMA di
  * {{ content_for_header }} (come richiesto da Shopify), così la configurazione precede il codice delle app.
  * Solo la prima configure() di ogni azione ha effetto.
@@ -187,13 +208,15 @@ export function configureStorefrontActions() {
   const actions = window.Shopify?.actions;
   if (!actions) return;
 
-  // updateCart (chiamata da app/agenti): Shopify scrive il carrello ed emette da sé gli eventi cart:*;
-  // il tema aggiorna header, cassetto e pagina carrello senza ricaricare e senza emettere eventi doppi.
+  // updateCart (chiamata da app/agenti, mai dal tema): Shopify scrive il carrello ed emette da sé gli eventi cart:*;
+  // il tema aggiorna header, cassetto e pagina carrello senza ricaricare e senza emettere eventi doppi, poi dice al
+  // cliente cosa è cambiato (gli agenti WebMCP lavorano nella sua scheda).
   actions.updateCart?.configure?.({
     eventTarget: () => document.querySelector('cart-items'),
     async handler(defaultHandler) {
       const result = await defaultHandler();
       await refreshCartSections();
+      notifyExternalCartUpdate();
       return { ...result, detail: { ...result?.detail, handledBy: 'theme' } };
     },
   });
@@ -210,7 +233,7 @@ export function configureStorefrontActions() {
 
 /** Avvio: chiamato da theme.js su ogni pagina. */
 export function initStandardEvents() {
-  window.boltTheme = { ...window.boltTheme, configureStorefrontActions };
+  window.bolterTheme = { ...window.bolterTheme, configureStorefrontActions };
   loadStandardEvents();
   defineViewEventElement();
   dispatchPageView();

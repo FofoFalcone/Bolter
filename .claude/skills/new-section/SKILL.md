@@ -1,6 +1,6 @@
 ---
 name: new-section
-description: Crea una nuova section Shopify per bolt-theme seguendo le convenzioni del progetto (schema completo, asset Vite dedicati, animazioni Motion, accessibilità, verifica con Theme Check). Usala quando l'utente chiede di creare/aggiungere una section, un blocco di pagina o un componente della homepage/template.
+description: Crea una nuova section Shopify per bolter-theme seguendo le convenzioni del progetto (schema completo, asset Vite dedicati, animazioni Motion, accessibilità, verifica con Theme Check). Usala quando l'utente chiede di creare/aggiungere una section, un blocco di pagina o un componente della homepage/template.
 ---
 
 # Nuova section

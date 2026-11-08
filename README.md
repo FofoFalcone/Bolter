@@ -1,4 +1,4 @@
-# bolt-theme
+# bolter-theme
 
 Tema Shopify moderno con pipeline di build basata su [Vite](https://vitejs.dev/) e [vite-plugin-shopify](https://github.com/barrel/shopify-vite/tree/main/packages/vite-plugin-shopify) (noto anche come **Volt** nella documentazione del plugin).
 
@@ -31,7 +31,7 @@ Volt **non impone** un unico bundle JS e un unico CSS. Il template di partenza c
 ## Struttura del progetto
 
 ```
-bolt-theme/
+bolter-theme/
 ├── frontend/                  # Sorgenti gestiti da Vite (NON caricati su Shopify)
 │   ├── entrypoints/           # Entry point del bundle (uno per file)
 │   │   ├── theme.js

@@ -18,6 +18,19 @@ export function getHeaderSection() {
 
 const sectionIdOf = (element) => element?.closest('.shopify-section')?.id.replace('shopify-section-', '');
 
+/**
+ * Annuncio nelle regioni live del carrello ([data-cart-status] in cassetto e pagina). Il testo è spesso lo stesso
+ * ("Carrello aggiornato"): va svuotato e reimpostato dopo un attimo, altrimenti i lettori di schermo non rileggono
+ * un testo identico al precedente.
+ */
+let announceTimer;
+export function announceCartStatus(message) {
+  const regions = document.querySelectorAll('[data-cart-status]');
+  regions.forEach((el) => (el.textContent = ''));
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => regions.forEach((el) => (el.textContent = message)), 100);
+}
+
 /** Id delle section da far ri-renderizzare a Shopify insieme alla modifica del carrello. */
 export function cartSectionIds() {
   const ids = [sectionIdOf(getHeaderSection())];

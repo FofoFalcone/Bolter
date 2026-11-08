@@ -35,7 +35,8 @@ function hide(toast) {
 
 /**
  * @param {string} message
- * @param {{ tone?: 'success' | 'error', action?: { label: string, href: string } }} [options]
+ * @param {{ tone?: 'success' | 'error', action?: { label: string, href: string, onSelect?: () => void } }} [options]
+ *   `action.onSelect`: al posto della navigazione (es. aprire il cassetto). Ctrl/Cmd/Maiusc+clic seguono comunque il link.
  */
 export function showToast(message, { tone = 'success', action = null } = {}) {
   const template = getTemplate();
@@ -57,6 +58,14 @@ export function showToast(message, { tone = 'success', action = null } = {}) {
     const link = toast.querySelector('[data-toast-action]');
     link.href = action.href;
     link.textContent = action.label;
+    if (action.onSelect) {
+      link.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+        event.preventDefault();
+        hide(toast);
+        action.onSelect();
+      });
+    }
   }
 
   toast.querySelector('[data-toast-close]').addEventListener('click', () => hide(toast));
@@ -93,4 +102,16 @@ export function showCartAddedToast() {
   const data = getTemplate()?.dataset;
   if (!data) return;
   showToast(data.cartAdded, { action: { label: data.cartView, href: data.cartUrl } });
+}
+
+/**
+ * Carrello cambiato da un agente o da un'app (Shopify.actions.updateCart) mentre il carrello non è in vista: il
+ * cliente vede cosa è successo nella sua scheda. "Vai al carrello" apre il cassetto se c'è, altrimenti la pagina.
+ * @param {{ open: () => void } | null} [drawer] il <cart-drawer>, se il carrello è a cassetto
+ */
+export function showCartUpdatedToast(drawer = null) {
+  const data = getTemplate()?.dataset;
+  if (!data) return;
+  const onSelect = drawer ? () => drawer.open() : undefined;
+  showToast(data.cartUpdated, { action: { label: data.cartView, href: data.cartUrl, onSelect } });
 }

@@ -2,7 +2,8 @@
   Dati strutturati JSON-LD del sito, resi nel <head> del layout (quelli del prodotto restano in main-product con il
   filtro `structured_data` di Shopify):
   - home: WebSite (nome del sito nei risultati di Google) e Organization (logo da Impostazioni → Brand del negozio,
-    profili social da Impostazioni tema → Social media);
+    profili social da Impostazioni tema → Social media, politica di reso standard con il solo link alla policy di
+    rimborso, la forma minima ammessa da Google: i dettagli restano nella policy, e Merchant Center ha la precedenza);
   - prodotto, collezione, elenco collezioni, pagina, blog e articolo: BreadcrumbList (Home › Collezione › Prodotto, Home › Pagina,
     Home › Blog › Articolo nei risultati; l'Article stesso è in main-article con il filtro structured_data). Il prodotto ha la collezione nel percorso solo se è stato aperto da una collezione
     (URL /collections/…/products/…).
@@ -47,6 +48,12 @@
           {%- endif %}
           {%- if same_as.size > 0 %},
           "sameAs": {{ same_as | json }}
+          {%- endif %}
+          {%- if shop.refund_policy.url != blank %},
+          "hasMerchantReturnPolicy": {
+            "@type": "MerchantReturnPolicy",
+            "merchantReturnLink": {{ request.origin | append: shop.refund_policy.url | json }}
+          }
           {%- endif %}
         }
       ]

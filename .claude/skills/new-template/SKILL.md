@@ -1,6 +1,6 @@
 ---
 name: new-template
-description: Crea un template Shopify per bolt-theme (product, collection, cart, page, 404, search, blog, article, list-collections, password, gift_card o un template alternativo come product.landing) insieme alla sua section principale `main-*`, seguendo le convenzioni del progetto. Usala quando l'utente chiede di creare/aggiungere un template o una pagina di tipo Shopify, o quando una pagina dello store non ha ancora un template.
+description: Crea un template Shopify per bolter-theme (product, collection, cart, page, 404, search, blog, article, list-collections, password, gift_card o un template alternativo come product.landing) insieme alla sua section principale `main-*`, seguendo le convenzioni del progetto. Usala quando l'utente chiede di creare/aggiungere un template o una pagina di tipo Shopify, o quando una pagina dello store non ha ancora un template.
 ---
 
 # Nuovo template

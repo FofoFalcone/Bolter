@@ -1,6 +1,6 @@
 ---
 name: shopify-alignment
-description: Garantisce l'allineamento totale di bolt-theme con le funzionalità che Shopify mette a disposizione degli storefront Liquid (ultime Shopify Editions, developer changelog, standard storefront events e actions, nuovi oggetti/filtri/tag Liquid, API dei temi). Usala PRIMA di implementare o modificare qualsiasi funzionalità del negozio (section, template, prodotto, carrello, collezione, ricerca, account, localizzazione, header/footer…), quando l'utente chiede un audit o un controllo di allineamento con Shopify, e dopo l'uscita di una nuova Shopify Edition.
+description: Garantisce l'allineamento totale di bolter-theme con le funzionalità che Shopify mette a disposizione degli storefront Liquid (ultime Shopify Editions, developer changelog, standard storefront events e actions, nuovi oggetti/filtri/tag Liquid, API dei temi). Usala PRIMA di implementare o modificare qualsiasi funzionalità del negozio (section, template, prodotto, carrello, collezione, ricerca, account, localizzazione, header/footer…), quando l'utente chiede un audit o un controllo di allineamento con Shopify, e dopo l'uscita di una nuova Shopify Edition.
 ---
 
 # Allineamento con la piattaforma Shopify

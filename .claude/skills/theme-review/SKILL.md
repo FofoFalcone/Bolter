@@ -1,6 +1,6 @@
 ---
 name: theme-review
-description: Revisione di qualità del tema bolt-theme prima di un push o di un commit — performance (Core Web Vitals), accessibilità, compatibilità con il theme editor, traduzioni, regole del progetto e Theme Check. Usala quando l'utente chiede una review, un controllo prima del deploy, "è pronto per il push?", o dopo modifiche estese a section/template.
+description: Revisione di qualità del tema bolter-theme prima di un push o di un commit — performance (Core Web Vitals), accessibilità, compatibilità con il theme editor, traduzioni, regole del progetto e Theme Check. Usala quando l'utente chiede una review, un controllo prima del deploy, "è pronto per il push?", o dopo modifiche estese a section/template.
 ---
 
 # Review del tema

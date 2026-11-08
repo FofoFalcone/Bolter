@@ -19,7 +19,7 @@ export default function pruneStaleAssets({ publicDir }) {
   let publicFiles = new Set();
 
   return {
-    name: 'bolt:prune-stale-assets',
+    name: 'bolter:prune-stale-assets',
     apply: 'build',
 
     configResolved(config) {

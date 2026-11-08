@@ -22,7 +22,13 @@
 
 import { animate } from 'motion/mini';
 import { spring } from 'motion';
-import { postCart, refreshCartSections, renderCartSections, prefersReducedMotion } from '../scripts/cart-api.js';
+import {
+  announceCartStatus as announce,
+  postCart,
+  refreshCartSections,
+  renderCartSections,
+  prefersReducedMotion,
+} from '../scripts/cart-api.js';
 import { syncQuantitySteps } from '../scripts/quantity-steps.js';
 import { withCartEvent } from '../scripts/standard-events.js';
 import { showToast } from '../scripts/toast.js';
@@ -31,18 +37,6 @@ const QUANTITY_DEBOUNCE_MS = 400;
 const NOTE_DEBOUNCE_MS = 600;
 // Senza rimbalzo: a fine barra scoprirebbe un tratto vuoto a sinistra
 const PROGRESS_SPRING = { type: spring, visualDuration: 0.6, bounce: 0 };
-
-/**
- * Annuncio nella regione live. Il testo è sempre lo stesso ("Carrello aggiornato"): va svuotato e reimpostato
- * dopo un attimo, altrimenti i lettori di schermo non rileggono un testo identico al precedente.
- */
-let announceTimer;
-function announce(message) {
-  const regions = document.querySelectorAll('[data-cart-status]');
-  regions.forEach((el) => (el.textContent = ''));
-  clearTimeout(announceTimer);
-  announceTimer = setTimeout(() => regions.forEach((el) => (el.textContent = message)), 100);
-}
 
 /** Testo della barra della spedizione gratuita, da annunciare insieme all'esito di una modifica. */
 function freeShippingText() {
