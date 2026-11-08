@@ -1,0 +1,441 @@
+{%- comment -%}
+  Colonne: vantaggi, servizi o punti di forza, ognuno con immagine o icona, titolo, testo e link.
+  Le colonne non superano mai i blocchi presenti, così una riga incompleta riempie comunque la larghezza.
+  A 4 colonne, da 750 a 989px, la griglia è 2 x 2: 3 colonne lascerebbero un elemento da solo.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  # Base dei sizes: non accetta var() (snippets/section-width.liquid)
+  assign page_max = settings.layout_page_width | append: 'px'
+  assign full_width = false
+  if section.settings.section_width == 'full'
+    assign page_max = '100vw'
+    assign full_width = true
+  endif
+  # A tutta larghezza servono formati più grandi; su "Pagina" restano fuori, così non si scaricano per sbaglio
+  assign image_max = 1200
+  assign image_widths = '300, 450, 600, 800, 1000, 1200'
+  if full_width
+    assign image_max = 2000
+    assign image_widths = image_widths | append: ', 1600, 2000'
+  endif
+  assign s = section.settings
+
+  assign columns = s.columns_desktop | at_most: section.blocks.size | at_least: 1
+  assign columns_md = columns
+  if columns == 4
+    assign columns_md = 2
+  endif
+  if s.columns_mobile == '2'
+    assign columns_mobile_class = 'grid-cols-2'
+    assign columns_mobile = 2
+  else
+    assign columns_mobile_class = 'grid-cols-1'
+    assign columns_mobile = 1
+  endif
+  capture sizes
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 3rem) / ' | append: columns | append: '), (min-width: 750px) calc((100vw - 3rem) / ' | append: columns_md | append: '), calc((100vw - 3rem) / ' | append: columns_mobile | append: ')'
+  endcapture
+
+  if s.align == 'center'
+    assign align_class = 'items-center text-center'
+  else
+    assign align_class = 'items-start text-start'
+  endif
+
+  case s.style
+    when 'surface'
+      assign column_class = 'rounded-lg bg-surface p-6'
+      assign icon_class = 'bg-background'
+    when 'border'
+      assign column_class = 'rounded-lg border border-border p-6'
+      assign icon_class = 'bg-surface'
+    else
+      assign column_class = ''
+      assign icon_class = 'bg-surface'
+  endcase
+
+  case s.image_ratio
+    when 'square'
+      assign ratio_class = 'aspect-square'
+    when 'portrait'
+      assign ratio_class = 'aspect-3/4'
+    else
+      assign ratio_class = 'aspect-4/3'
+  endcase
+
+  # Senza titolo della section le colonne restano al livello h2: niente salti nella gerarchia
+  assign title_tag = 'h3'
+  if s.heading == blank
+    assign title_tag = 'h2'
+  endif
+-%}
+<div class="page-width flex flex-col gap-8 py-12 md:gap-12 md:py-16">
+  {% render 'section-header', heading: s.heading, intro: s.intro, align: s.align %}
+
+  {%- if section.blocks.size > 0 -%}
+    <ul
+      class="grid {{ columns_mobile_class }} gap-x-6 gap-y-10 md:grid-cols-[repeat(var(--columns-md),minmax(0,1fr))] lg:grid-cols-[repeat(var(--columns),minmax(0,1fr))]"
+      style="--columns: {{ columns }}; --columns-md: {{ columns_md }};"
+      role="list"
+      {% unless section.index == 1 %}
+        data-animate-stagger="fade-up"
+      {% endunless %}
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign b = block.settings
+          assign loading = 'lazy'
+          assign fetchpriority = 'auto'
+          if section.index == 1 and forloop.index <= columns
+            assign loading = 'eager'
+            if forloop.first
+              assign fetchpriority = 'high'
+            endif
+          endif
+        -%}
+        <li class="flex flex-col gap-4 {{ column_class }} {{ align_class }}" {{ block.shopify_attributes }}>
+          {%- if b.image != blank -%}
+            <div class="media-loading relative w-full overflow-hidden rounded-md bg-surface {{ ratio_class }}">
+              {{
+                b.image
+                | image_url: width: image_max
+                | image_tag:
+                  loading: loading,
+                  fetchpriority: fetchpriority,
+                  sizes: sizes,
+                  widths: image_widths,
+                  class: 'size-full object-cover'
+              }}
+            </div>
+          {%- elsif b.icon != 'none' -%}
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-md text-foreground {{ icon_class }}">
+              {% render 'icon', name: b.icon, class: 'size-6' %}
+            </span>
+          {%- endif -%}
+
+          {%- if b.title != blank -%}
+            <{{ title_tag }} class="text-subheading font-semibold text-balance text-foreground">
+              {{- b.title | escape -}}
+            </{{ title_tag }}>
+          {%- endif -%}
+
+          {%- if b.text != blank -%}
+            <div class="prose prose-theme max-w-none text-body text-pretty text-foreground/80">
+              {{ b.text }}
+            </div>
+          {%- endif -%}
+
+          {%- if b.link_label != blank and b.link != blank -%}
+            <a
+              href="{{ b.link }}"
+              class="group/link mt-auto inline-flex items-center gap-1.5 rounded-sm text-body font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              {{- b.link_label | escape -}}
+              {%- if b.title != blank -%}
+                <span class="sr-only">: {{ b.title | escape }}</span>
+              {%- endif -%}
+              {% render 'icon',
+                name: 'arrow-right',
+                class: 'size-4 shrink-0 transition-transform duration-200 ease-theme motion-safe:group-hover/link:translate-x-1'
+              %}
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.columns.name",
+  "tag": "section",
+  "class": "section-columns",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.columns.settings.section_width.label",
+      "info": "t:sections.columns.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.columns.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.columns.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.columns.settings.heading.label",
+      "default": "t:sections.columns.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.columns.settings.intro.label"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "t:sections.columns.settings.align.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.columns.settings.align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.columns.settings.align.options.center"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.columns.settings.header_1.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:sections.columns.settings.columns_desktop.label",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.columns.settings.columns_mobile.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.columns.settings.columns_mobile.options.1"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.columns.settings.columns_mobile.options.2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:sections.columns.settings.style.label",
+      "options": [
+        {
+          "value": "plain",
+          "label": "t:sections.columns.settings.style.options.plain"
+        },
+        {
+          "value": "surface",
+          "label": "t:sections.columns.settings.style.options.surface"
+        },
+        {
+          "value": "border",
+          "label": "t:sections.columns.settings.style.options.border"
+        }
+      ],
+      "default": "plain"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.columns.settings.image_ratio.label",
+      "options": [
+        {
+          "value": "landscape",
+          "label": "t:sections.columns.settings.image_ratio.options.landscape"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.columns.settings.image_ratio.options.square"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.columns.settings.image_ratio.options.portrait"
+        }
+      ],
+      "default": "landscape"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.columns.settings.header_2.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.columns.settings.color_background.label",
+      "info": "t:sections.columns.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.columns.settings.color_text.label",
+      "info": "t:sections.columns.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "t:sections.columns.blocks.column.name",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:sections.columns.blocks.column.settings.icon.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.none"
+            },
+            {
+              "value": "truck",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.truck"
+            },
+            {
+              "value": "arrow-path",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.arrow_path"
+            },
+            {
+              "value": "shield-check",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.shield_check"
+            },
+            {
+              "value": "lock-closed",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.lock_closed"
+            },
+            {
+              "value": "credit-card",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.credit_card"
+            },
+            {
+              "value": "gift",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.gift"
+            },
+            {
+              "value": "tag",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.tag"
+            },
+            {
+              "value": "star",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.star"
+            },
+            {
+              "value": "heart",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.heart"
+            },
+            {
+              "value": "sparkles",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.sparkles"
+            },
+            {
+              "value": "check-badge",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.check_badge"
+            },
+            {
+              "value": "globe-alt",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.globe_alt"
+            },
+            {
+              "value": "map-pin",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.map_pin"
+            },
+            {
+              "value": "clock",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.clock"
+            },
+            {
+              "value": "phone",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.phone"
+            },
+            {
+              "value": "envelope",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.envelope"
+            },
+            {
+              "value": "chat-bubble-left-right",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.chat_bubble_left_right"
+            },
+            {
+              "value": "building-storefront",
+              "label": "t:sections.columns.blocks.column.settings.icon.options.building_storefront"
+            }
+          ],
+          "default": "check-badge"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.columns.blocks.column.settings.image.label",
+          "info": "t:sections.columns.blocks.column.settings.image.info"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.columns.blocks.column.settings.title.label",
+          "default": "t:sections.columns.blocks.column.settings.title.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.columns.blocks.column.settings.text.label",
+          "default": "t:sections.columns.blocks.column.settings.text.default"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "t:sections.columns.blocks.column.settings.link_label.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.columns.blocks.column.settings.link.label",
+          "info": "t:sections.columns.blocks.column.settings.link.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.columns.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "column",
+          "settings": {
+            "icon": "truck"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "icon": "arrow-path"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "icon": "shield-check"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

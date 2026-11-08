@@ -1,0 +1,51 @@
+/*
+ * Carrello a cassetto — sections/cart-drawer.liquid
+ * Lo stile è nelle utility Tailwind del markup; qui solo apertura/chiusura animate del <dialog>
+ * (entrata da destra + sfondo in dissolvenza, con @starting-style e transition-behavior: allow-discrete).
+ * Blocco dello scroll della pagina: data-scroll-lock (frontend/styles/scroll-lock.css).
+ */
+
+@layer components {
+  .cart-drawer {
+    translate: 100% 0;
+    transition:
+      translate 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      display 300ms allow-discrete,
+      overlay 300ms allow-discrete;
+  }
+
+  .cart-drawer[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .cart-drawer[open] {
+      translate: 100% 0;
+    }
+  }
+
+  .cart-drawer::backdrop {
+    opacity: 0;
+    transition:
+      opacity 300ms ease,
+      display 300ms allow-discrete,
+      overlay 300ms allow-discrete;
+  }
+
+  .cart-drawer[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .cart-drawer[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cart-drawer,
+    .cart-drawer::backdrop {
+      transition: none;
+    }
+  }
+}

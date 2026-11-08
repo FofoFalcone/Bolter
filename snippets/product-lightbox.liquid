@@ -1,0 +1,107 @@
+{%- comment -%}
+  Immagini del prodotto a schermo intero, aperte dalla galleria di main-product.
+  Tutto in un <template>: finché il cliente non apre il lightbox nessuna immagine viene scaricata. JS in
+  frontend/scripts/product-lightbox.js, importato da <product-media> solo all'intenzione di aprirlo.
+
+  La larghezza dell'immagine a riposo lascia libere le due barre di controlli (9,5rem: pulsanti da 44px + margini) e
+  `sizes` ripete lo stesso calcolo: il browser scarica ciò che serve davvero. Al primo ingrandimento il JS alza `sizes`
+  e il browser prende la versione più grande dello stesso srcset. srcset senza `widths`: Shopify lo genera fino a
+  max_width, che non supera mai l'originale.
+
+  Parametri:
+  - images: i media di tipo immagine, nello stesso ordine della galleria
+  - fallback_alt: testo alternativo per le immagini che non ne hanno uno
+{%- endcomment -%}
+<template data-product-lightbox>
+  <dialog
+    data-scroll-lock
+    class="group/lightbox fixed inset-0 m-0 h-full max-h-none w-screen max-w-none overflow-hidden bg-transparent p-0 text-foreground backdrop:bg-transparent"
+    aria-label="{{ 'products.product.media.lightbox' | t | escape }}"
+  >
+    <div data-lightbox-backdrop class="absolute inset-0 bg-background"></div>
+
+    {%- comment -%} Scorrimento nativo tra le immagini; touch-none durante lo zoom, quando il dito sposta l'immagine {%- endcomment -%}
+    <ul
+      data-lightbox-track
+      data-lenis-prevent
+      class="relative flex h-full touch-pan-x snap-x snap-mandatory overflow-x-auto overscroll-contain [scrollbar-width:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary group-data-zoomed/lightbox:touch-none group-data-zoomed/lightbox:overflow-hidden"
+      role="list"
+      tabindex="0"
+      aria-label="{{ 'products.product.media.gallery' | t | escape }}"
+    >
+      {%- for media in images -%}
+        {%- liquid
+          assign max_width = media.width | at_most: 3000
+          assign alt = media.alt | default: fallback_alt
+          assign ratio_style = '--ratio: ' | append: media.aspect_ratio
+          assign sizes = 'min(100vw, calc((100svh - 9.5rem) * ' | append: media.aspect_ratio | append: '))'
+        -%}
+        <li class="media-loading relative flex h-full w-full shrink-0 snap-center items-center justify-center overflow-hidden">
+          {{
+            media
+            | image_url: width: max_width
+            | image_tag:
+              loading: 'lazy',
+              sizes: sizes,
+              alt: alt,
+              draggable: 'false',
+              style: ratio_style,
+              class: 'block h-auto w-[min(100vw,calc((100svh_-_9.5rem)_*_var(--ratio)))] max-w-none cursor-zoom-in bg-center bg-no-repeat select-none group-data-zoomed/lightbox:cursor-grab group-data-zoomed/lightbox:active:cursor-grabbing'
+          }}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    <div data-lightbox-controls class="pointer-events-none absolute inset-x-0 top-0 flex justify-end gap-2 p-4">
+      <button
+        type="button"
+        data-lightbox-zoom
+        class="group/zoom button button-neutral button-icon pointer-events-auto relative"
+        aria-pressed="false"
+        aria-label="{{ 'products.product.media.zoom' | t | escape }}"
+      >
+        <span class="contents group-aria-pressed/zoom:hidden">{% render 'icon', name: 'magnifying-glass-plus', class: 'size-5' %}</span>
+        <span class="hidden group-aria-pressed/zoom:contents">{% render 'icon', name: 'magnifying-glass-minus', class: 'size-5' %}</span>
+        <span class="tooltip tooltip-below" aria-hidden="true">{{ 'products.product.media.zoom' | t }}</span>
+      </button>
+      <button
+        type="button"
+        data-lightbox-close
+        autofocus
+        class="button button-neutral button-icon pointer-events-auto relative"
+        aria-label="{{ 'products.product.media.close' | t | escape }}"
+      >
+        {% render 'icon', name: 'x-mark', class: 'size-5' %}
+        <span class="tooltip tooltip-below" aria-hidden="true">{{ 'products.product.media.close' | t }}</span>
+      </button>
+    </div>
+
+    {%- if images.size > 1 -%}
+      <div data-lightbox-controls class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center gap-3 p-4">
+        <button
+          type="button"
+          data-lightbox-previous
+          class="button button-neutral button-icon pointer-events-auto relative"
+          aria-label="{{ 'products.product.media.previous' | t | escape }}"
+        >
+          {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+          <span class="tooltip" aria-hidden="true">{{ 'products.product.media.previous' | t }}</span>
+        </button>
+        {%- comment -%} Con lo zoom i controlli stanno sopra la foto: il contatore ha un fondo come i pulsanti {%- endcomment -%}
+        <p class="flex h-11 min-w-16 items-center justify-center gap-1 rounded-button border border-border bg-background px-3 text-body-sm font-semibold text-foreground tabular-nums shadow-100" aria-live="polite" aria-atomic="true">
+          <span class="sr-only">{{ 'products.product.media.image' | t }} </span>
+          <span data-lightbox-index>1</span> / {{ images.size }}
+        </p>
+        <button
+          type="button"
+          data-lightbox-next
+          class="button button-neutral button-icon pointer-events-auto relative"
+          aria-label="{{ 'products.product.media.next' | t | escape }}"
+        >
+          {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+          <span class="tooltip" aria-hidden="true">{{ 'products.product.media.next' | t }}</span>
+        </button>
+      </div>
+    {%- endif -%}
+  </dialog>
+</template>

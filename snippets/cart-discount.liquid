@@ -1,0 +1,90 @@
+{%- comment -%}
+  Codici sconto nel carrello (snippets/cart-summary.liquid, pagina carrello e cassetto). Solo con JS: il componente
+  <cart-discount> (frontend/entrypoints/cart.js) applica e rimuove i codici con cart/update.js (`discount`, codici
+  separati da virgola) ed emette shopify:cart:discount-update. Senza JS il codice si inserisce al checkout.
+
+  - Codici applicati: discount_application con type 'discount_code' (title = codice), come chip rimovibili.
+  - Codice non valido o non applicabile al carrello: messaggio sotto il campo e codice tolto dal carrello.
+  - collapsed: true nel cassetto → campo dentro un <details> ("Hai un codice sconto?"), aperto se ci sono codici.
+  - Campo con w-0 + flex-1: un <input> contribuisce alla larghezza minima con la sua misura intrinseca (~20
+    caratteri, min-w-0 non basta) e allargava la colonna auto della griglia del carrello oltre i 375px.
+
+  Parametri:
+  - section_id: id della section (id univoci)
+  - collapsed: true per il campo richiudibile (default false)
+
+  Uso: {% render 'cart-discount', section_id: section.id, collapsed: true %}
+{%- endcomment -%}
+{%- liquid
+  assign codes = cart.discount_applications | where: 'type', 'discount_code' | map: 'title' | uniq
+  assign input_id = 'CartDiscount-' | append: section_id
+  assign error_id = 'CartDiscountError-' | append: section_id
+-%}
+
+<cart-discount
+  class="hidden flex-col gap-3 js:flex"
+  data-codes="{{ codes | json | escape }}"
+  data-message-invalid="{{ 'sections.cart.discount_invalid' | t: code: '[code]' | escape }}"
+  data-message-duplicate="{{ 'sections.cart.discount_duplicate' | t: code: '[code]' | escape }}"
+  data-message-empty="{{ 'sections.cart.discount_empty' | t | escape }}"
+  data-message-error="{{ 'sections.cart.discount_error' | t | escape }}"
+  data-message-applied="{{ 'sections.cart.discount_applied' | t: code: '[code]' | escape }}"
+  data-message-removed="{{ 'sections.cart.discount_removed' | t: code: '[code]' | escape }}"
+  data-label-busy="{{ 'sections.cart.discount_applying' | t | escape }}"
+>
+  {%- capture field -%}
+    <div class="flex flex-col gap-2">
+      <label for="{{ input_id }}" class="text-body-sm font-semibold text-foreground{% if collapsed %} sr-only{% endif %}">
+        {{- 'sections.cart.discount_label' | t -}}
+      </label>
+      <div class="flex gap-2">
+        <input
+          id="{{ input_id }}"
+          type="text"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          enterkeyhint="done"
+          aria-describedby="{{ error_id }}"
+          class="min-h-11 w-0 min-w-0 flex-1 rounded-md border border-border-strong bg-background px-3 py-2 text-body text-foreground uppercase transition-colors duration-150 placeholder:text-muted placeholder:normal-case hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none"
+          placeholder="{{ 'sections.cart.discount_placeholder' | t | escape }}"
+          data-discount-input
+        >
+        <button type="button" class="button button-neutral shrink-0" data-discount-apply>
+          <span data-discount-label>{{ 'sections.cart.discount_apply' | t }}</span>
+        </button>
+      </div>
+      <p id="{{ error_id }}" class="flex items-start gap-1.5 text-body-sm text-danger-foreground empty:hidden" role="alert" data-discount-error></p>
+    </div>
+  {%- endcapture -%}
+
+  {%- if collapsed -%}
+    <details class="group"{% if codes.size > 0 %} open{% endif %}>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-2 rounded-sm text-body-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
+        {{- 'sections.cart.discount_toggle' | t -}}
+        {% render 'icon', name: 'chevron-down', class: 'size-5 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none' %}
+      </summary>
+      <div class="pt-3">{{ field }}</div>
+    </details>
+  {%- else -%}
+    {{ field }}
+  {%- endif -%}
+
+  {%- if codes.size > 0 -%}
+    <ul class="flex flex-wrap gap-2" role="list" aria-label="{{ 'sections.cart.discount_codes' | t | escape }}">
+      {%- for code in codes -%}
+        <li>
+          <button
+            type="button"
+            class="inline-flex h-8 items-center gap-1.5 rounded-button border border-positive-foreground/30 bg-positive-surface ps-3 pe-2 text-body-sm font-semibold text-positive-foreground transition-colors duration-150 hover:border-positive-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+            data-discount-remove="{{ code | escape }}"
+          >
+            <span class="sr-only">{{ 'sections.cart.discount_remove' | t }}:</span>
+            {{ code | escape }}
+            {% render 'icon', name: 'x-mark', class: 'size-4' %}
+          </button>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</cart-discount>

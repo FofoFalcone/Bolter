@@ -1,0 +1,167 @@
+{%- comment -%}
+  FAQ accordion: domande e risposte come blocchi.
+  Basata sull'esempio Motion "Accordion" (https://motion.dev/examples/js-accordion),
+  adattata con <details>/<summary> nativi: funziona anche senza JS, Motion anima apertura e chiusura.
+  Componente condiviso: snippets/accordion-item.liquid + frontend/entrypoints/accordion.js
+  (CSS in frontend/styles/accordion.css, dentro theme.css: pochi byte, niente richiesta che blocca il rendering)
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+
+<div class="page-width py-8 md:py-16">
+  {% render 'section-header',
+    heading: section.settings.heading,
+    intro: section.settings.intro,
+    class: 'mb-8 md:mb-12'
+  %}
+
+  {%- if section.blocks.size > 0 -%}
+    <accordion-group
+      class="mx-auto flex max-w-2xl flex-col"
+      {% if section.settings.allow_multiple %}
+        allow-multiple
+      {% endif %}
+      {% if section.settings.animate_on_scroll %}
+        data-animate-stagger="fade-up"
+      {% endif %}
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign open_item = false
+          if forloop.first and section.settings.open_first
+            assign open_item = true
+          endif
+        -%}
+        {%- comment -%} Titoli senza salti: domande h3 sotto il titolo della section (h2), altrimenti h2 {%- endcomment -%}
+        {%- if section.settings.heading != blank -%}
+          {%- assign question_tag = 'h3' -%}
+        {%- else -%}
+          {%- assign question_tag = 'h2' -%}
+        {%- endif -%}
+        {% render 'accordion-item',
+          title: block.settings.question,
+          content: block.settings.answer,
+          open: open_item,
+          heading_tag: question_tag,
+          attributes: block.shopify_attributes
+        %}
+      {%- endfor -%}
+    </accordion-group>
+  {%- endif -%}
+</div>
+
+{% render 'vite-tag', entry: 'accordion.js' %}
+
+{% schema %}
+{
+  "name": "t:sections.faq_accordion.name",
+  "tag": "section",
+  "class": "section-faq-accordion",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.faq_accordion.settings.heading.label",
+      "default": "t:sections.faq_accordion.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.faq_accordion.settings.intro.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq_accordion.settings.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_first",
+      "label": "t:sections.faq_accordion.settings.open_first.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "allow_multiple",
+      "label": "t:sections.faq_accordion.settings.allow_multiple.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "animate_on_scroll",
+      "label": "t:sections.faq_accordion.settings.animate_on_scroll.label",
+      "info": "t:sections.faq_accordion.settings.animate_on_scroll.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq_accordion.settings.header_2.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.faq_accordion.settings.color_background.label",
+      "info": "t:sections.faq_accordion.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.faq_accordion.settings.color_text.label",
+      "info": "t:sections.faq_accordion.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "t:sections.faq_accordion.blocks.question.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "t:sections.faq_accordion.blocks.question.settings.question.label",
+          "default": "t:sections.faq_accordion.blocks.question.settings.question.default"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "t:sections.faq_accordion.blocks.question.settings.answer.label",
+          "default": "t:sections.faq_accordion.blocks.question.settings.answer.default"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 30,
+  "presets": [
+    {
+      "name": "t:sections.faq_accordion.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "question": "t:sections.faq_accordion.presets.preset_1.blocks.block_1.question",
+            "answer": "t:sections.faq_accordion.presets.preset_1.blocks.block_1.answer"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "t:sections.faq_accordion.presets.preset_1.blocks.block_2.question",
+            "answer": "t:sections.faq_accordion.presets.preset_1.blocks.block_2.answer"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "t:sections.faq_accordion.presets.preset_1.blocks.block_3.question",
+            "answer": "t:sections.faq_accordion.presets.preset_1.blocks.block_3.answer"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

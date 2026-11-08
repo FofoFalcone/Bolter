@@ -1,0 +1,406 @@
+{%- comment -%}
+  Punti sull'immagine ("shop the look"): prodotti segnati su una foto, con un elenco accanto.
+  - Ogni punto e ogni riga sono link alla pagina prodotto: senza JS funzionano così; con JS aprono l'anteprima rapida
+    (snippets/quick-view.liquid), con il volo dalla miniatura ([data-hotspot-media]).
+  - L'immagine non viene mai ritagliata (altezza dalle sue proporzioni): i punti restano sullo stesso dettaglio a ogni
+    larghezza. left/top fisici: una foto non si specchia con le lingue da destra a sinistra.
+  - I numeri collegano punti e righe anche al tocco, dove non c'è il passaggio del mouse. La scheda sul punto compare
+    da 750px, perché sugli schermi stretti uscirebbe dall'immagine.
+  - Sopra la foto i colori sono fissi (bianco e nero), con doppio contorno per il focus: si legge su qualsiasi immagine.
+  - Blocchi senza prodotto: nel negozio spariscono; nell'editor il punto resta visibile per poterlo posizionare.
+  JS: frontend/entrypoints/shop-the-look.js (elenco e punti collegati, anteprima rapida, impulso all'ingresso).
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  assign s = section.settings
+  assign quick_view_id = 'QuickView-' | append: section.id
+
+  assign has_products = false
+  for block in section.blocks
+    if block.settings.product != blank
+      assign has_products = true
+      break
+    endif
+  endfor
+
+  assign show_list = false
+  if s.show_list and has_products
+    assign show_list = true
+  endif
+  assign use_quick_view = false
+  if s.quick_view and has_products
+    assign use_quick_view = true
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  if section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+
+  # Base dei sizes: non accetta var() (snippets/section-width.liquid). A tutta larghezza, sotto i 990px l'immagine
+  # arriva ai bordi dello schermo: il riquadro della foto si estende oltre il margine e perde gli angoli arrotondati.
+  assign page_max = settings.layout_page_width | append: 'px'
+  assign stacked_size = 'calc(100vw - 3rem)'
+  assign media_bleed_class = ''
+  assign media_radius_class = 'rounded-lg'
+  assign image_max = 2000
+  assign image_widths = '750, 1100, 1500, 2000'
+  if s.section_width == 'full'
+    assign page_max = '100vw'
+    assign stacked_size = '100vw'
+    assign media_bleed_class = ' -mx-(--page-gutter) lg:mx-0'
+    assign media_radius_class = 'lg:rounded-lg'
+    assign image_max = 3200
+    assign image_widths = image_widths | append: ', 2600, 3200'
+  endif
+
+  if show_list
+    assign sizes = '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 3rem) * 2 / 3), ' | append: stacked_size
+  else
+    assign sizes = '(min-width: 990px) calc(min(100vw, ' | append: page_max | append: ') - 3rem), ' | append: stacked_size
+  endif
+
+  # default: '' finale: con un valore nil image_tag non scrive l'attributo alt (immagine segnalata da axe/Lighthouse)
+  assign image_alt = s.image.alt | default: s.heading | default: ''
+-%}
+
+{%- if s.image != blank or request.design_mode -%}
+  <shop-the-look
+    class="page-width flex flex-col gap-8 py-8 md:gap-12 md:py-16"
+    {% if use_quick_view %}
+      data-quick-view="{{ quick_view_id }}"
+    {% endif %}
+  >
+    {% render 'section-header', heading: s.heading, intro: s.intro %}
+
+    <div class="grid items-center gap-8{% if show_list %} lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-12{% endif %}">
+      <div class="relative{{ media_bleed_class }}{% if show_list and s.image_position == 'right' %} lg:order-2{% endif %}">
+        <div class="media-loading relative overflow-hidden {{ media_radius_class }} bg-surface">
+          {%- if s.image != blank -%}
+            {{
+              s.image
+              | image_url: width: image_max
+              | image_tag:
+                loading: loading,
+                fetchpriority: fetchpriority,
+                sizes: sizes,
+                widths: image_widths,
+                alt: image_alt,
+                class: 'block h-auto w-full'
+            }}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'block aspect-4/3 w-full fill-subtle' }}
+          {%- endif -%}
+        </div>
+
+        <div
+          class="pointer-events-none absolute inset-0"
+          data-hotspot-pins
+          {% unless section.index == 1 %}
+            data-animate-stagger="pop"
+            data-animate-interval="0.1"
+            data-animate-delay="0.2"
+          {% endunless %}
+        >
+          {%- assign number = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign product = block.settings.product
+              assign x = block.settings.x
+              assign y = block.settings.y
+              if product != blank
+                assign number = number | plus: 1
+              endif
+
+              if y < 35
+                assign card_y = 'top-full mt-1'
+              else
+                assign card_y = 'bottom-full mb-1'
+              endif
+              if x < 25
+                assign card_x = 'left-0'
+              elsif x > 75
+                assign card_x = 'right-0'
+              else
+                assign card_x = 'left-1/2 -translate-x-1/2'
+              endif
+            -%}
+            {%- capture pin_class -%}
+              group/pin pointer-events-auto absolute top-(--y) left-(--x) z-10 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full hover:z-20 focus-visible:z-20 data-active:z-20
+            {%- endcapture -%}
+            {%- capture pin_dot -%}
+              <span data-hotspot-ring class="absolute size-7 rounded-full bg-white opacity-0"></span>
+              <span class="relative flex size-7 items-center justify-center rounded-full bg-white text-body-sm font-semibold text-black shadow-300 transition-transform duration-200 ease-theme group-hover/pin:scale-125 group-data-active/pin:scale-125 motion-reduce:transition-none">
+                {%- if show_list and product != blank -%}
+                  {{- number -}}
+                {%- else -%}
+                  {% render 'icon', name: 'plus', class: 'size-4' %}
+                {%- endif -%}
+              </span>
+            {%- endcapture -%}
+
+            {%- if product != blank -%}
+              <a
+                href="{{ product.url }}"
+                class="{{ pin_class }} focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white focus-visible:ring-4 focus-visible:ring-black/60"
+                style="--x: {{ x }}%; --y: {{ y }}%;"
+                aria-label="{{ 'sections.shop_the_look.view_product' | t: name: product.title | escape }}"
+                data-hotspot="{{ block.id }}"
+                data-quick-view-url="{{ product.url }}"
+                data-product-title="{{ product.title | escape }}"
+                {{ block.shopify_attributes }}
+              >
+                {{- pin_dot -}}
+                <div
+                  aria-hidden="true"
+                  class="pointer-events-none absolute z-10 hidden w-56 items-center gap-3 rounded-md bg-background p-2 text-start text-foreground opacity-0 shadow-400 transition-opacity duration-150 group-hover/pin:opacity-100 group-focus-visible/pin:opacity-100 group-data-active/pin:opacity-100 md:flex motion-reduce:transition-none {{ card_x }} {{ card_y }}"
+                >
+                  <div data-hotspot-media class="media-loading relative size-12 shrink-0 overflow-hidden rounded-sm bg-surface">
+                    {%- if product.featured_image != blank -%}
+                      {{
+                        product.featured_image
+                        | image_url: width: 192
+                        | image_tag: loading: 'lazy', widths: '96, 192', sizes: '48px', alt: '', class: 'size-full object-cover'
+                      }}
+                    {%- endif -%}
+                  </div>
+                  <div class="flex min-w-0 flex-col">
+                    <span class="line-clamp-2 text-body-sm font-semibold">{{ product.title | escape }}</span>
+                    {% render 'price', product: product %}
+                  </div>
+                </div>
+              </a>
+            {%- elsif request.design_mode -%}
+              <span class="{{ pin_class }}" style="--x: {{ x }}%; --y: {{ y }}%;" data-hotspot="{{ block.id }}" {{ block.shopify_attributes }}>
+                {{- pin_dot -}}
+              </span>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      {%- if show_list -%}
+        <ul
+          class="flex flex-col divide-y divide-border"
+          role="list"
+          aria-label="{{ 'sections.shop_the_look.list_label' | t | escape }}"
+        >
+          {%- assign number = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- assign product = block.settings.product -%}
+            {%- if product != blank -%}
+              {%- assign number = number | plus: 1 -%}
+              <li class="py-2 first:pt-0 last:pb-0">
+                <s-view-event
+                  class="block"
+                  view-event-trigger="intersect"
+                  view-event-payload='{{ product | standard_event_data: "view" | escape }}'
+                >
+                  <a
+                    href="{{ product.url }}"
+                    class="group/row flex items-center gap-4 rounded-md p-2 transition-colors duration-150 hover:bg-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary data-active:bg-surface motion-reduce:transition-none"
+                    data-hotspot="{{ block.id }}"
+                    data-quick-view-url="{{ product.url }}"
+                    data-product-title="{{ product.title | escape }}"
+                  >
+                    <div data-hotspot-media class="media-loading relative size-16 shrink-0 overflow-hidden rounded-sm bg-surface">
+                      {%- if product.featured_image != blank -%}
+                        {{
+                          product.featured_image
+                          | image_url: width: 256
+                          | image_tag: loading: 'lazy', widths: '128, 256', sizes: '64px', alt: '', class: 'size-full object-cover'
+                        }}
+                      {%- endif -%}
+                    </div>
+                    <div class="flex min-w-0 flex-1 flex-col gap-1">
+                      <span class="line-clamp-2 text-body text-foreground underline-offset-4 group-hover/row:underline">
+                        <span class="font-semibold" aria-hidden="true">{{ number }}.</span>
+                        {{ product.title | escape -}}
+                      </span>
+                      {% render 'price', product: product %}
+                      {%- unless product.available -%}
+                        <span class="text-body-sm text-foreground/80">{{ 'products.product.sold_out' | t }}</span>
+                      {%- endunless -%}
+                    </div>
+                  </a>
+                </s-view-event>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </shop-the-look>
+
+  {%- if use_quick_view -%}
+    {% render 'quick-view', id: quick_view_id %}
+  {%- endif -%}
+
+  {% render 'vite-tag', entry: 'shop-the-look.js' %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.shop_the_look.name",
+  "tag": "section",
+  "class": "section-shop-the-look",
+  "max_blocks": 8,
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.shop_the_look.settings.section_width.label",
+      "info": "t:sections.shop_the_look.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.shop_the_look.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.shop_the_look.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.shop_the_look.settings.image.label",
+      "info": "t:sections.shop_the_look.settings.image.info"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.shop_the_look.settings.heading.label",
+      "default": "t:sections.shop_the_look.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.shop_the_look.settings.intro.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shop_the_look.settings.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_list",
+      "label": "t:sections.shop_the_look.settings.show_list.label",
+      "info": "t:sections.shop_the_look.settings.show_list.info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.shop_the_look.settings.image_position.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.shop_the_look.settings.image_position.options.left"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.shop_the_look.settings.image_position.options.right"
+        }
+      ],
+      "default": "left",
+      "visible_if": "{{ section.settings.show_list }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_view",
+      "label": "t:sections.shop_the_look.settings.quick_view.label",
+      "info": "t:sections.shop_the_look.settings.quick_view.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.shop_the_look.settings.header_2.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.shop_the_look.settings.color_background.label",
+      "info": "t:sections.shop_the_look.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.shop_the_look.settings.color_text.label",
+      "info": "t:sections.shop_the_look.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hotspot",
+      "name": "t:sections.shop_the_look.blocks.hotspot.name",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.shop_the_look.blocks.hotspot.settings.product.label"
+        },
+        {
+          "type": "range",
+          "id": "x",
+          "label": "t:sections.shop_the_look.blocks.hotspot.settings.x.label",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "t:sections.shop_the_look.blocks.hotspot.settings.x.unit",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y",
+          "label": "t:sections.shop_the_look.blocks.hotspot.settings.y.label",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "t:sections.shop_the_look.blocks.hotspot.settings.y.unit",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.shop_the_look.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "hotspot",
+          "settings": {
+            "x": 30,
+            "y": 40
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "x": 62,
+            "y": 58
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "x": 78,
+            "y": 28
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

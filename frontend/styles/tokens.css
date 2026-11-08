@@ -1,0 +1,190 @@
+/*
+ * Design token del tema (Tailwind CSS v4, configurazione CSS-first).
+ *
+ * Fonte: Simple Design System (Figma Community), file
+ * https://www.figma.com/design/HReSVIoQDNA6ZLlMs6Biho — pagina "Foundations".
+ * I nomi Figma originali sono indicati nei commenti (sds-…).
+ *
+ * Ogni variabile:
+ * - genera le utility corrispondenti (es. --color-primary → bg-primary, text-primary, border-primary);
+ * - è disponibile come custom property su :root anche nel CSS delle section.
+ * `static` le emette sempre, anche se nessuna utility le usa.
+ *
+ * Spaziature: la scala SDS (4, 8, 12, 16, 24, 32, 64, 96, 160 px) coincide con quella di Tailwind
+ * (--spacing: 0.25rem → p-1, p-2, p-3, p-4, p-6, p-8, p-16, p-24, p-40): nessun token custom.
+ */
+
+@theme static {
+  /* ---------- Colori (solo SDS: palette Tailwind rimossa) ---------- */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Superfici */
+  --color-background: #ffffff; /* sds-color-background-default-default */
+  --color-surface: #f5f5f5; /* sds-color-background-default-secondary */
+  --color-surface-hover: #e6e6e6; /* sds-color-background-default-secondary-hover */
+  --color-surface-strong: #d9d9d9; /* sds-color-background-default-tertiary */
+
+  /* Testo */
+  --color-foreground: #1e1e1e; /* sds-color-text-default-default */
+  --color-muted: #757575; /* sds-color-text-default-secondary */
+  --color-subtle: #b3b3b3; /* sds-color-text-default-tertiary / disabled */
+
+  /* Bordi */
+  --color-border: #d9d9d9; /* sds-color-border-default-default */
+  --color-border-strong: #757575; /* sds-color-border-default-secondary */
+
+  /* Brand (pulsante primario, elementi attivi) */
+  --color-primary: #2c2c2c; /* sds-color-background-brand-default */
+  --color-primary-hover: #1e1e1e; /* sds-color-background-brand-hover */
+  --color-primary-foreground: #f5f5f5; /* sds-color-text-brand-on-brand */
+
+  /* Neutral (pulsante neutral, tab) */
+  --color-neutral: #303030; /* sds-color-text/border-neutral-default */
+  --color-neutral-muted: #767676; /* sds-color-text-neutral-tertiary / border-neutral-secondary */
+  --color-neutral-subtle: #b2b2b2; /* sds-color-border-neutral-tertiary */
+  --color-neutral-surface: #e3e3e3; /* sds-color-background-neutral-tertiary */
+  --color-neutral-surface-hover: #cdcdcd; /* sds-color-background-neutral-tertiary-hover */
+
+  /* Stati */
+  --color-positive: #14ae5c; /* sds-color-background-positive-default */
+  --color-positive-surface: #ebffee; /* sds-color-background-positive-tertiary */
+  --color-positive-foreground: #02542d; /* sds-color-text-positive-default */
+  --color-warning: #e8b931; /* sds-color-background-warning-default */
+  --color-warning-surface: #fffbeb; /* sds-color-background-warning-tertiary */
+  --color-warning-foreground: #522504; /* sds-color-text-warning-default */
+  --color-danger: #ec221f; /* sds-color-background-danger-default */
+  --color-danger-surface: #fee9e7; /* sds-color-background-danger-tertiary */
+  --color-danger-foreground: #900b09; /* sds-color-text-danger-default */
+
+  /* Utility */
+  --color-overlay: #00000080; /* sds-color-background-utilities-overlay */
+  --color-scrim: #ffffffcc; /* sds-color-background-utilities-scrim */
+
+  /* ---------- Tipografia ---------- */
+  /* Famiglie: impostate dal merchant (Impostazioni tema → Tipografia, default Inter), vedi layout/theme.liquid */
+  --font-sans: var(--font-body-family, 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
+  --font-heading: var(--font-heading-family, var(--font-sans));
+  --font-mono: 'Roboto Mono', ui-monospace, monospace; /* sds-typography-family-mono */
+
+  /* Scala SDS (sostituisce text-xs…text-9xl di Tailwind): text-title-hero, text-heading, text-body… */
+  --text-*: initial;
+  --text-title-hero: 4.5rem; /* Title Hero 72/1.2 bold */
+  --text-title-hero--line-height: 1.2;
+  --text-title-hero--letter-spacing: -0.03em;
+  --text-title-hero--font-weight: 700;
+  --text-title-page: 3rem; /* Title Page 48/1.2 bold */
+  --text-title-page--line-height: 1.2;
+  --text-title-page--letter-spacing: -0.02em;
+  --text-title-page--font-weight: 700;
+  --text-subtitle: 2rem; /* Subtitle 32/1.2 regular */
+  --text-subtitle--line-height: 1.2;
+  --text-heading: 1.5rem; /* Heading 24/1.2 semibold */
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.02em;
+  --text-heading--font-weight: 600;
+  --text-subheading: 1.25rem; /* Subheading 20/1.2 regular */
+  --text-subheading--line-height: 1.2;
+  --text-body: 1rem; /* Body Base 16/1.4 */
+  --text-body--line-height: 1.4;
+  --text-body-sm: 0.875rem; /* Body Small 14/1.4 */
+  --text-body-sm--line-height: 1.4;
+  --text-code: 1rem; /* Body Code 16/1.3 mono */
+  --text-code--line-height: 1.3;
+
+  /* ---------- Raggi (sds-size-radius-*) ---------- */
+  --radius-*: initial;
+  --radius-sm: 0.25rem; /* 100 = 4px */
+  --radius-md: 0.5rem; /* 200 = 8px */
+  --radius-lg: 1rem; /* 400 = 16px */
+  --radius-xl: 1.5rem; /* xl = 24px */
+  /* Forma dei pulsanti (Impostazioni tema → Pulsanti, --button-radius dal layout) → rounded-button */
+  --radius-button: var(--button-radius, 9999px);
+
+  /* ---------- Ombre (SDS Drop Shadow 100–600) ---------- */
+  --shadow-*: initial;
+  --shadow-100: 0 1px 4px 0 #0c0c0d0d;
+  --shadow-200: 0 1px 4px 0 #0c0c0d0d, 0 1px 4px 0 #0c0c0d1a;
+  --shadow-300: 0 4px 4px -1px #0c0c0d0d, 0 4px 4px -1px #0c0c0d1a;
+  --shadow-400: 0 4px 4px -4px #0c0c0d0d, 0 16px 32px -4px #0c0c0d1a;
+  --shadow-500: 0 4px 4px -4px #0c0c0d0d, 0 16px 16px -8px #0c0c0d1a;
+  --shadow-600: 0 16px 32px -8px #0c0c0d66;
+
+  /* ---------- Movimento ---------- */
+  /* Ease-out del tema (= DEFAULTS.ease in frontend/scripts/animations.js) → utility ease-theme */
+  --ease-theme: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---------- Layout ---------- */
+  /* Breakpoint allineati ai componenti: md = 750px, lg = 990px */
+  --breakpoint-md: 46.875rem;
+  --breakpoint-lg: 61.875rem;
+
+  /*
+   * Larghezza massima del contenuto → max-w-page, utility page-width. Il valore reale viene da Impostazioni tema →
+   * Layout (snippets/head-styles.liquid); una section a tutta larghezza ridefinisce entrambe le variabili sul suo
+   * wrapper (snippets/section-width.liquid).
+   */
+  --container-page: 80rem;
+  /* Margine laterale del contenuto */
+  --page-gutter: 1.5rem;
+}
+
+/*
+ * Colori derivati dai quattro colori di base (background, foreground, primary, primary-foreground):
+ * il merchant ne sceglie solo quattro (Impostazioni tema → Colori, stampati da snippets/head-styles.liquid)
+ * e il resto si adatta. I valori in @theme sopra restano il riferimento SDS e registrano le utility: le percentuali
+ * qui riproducono l'SDS con la palette predefinita.
+ *
+ * Una section con colori propri (snippets/section-colors.liquid) ridefinisce i quattro colori sul suo wrapper con
+ * un {% style %}: serve ricalcolare lì anche i derivati, perché una custom property con var() si risolve
+ * sull'elemento che la dichiara e i figli ereditano il valore già calcolato. Il selettore riconosce il
+ * <style data-shopify> figlio diretto del wrapper.
+ */
+:root,
+.shopify-section:has(> style[data-shopify]) {
+  --color-surface: color-mix(in srgb, var(--color-foreground) 4.5%, var(--color-background));
+  --color-surface-hover: color-mix(in srgb, var(--color-foreground) 11%, var(--color-background));
+  --color-surface-strong: color-mix(in srgb, var(--color-foreground) 17%, var(--color-background));
+  /* 65%: almeno 4.5:1 anche su bg-surface e su fondi colorati (l'SDS, a 61%, si ferma a 4.2:1) */
+  --color-muted: color-mix(in srgb, var(--color-foreground) 65%, var(--color-background));
+  --color-subtle: color-mix(in srgb, var(--color-foreground) 34%, var(--color-background));
+  --color-border: color-mix(in srgb, var(--color-foreground) 17%, var(--color-background));
+  --color-border-strong: color-mix(in srgb, var(--color-foreground) 61.3%, var(--color-background));
+  --color-primary-hover: color-mix(in srgb, var(--color-primary) 86%, var(--color-primary-foreground));
+  --color-neutral: color-mix(in srgb, var(--color-foreground) 92%, var(--color-background));
+  --color-neutral-muted: color-mix(in srgb, var(--color-foreground) 61%, var(--color-background));
+  --color-neutral-subtle: color-mix(in srgb, var(--color-foreground) 34%, var(--color-background));
+  --color-neutral-surface: color-mix(in srgb, var(--color-foreground) 12%, var(--color-background));
+  --color-neutral-surface-hover: color-mix(in srgb, var(--color-foreground) 22%, var(--color-background));
+  --color-positive-surface: color-mix(in srgb, var(--color-positive) 8%, var(--color-background));
+  --color-positive-foreground: color-mix(in srgb, var(--color-positive) 40%, var(--color-foreground));
+  --color-warning-surface: color-mix(in srgb, var(--color-warning) 10%, var(--color-background));
+  --color-warning-foreground: color-mix(in srgb, var(--color-warning) 35%, var(--color-foreground));
+  --color-danger-surface: color-mix(in srgb, var(--color-danger) 10%, var(--color-background));
+  --color-danger-foreground: color-mix(in srgb, var(--color-danger) 50%, var(--color-foreground));
+  --color-scrim: color-mix(in srgb, var(--color-background) 80%, transparent);
+}
+
+:root {
+  --transition-base: 200ms ease;
+
+  /*
+   * Altezza dell'header, misurata da frontend/scripts/header.js (hero "Tutto lo schermo", header trasparente).
+   * Valori iniziali = altezze del markup (h-18 / md:min-h-20 + bordo di 1px), così al primo rendering non
+   * c'è salto di layout; con un logo più alto il JS corregge.
+   * header.js ripete questi valori e il breakpoint (HEADER_HEIGHT_DEFAULT, HEADER_HEIGHT_WIDE_QUERY) per non
+   * scrivere la variabile quando coincide: se li cambi qui, cambiali anche lì, o l'altezza misurata può non arrivare.
+   */
+  --header-height: calc(4.5rem + 1px);
+  /* Bordo inferiore dell'header nella viewport: header.js lo imposta su <site-header> all'apertura dei pannelli */
+  --header-bottom: var(--header-height);
+}
+
+@media (width >= 46.875rem) {
+  :root {
+    --header-height: calc(5rem + 1px);
+  }
+}

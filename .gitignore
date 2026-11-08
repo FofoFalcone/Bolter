@@ -1,0 +1,23 @@
+# Dipendenze
+node_modules/
+
+# Build output (generato da Vite: rigenerare con `npm run build`)
+# I push verso Shopify eseguono la build in automatico (script pre* in package.json).
+# Se in futuro colleghi il tema a un branch con l'integrazione GitHub di Shopify,
+# quel branch dovrà contenere i file compilati (es. prodotti da una GitHub Action).
+assets/
+snippets/vite-tag.liquid
+dist/
+.build-check/
+
+# File locali di Shopify CLI
+.shopify-cli.json
+
+# Ambiente
+.env
+.env.local
+
+# Log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

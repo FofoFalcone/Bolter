@@ -1,0 +1,56 @@
+/*
+ * Pagina collezione — sections/main-collection.liquid, snippets/facets-panel.liquid
+ * Lo stile è nelle utility Tailwind del markup (anche lo slider del prezzo <price-range>); qui solo il cassetto
+ * dei filtri sotto i 990px (popover nativo): entrata da sinistra e sfondo in dissolvenza (@starting-style +
+ * transition-behavior: allow-discrete). Da 990px il popover è sempre visibile nella pagina (classi lg: del markup)
+ * e queste regole non valgono. Blocco dello scroll della pagina: frontend/styles/scroll-lock.css.
+ */
+
+@layer components {
+  @media (width < 61.875rem) {
+    .facets-drawer {
+      inset: 0 auto 0 0;
+      translate: -100% 0;
+      transition:
+        translate 300ms var(--ease-theme),
+        display 300ms allow-discrete,
+        overlay 300ms allow-discrete;
+    }
+
+    .facets-drawer:popover-open {
+      translate: 0 0;
+    }
+
+    @starting-style {
+      .facets-drawer:popover-open {
+        translate: -100% 0;
+      }
+    }
+
+    .facets-drawer::backdrop {
+      background-color: var(--color-overlay);
+      opacity: 0;
+      transition:
+        opacity 300ms ease,
+        display 300ms allow-discrete,
+        overlay 300ms allow-discrete;
+    }
+
+    .facets-drawer:popover-open::backdrop {
+      opacity: 1;
+    }
+
+    @starting-style {
+      .facets-drawer:popover-open::backdrop {
+        opacity: 0;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .facets-drawer,
+    .facets-drawer::backdrop {
+      transition: none;
+    }
+  }
+}

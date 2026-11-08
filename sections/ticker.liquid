@@ -1,0 +1,964 @@
+{%- comment -%}
+  Ticker: loghi e testi che scorrono all'infinito. Codice originale: dagli esempi "Ticker" di Motion+ solo le idee.
+  - Striscia: orizzontale o verticale, a tempo, trascinabile o guidata dallo scroll; effetto in base alla posizione,
+    cursore personalizzato. JS: frontend/entrypoints/ticker.js.
+  - Elenco: righe di testo che al passaggio del mouse diventano una striscia. JS: frontend/entrypoints/ticker-rows.js.
+  - Senza JS e con prefers-reduced-motion: reduce la striscia è una lista che scorre a mano, l'elenco sono normali link.
+  - Da destra a sinistra: il JS legge la direzione del testo (setting text_direction, altrimenti quella della pagina).
+  - Blocchi senza contenuto: nel negozio spariscono; nell'editor il logo resta come segnaposto.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{%- liquid
+  assign s = section.settings
+  assign is_rows = false
+  if s.presentation == 'rows'
+    assign is_rows = true
+  endif
+  assign is_vertical = false
+  if s.axis == 'y' and is_rows == false
+    assign is_vertical = true
+  endif
+
+  assign has_items = false
+  for block in section.blocks
+    if block.type == 'text' and block.settings.text != blank
+      assign has_items = true
+    elsif block.type == 'logo' and is_rows == false
+      if block.settings.image != blank or request.design_mode
+        assign has_items = true
+      endif
+    endif
+  endfor
+
+  case s.spacing
+    when 'compact'
+      assign spacing_class = 'py-4 md:py-6'
+    else
+      assign spacing_class = 'py-8 md:py-16'
+  endcase
+
+  case s.text_size
+    when 'small'
+      assign text_class = 'text-body'
+    when 'medium'
+      assign text_class = 'text-subheading md:text-heading'
+    when 'hero'
+      assign text_class = 'text-title-page md:text-title-hero'
+    else
+      assign text_class = 'text-heading md:text-title-page'
+  endcase
+
+  case s.separator
+    when 'dot'
+      assign separator = '•'
+    when 'slash'
+      assign separator = '/'
+    when 'star'
+      assign separator = '✦'
+    else
+      assign separator = ''
+  endcase
+
+  assign list_label = s.heading
+  if s.heading == blank
+    assign list_label = 'sections.ticker.label' | t
+  endif
+
+  assign loading = 'lazy'
+  if section.index == 1
+    assign loading = 'eager'
+  endif
+
+  assign link_class = 'rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary'
+  assign logo_class = 'block h-(--ticker-logo-height) w-auto max-w-none'
+  if s.logo_grayscale
+    assign logo_class = logo_class | append: ' opacity-70 grayscale transition duration-200 ease-theme hover:opacity-100 hover:grayscale-0 motion-reduce:transition-none'
+  endif
+
+  assign text_flow_class = 'whitespace-nowrap'
+  if is_vertical
+    assign text_flow_class = 'text-center text-balance'
+    assign viewport_class = 'h-(--ticker-height) overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%-4rem),transparent)]'
+    assign track_class = 'flex w-full flex-col'
+    assign group_class = 'flex shrink-0 flex-col items-center gap-(--ticker-gap) pb-(--ticker-gap)'
+    assign drag_class = 'group-data-running/ticker:touch-pan-x'
+  else
+    assign viewport_class = 'overflow-x-auto'
+    assign track_class = 'flex w-max'
+    assign group_class = 'flex shrink-0 items-center gap-(--ticker-gap) pe-(--ticker-gap)'
+    assign drag_class = 'group-data-running/ticker:touch-pan-y'
+    if s.fade_edges
+      assign viewport_class = viewport_class | append: ' [mask-image:linear-gradient(to_right,transparent,black_4rem,black_calc(100%-4rem),transparent)]'
+    endif
+    if s.width == 'full'
+      assign track_class = track_class | append: ' ps-[max(1.5rem,calc(50%-var(--container-page)/2+1.5rem))] pe-6'
+    endif
+  endif
+
+  unless s.effect == 'none'
+    if is_vertical
+      assign viewport_class = viewport_class | append: ' px-10'
+    else
+      assign viewport_class = viewport_class | append: ' py-10'
+    endif
+  endunless
+-%}
+
+{%- if has_items or request.design_mode -%}
+  {%- capture header -%}
+    {%- if is_vertical -%}
+      {% render 'section-header', heading: s.heading, intro: s.intro, align: 'start' %}
+    {%- else -%}
+      {% render 'section-header', heading: s.heading, intro: s.intro, class: 'mb-8 md:mb-12' %}
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- if is_rows -%}
+    <ticker-rows
+      class="block {{ spacing_class }}"
+      {% if s.text_direction == 'rtl' %}dir="rtl"{% endif %}
+      data-speed="{{ s.speed }}"
+      data-direction="{{ s.direction }}"
+      style="--ticker-gap: {{ s.gap }}px;"
+    >
+      <div class="page-width">
+        {{- header -}}
+        <ul class="flex flex-col divide-y divide-border border-y border-border" role="list" aria-label="{{ list_label | escape }}">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'text' and block.settings.text != blank -%}
+              <li
+                data-ticker-row
+                class="group/row relative overflow-clip text-foreground transition-colors duration-300 ease-theme data-active:bg-foreground data-active:text-background motion-reduce:transition-none"
+                {{ block.shopify_attributes }}
+              >
+                {%- capture row_content -%}
+                  <span class="block text-balance transition-transform duration-300 ease-theme group-data-active/row:-translate-y-[150%] motion-reduce:transition-none">
+                    {{- block.settings.text | escape -}}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute inset-0 hidden translate-y-full items-center overflow-clip transition-transform duration-300 ease-theme group-data-active/row:translate-y-0 js-motion:flex"
+                  >
+                    <span data-ticker-strip class="flex w-max shrink-0">
+                      <span class="flex shrink-0 items-center gap-(--ticker-gap) pe-(--ticker-gap) whitespace-nowrap">
+                        {{- block.settings.text | escape -}}
+                        {%- if separator != '' -%}
+                          <span class="opacity-40">{{ separator }}</span>
+                        {%- endif -%}
+                      </span>
+                    </span>
+                  </span>
+                {%- endcapture -%}
+                {%- capture row_class -%}
+                  block px-2 py-4 md:py-6 {{ text_class }}
+                {%- endcapture -%}
+                {%- if block.settings.link != blank -%}
+                  <a
+                    href="{{ block.settings.link }}"
+                    class="{{ row_class }} underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary group-data-active/row:no-underline group-data-active/row:focus-visible:outline-background"
+                  >
+                    {{- row_content -}}
+                  </a>
+                {%- else -%}
+                  <div class="{{ row_class }}">{{- row_content -}}</div>
+                {%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    </ticker-rows>
+    {% render 'vite-tag', entry: 'ticker-rows.js' %}
+  {%- else -%}
+    {%- capture toggle -%}
+      {%- unless s.drive == 'scroll' -%}
+        <button
+          type="button"
+          data-ticker-toggle
+          data-label-play="{{ 'sections.ticker.play' | t | escape }}"
+          data-label-pause="{{ 'sections.ticker.pause' | t | escape }}"
+          aria-label="{{ 'sections.ticker.pause' | t | escape }}"
+          class="button button-subtle button-sm button-icon invisible group-data-running/ticker:visible"
+        >
+          {% render 'icon', name: 'pause', class: 'size-4 group-data-paused/ticker:hidden' %}
+          {% render 'icon', name: 'play', class: 'hidden size-4 group-data-paused/ticker:block' %}
+        </button>
+      {%- endunless -%}
+    {%- endcapture -%}
+
+    {%- capture strip -%}
+      <div
+        data-ticker-viewport
+        role="group"
+        aria-label="{{ list_label | escape }}"
+        class="{{ viewport_class }} [scrollbar-width:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary group-data-running/ticker:overflow-clip group-data-dragging/ticker:select-none group-data-cursor-active/ticker:cursor-none group-data-cursor-active/ticker:**:cursor-none{% if s.drive == 'drag' %} {{ drag_class }}{% unless s.show_cursor %} group-data-running/ticker:cursor-grab group-data-dragging/ticker:cursor-grabbing{% endunless %}{% endif %}"
+      >
+        <div data-ticker-track class="{{ track_class }}">
+          <ul data-ticker-group class="{{ group_class }}" role="list">
+            {%- for block in section.blocks -%}
+              {%- assign has_block = false -%}
+              {%- capture item -%}
+                {%- if block.type == 'logo' -%}
+                  {%- assign image = block.settings.image -%}
+                  {%- assign logo_name = block.settings.name | default: image.alt | default: '' -%}
+                  {%- if image != blank -%}
+                    {%- assign has_block = true -%}
+                    {%- assign logo_width = s.logo_height | times: image.aspect_ratio | ceil -%}
+                    {%- assign logo_sizes = logo_width | append: 'px' -%}
+                    {%- capture logo -%}
+                      {{
+                        image
+                        | image_url: width: 720
+                        | image_tag:
+                          loading: loading,
+                          widths: '120, 180, 240, 360, 480, 720',
+                          sizes: logo_sizes,
+                          alt: logo_name,
+                          class: logo_class
+                      }}
+                    {%- endcapture -%}
+                    {%- if block.settings.link != blank -%}
+                      <a
+                        href="{{ block.settings.link }}"
+                        class="block {{ link_class }}"
+                        {% if logo_name == blank %}
+                          aria-label="{{ 'sections.ticker.logo_fallback' | t | escape }}"
+                        {% endif %}
+                      >
+                        {{- logo -}}
+                      </a>
+                    {%- else -%}
+                      {{- logo -}}
+                    {%- endif -%}
+                  {%- elsif request.design_mode -%}
+                    {%- assign has_block = true -%}
+                    <span class="block aspect-3/2 h-(--ticker-logo-height) overflow-hidden rounded-sm bg-surface">
+                      {{ 'image' | placeholder_svg_tag: 'block size-full fill-subtle' }}
+                    </span>
+                  {%- endif -%}
+                {%- elsif block.settings.text != blank -%}
+                  {%- assign has_block = true -%}
+                  {%- if block.settings.link != blank -%}
+                    <a href="{{ block.settings.link }}" class="block {{ text_flow_class }} {{ text_class }} text-foreground {{ link_class }}">
+                      {{- block.settings.text | escape -}}
+                    </a>
+                  {%- else -%}
+                    <span class="block {{ text_flow_class }} {{ text_class }} text-foreground">{{ block.settings.text | escape }}</span>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endcapture -%}
+              {%- if has_block -%}
+                <li class="flex shrink-0 items-center gap-(--ticker-gap){% if is_vertical %} flex-col{% endif %}" {{ block.shopify_attributes }}>
+                  {{- item -}}
+                  {%- if separator != '' -%}
+                    <span aria-hidden="true" class="{{ text_class }} text-foreground opacity-40">{{ separator }}</span>
+                  {%- endif -%}
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    {%- endcapture -%}
+
+    <ticker-section
+      class="group/ticker block {{ spacing_class }}"
+      {% if s.text_direction == 'rtl' %}dir="rtl"{% endif %}
+      data-axis="{% if is_vertical %}y{% else %}x{% endif %}"
+      data-speed="{{ s.speed }}"
+      data-direction="{{ s.direction }}"
+      data-drive="{{ s.drive }}"
+      data-hover="{{ s.hover }}"
+      data-effect="{{ s.effect }}"
+      style="--ticker-gap: {{ s.gap }}px; --ticker-logo-height: {{ s.logo_height }}px; --ticker-height: {{ s.height }}px;"
+    >
+      {%- if is_vertical -%}
+        <div class="page-width grid items-center gap-8 lg:gap-12{% if s.heading != blank or s.intro != blank %} lg:grid-cols-2{% endif %}">
+          {{- header -}}
+          <div>
+            {{- strip -}}
+            {%- if toggle != blank -%}
+              <div class="mt-4 hidden justify-end js-motion:flex">{{- toggle -}}</div>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- else -%}
+        {%- if header != blank -%}
+          <div class="page-width">{{- header -}}</div>
+        {%- endif -%}
+        {%- if s.width == 'contained' -%}
+          <div class="page-width">{{- strip -}}</div>
+        {%- else -%}
+          {{- strip -}}
+        {%- endif -%}
+        {%- if toggle != blank -%}
+          <div class="page-width mt-4 hidden justify-end js-motion:flex">{{- toggle -}}</div>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if s.show_cursor -%}
+        <div
+          data-ticker-cursor
+          aria-hidden="true"
+          class="group/cursor pointer-events-none fixed top-0 left-0 z-20 opacity-0 transition-opacity duration-150 ease-theme data-visible:opacity-100"
+        >
+          <span class="flex min-h-4 min-w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-body-sm font-semibold whitespace-nowrap text-background shadow-300 transition-transform duration-150 ease-theme not-empty:px-4 not-empty:py-2 group-data-link/cursor:scale-115 group-data-pressed/cursor:scale-90">
+            {{- s.cursor_text | escape -}}
+          </span>
+        </div>
+      {%- endif -%}
+    </ticker-section>
+    {% render 'vite-tag', entry: 'ticker.js' %}
+  {%- endif -%}
+
+  {%- if has_items == false and request.design_mode -%}
+    <p class="page-width pb-8 text-center text-body text-foreground/80">{{ 'sections.ticker.editor_empty' | t }}</p>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.ticker.name",
+  "tag": "section",
+  "class": "section-ticker",
+  "max_blocks": 24,
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.ticker.settings.heading.label"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.ticker.settings.intro.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ticker.settings.header_1.content"
+    },
+    {
+      "type": "select",
+      "id": "presentation",
+      "label": "t:sections.ticker.settings.presentation.label",
+      "info": "t:sections.ticker.settings.presentation.info",
+      "options": [
+        {
+          "value": "strip",
+          "label": "t:sections.ticker.settings.presentation.options.strip"
+        },
+        {
+          "value": "rows",
+          "label": "t:sections.ticker.settings.presentation.options.rows"
+        }
+      ],
+      "default": "strip"
+    },
+    {
+      "type": "select",
+      "id": "axis",
+      "label": "t:sections.ticker.settings.axis.label",
+      "options": [
+        {
+          "value": "x",
+          "label": "t:sections.ticker.settings.axis.options.x"
+        },
+        {
+          "value": "y",
+          "label": "t:sections.ticker.settings.axis.options.y"
+        }
+      ],
+      "default": "x",
+      "visible_if": "{{ section.settings.presentation == 'strip' }}"
+    },
+    {
+      "type": "select",
+      "id": "drive",
+      "label": "t:sections.ticker.settings.drive.label",
+      "info": "t:sections.ticker.settings.drive.info",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.ticker.settings.drive.options.auto"
+        },
+        {
+          "value": "drag",
+          "label": "t:sections.ticker.settings.drive.options.drag"
+        },
+        {
+          "value": "scroll",
+          "label": "t:sections.ticker.settings.drive.options.scroll"
+        }
+      ],
+      "default": "auto",
+      "visible_if": "{{ section.settings.presentation == 'strip' }}"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "t:sections.ticker.settings.speed.label",
+      "info": "t:sections.ticker.settings.speed.info",
+      "min": 20,
+      "max": 240,
+      "step": 10,
+      "default": 60
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "t:sections.ticker.settings.direction.label",
+      "info": "t:sections.ticker.settings.direction.info",
+      "options": [
+        {
+          "value": "forward",
+          "label": "t:sections.ticker.settings.direction.options.forward"
+        },
+        {
+          "value": "reverse",
+          "label": "t:sections.ticker.settings.direction.options.reverse"
+        }
+      ],
+      "default": "forward"
+    },
+    {
+      "type": "select",
+      "id": "text_direction",
+      "label": "t:sections.ticker.settings.text_direction.label",
+      "info": "t:sections.ticker.settings.text_direction.info",
+      "options": [
+        {
+          "value": "auto",
+          "label": "t:sections.ticker.settings.text_direction.options.auto"
+        },
+        {
+          "value": "rtl",
+          "label": "t:sections.ticker.settings.text_direction.options.rtl"
+        }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "select",
+      "id": "hover",
+      "label": "t:sections.ticker.settings.hover.label",
+      "options": [
+        {
+          "value": "slow",
+          "label": "t:sections.ticker.settings.hover.options.slow"
+        },
+        {
+          "value": "pause",
+          "label": "t:sections.ticker.settings.hover.options.pause"
+        },
+        {
+          "value": "none",
+          "label": "t:sections.ticker.settings.hover.options.none"
+        }
+      ],
+      "default": "slow",
+      "visible_if": "{{ section.settings.presentation == 'strip' and section.settings.drive != 'scroll' }}"
+    },
+    {
+      "type": "select",
+      "id": "effect",
+      "label": "t:sections.ticker.settings.effect.label",
+      "info": "t:sections.ticker.settings.effect.info",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.ticker.settings.effect.options.none"
+        },
+        {
+          "value": "focus",
+          "label": "t:sections.ticker.settings.effect.options.focus"
+        },
+        {
+          "value": "arc",
+          "label": "t:sections.ticker.settings.effect.options.arc"
+        },
+        {
+          "value": "tilt",
+          "label": "t:sections.ticker.settings.effect.options.tilt"
+        }
+      ],
+      "default": "none",
+      "visible_if": "{{ section.settings.presentation == 'strip' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cursor",
+      "label": "t:sections.ticker.settings.show_cursor.label",
+      "info": "t:sections.ticker.settings.show_cursor.info",
+      "default": false,
+      "visible_if": "{{ section.settings.presentation == 'strip' }}"
+    },
+    {
+      "type": "text",
+      "id": "cursor_text",
+      "label": "t:sections.ticker.settings.cursor_text.label",
+      "info": "t:sections.ticker.settings.cursor_text.info",
+      "visible_if": "{{ section.settings.presentation == 'strip' and section.settings.show_cursor }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ticker.settings.header_2.content"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:sections.ticker.settings.width.label",
+      "info": "t:sections.ticker.settings.width.info",
+      "options": [
+        {
+          "value": "full",
+          "label": "t:sections.ticker.settings.width.options.full"
+        },
+        {
+          "value": "contained",
+          "label": "t:sections.ticker.settings.width.options.contained"
+        }
+      ],
+      "default": "full",
+      "visible_if": "{{ section.settings.presentation == 'strip' and section.settings.axis == 'x' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "fade_edges",
+      "label": "t:sections.ticker.settings.fade_edges.label",
+      "default": false,
+      "visible_if": "{{ section.settings.presentation == 'strip' and section.settings.axis == 'x' }}"
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "label": "t:sections.ticker.settings.height.label",
+      "min": 240,
+      "max": 720,
+      "step": 20,
+      "unit": "t:sections.ticker.settings.height.unit",
+      "default": 400,
+      "visible_if": "{{ section.settings.presentation == 'strip' and section.settings.axis == 'y' }}"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:sections.ticker.settings.gap.label",
+      "min": 16,
+      "max": 128,
+      "step": 4,
+      "unit": "t:sections.ticker.settings.gap.unit",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "label": "t:sections.ticker.settings.logo_height.label",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "unit": "t:sections.ticker.settings.logo_height.unit",
+      "default": 48,
+      "visible_if": "{{ section.settings.presentation == 'strip' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "logo_grayscale",
+      "label": "t:sections.ticker.settings.logo_grayscale.label",
+      "default": false,
+      "visible_if": "{{ section.settings.presentation == 'strip' }}"
+    },
+    {
+      "type": "select",
+      "id": "text_size",
+      "label": "t:sections.ticker.settings.text_size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.ticker.settings.text_size.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.ticker.settings.text_size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.ticker.settings.text_size.options.large"
+        },
+        {
+          "value": "hero",
+          "label": "t:sections.ticker.settings.text_size.options.hero"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "separator",
+      "label": "t:sections.ticker.settings.separator.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.ticker.settings.separator.options.none"
+        },
+        {
+          "value": "dot",
+          "label": "t:sections.ticker.settings.separator.options.dot"
+        },
+        {
+          "value": "slash",
+          "label": "t:sections.ticker.settings.separator.options.slash"
+        },
+        {
+          "value": "star",
+          "label": "t:sections.ticker.settings.separator.options.star"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "spacing",
+      "label": "t:sections.ticker.settings.spacing.label",
+      "options": [
+        {
+          "value": "normal",
+          "label": "t:sections.ticker.settings.spacing.options.normal"
+        },
+        {
+          "value": "compact",
+          "label": "t:sections.ticker.settings.spacing.options.compact"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.ticker.settings.header_3.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.ticker.settings.color_background.label",
+      "info": "t:sections.ticker.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.ticker.settings.color_text.label",
+      "info": "t:sections.ticker.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "t:sections.ticker.blocks.logo.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.ticker.blocks.logo.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "t:sections.ticker.blocks.logo.settings.name.label",
+          "info": "t:sections.ticker.blocks.logo.settings.name.info"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.ticker.blocks.logo.settings.link.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.ticker.blocks.text.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:sections.ticker.blocks.text.settings.text.label",
+          "default": "t:sections.ticker.blocks.text.settings.text.default"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.ticker.blocks.text.settings.link.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.ticker.presets.preset_1.name",
+      "settings": {
+        "logo_grayscale": true,
+        "spacing": "compact"
+      },
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_2.name",
+      "settings": {
+        "separator": "star",
+        "text_size": "hero"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_2.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_2.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_2.blocks.block_3.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_3.name",
+      "settings": {
+        "heading": "t:sections.ticker.presets.preset_3.settings.heading",
+        "axis": "y",
+        "text_size": "medium",
+        "gap": 24
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_3.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_3.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_3.blocks.block_3.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_3.blocks.block_4.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_4.name",
+      "settings": {
+        "drive": "scroll",
+        "speed": 80,
+        "separator": "slash",
+        "text_size": "hero"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_4.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_4.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_4.blocks.block_3.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_5.name",
+      "settings": {
+        "drive": "drag",
+        "separator": "dot"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_5.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_5.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_5.blocks.block_3.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_6.name",
+      "settings": {
+        "drive": "drag",
+        "show_cursor": true,
+        "cursor_text": "t:sections.ticker.presets.preset_6.settings.cursor_text",
+        "hover": "none",
+        "separator": "dot"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_6.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_6.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_6.blocks.block_3.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_7.name",
+      "settings": {
+        "effect": "focus",
+        "hover": "none"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_7.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_7.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_7.blocks.block_3.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_7.blocks.block_4.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_8.name",
+      "settings": {
+        "presentation": "rows",
+        "speed": 120,
+        "separator": "star"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_8.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_8.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_8.blocks.block_3.text"
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.ticker.presets.preset_9.name",
+      "settings": {
+        "text_direction": "rtl",
+        "separator": "dot"
+      },
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_9.blocks.block_1.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_9.blocks.block_2.text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "t:sections.ticker.presets.preset_9.blocks.block_3.text"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

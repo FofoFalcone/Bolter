@@ -1,0 +1,99 @@
+{%- comment -%}
+  Un media della galleria di main-product, dentro un contenitore posizionato (frontend/scripts/product-media.js).
+
+  - Immagine: pulsante sopra l'immagine che apre il lightbox (solo con JS).
+  - Video, video esterno e modello 3D: anteprima con pulsante; il player vero sta in un <template> e si inserisce al
+    clic, come chiedono le linee guida Shopify (tutto inattivo finché il cliente non lo avvia). Così la pagina non
+    scarica video, e un YouTube o Vimeo non si collega finché il cliente non lo sceglie. L'anteprima è una <img> come
+    tutte le altre, quindi resta l'elemento LCP se è il primo media. Senza JS: player in <noscript>, il modello 3D
+    resta in anteprima perché <model-viewer> richiede comunque JS.
+
+  Parametri:
+  - media: oggetto media del prodotto
+  - product_title: titolo del prodotto, per le etichette
+  - alt: testo alternativo dell'immagine
+  - loading, priority, sizes: attributi dell'immagine
+  - open_index, open_label: solo per le immagini, indice nel lightbox ed etichetta del pulsante
+{%- endcomment -%}
+{%- comment -%} Bianco e nero insieme: il focus si vede sopra qualsiasi foto {%- endcomment -%}
+{%- assign focus_class = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-black' -%}
+{%- if media.media_type == 'image' -%}
+  {{
+    media
+    | image_url: width: 1600
+    | image_tag:
+      loading: loading,
+      fetchpriority: priority,
+      sizes: sizes,
+      widths: '400, 600, 800, 1000, 1200, 1600',
+      alt: alt,
+      class: 'block h-auto w-full motion-safe:transition-[scale] motion-safe:duration-500 motion-safe:ease-theme motion-safe:group-hover/media:scale-[1.02]'
+  }}
+  <button
+    type="button"
+    data-media-open="{{ open_index }}"
+    class="group/open absolute inset-0 hidden cursor-zoom-in {{ focus_class }} js:block"
+    aria-label="{{ open_label | escape }}"
+  >
+    <span class="button button-neutral button-sm button-icon absolute end-3 top-3 opacity-0 shadow-300 transition-opacity group-hover/open:opacity-100 group-focus-visible/open:opacity-100 pointer-coarse:opacity-100 motion-reduce:transition-none">
+      {% render 'icon', name: 'magnifying-glass-plus', class: 'size-5' %}
+    </span>
+  </button>
+{%- else -%}
+  {%- liquid
+    assign player_class = 'absolute inset-0 bg-black *:block *:size-full *:object-contain'
+    case media.media_type
+      when 'model'
+        assign ratio = 1
+        assign play_label = 'products.product.media.view_model' | t: title: product_title
+        assign play_icon = 'cube'
+      else
+        assign ratio = media.aspect_ratio | default: media.preview_image.aspect_ratio | default: 1
+        assign play_label = 'products.product.media.play_video' | t: title: product_title
+        assign play_icon = 'play'
+    endcase
+  -%}
+  {%- capture player -%}
+    {%- case media.media_type -%}
+      {%- when 'video' -%}
+        {{ media | video_tag: controls: true, image_size: '1600x' }}
+      {%- when 'external_video' -%}
+        {{ media | external_video_tag }}
+      {%- when 'model' -%}
+        {{ media | model_viewer_tag: image_size: '1600x' }}
+      {%- else -%}
+        {{ media | media_tag: image_size: '1600x' }}
+    {%- endcase -%}
+  {%- endcapture -%}
+  <div class="relative w-full" style="aspect-ratio: {{ ratio }}">
+    {%- if media.preview_image -%}
+      {{
+        media.preview_image
+        | image_url: width: 1600
+        | image_tag:
+          loading: loading,
+          fetchpriority: priority,
+          sizes: sizes,
+          widths: '400, 600, 800, 1000, 1200, 1600',
+          alt: alt,
+          class: 'block size-full object-cover'
+      }}
+    {%- endif -%}
+    <button
+      type="button"
+      data-media-play
+      class="group/play absolute inset-0 hidden cursor-pointer place-items-center {{ focus_class }} js:grid"
+      aria-label="{{ play_label | escape }}"
+    >
+      <span class="button button-inverse button-icon shadow-400 [--button-size:4rem] motion-safe:group-hover/play:scale-105">
+        {% render 'icon', name: play_icon, class: 'size-6' %}
+      </span>
+    </button>
+    <template data-media-player>
+      <div class="{{ player_class }}">{{ player }}</div>
+    </template>
+    {%- unless media.media_type == 'model' -%}
+      <noscript><div class="{{ player_class }}">{{ player }}</div></noscript>
+    {%- endunless -%}
+  </div>
+{%- endif -%}

@@ -1,0 +1,151 @@
+{%- comment -%}
+  Attributi del carrello (snippets/cart-summary.liquid, pagina e cassetto): confezione regalo, messaggio regalo, data di
+  consegna preferita. Si attivano da Impostazioni tema → Carrello; con tutti spenti non stampa nulla. I valori arrivano
+  nei dettagli dell'ordine in admin e non aggiungono costi.
+
+  - Senza JS: i campi puntano al form del carrello (attribute form) e si salvano con "Aggiorna carrello" o al checkout.
+    L'hidden prima della casella invia un valore vuoto se non è spuntata: un valore vuoto rimuove l'attributo.
+  - Con JS: <cart-attributes> (frontend/entrypoints/cart.js) salva con cart/update.js ed emette
+    shopify:cart:attributes-update.
+  - Chiavi fisse in italiano: sono il nome che il merchant legge nell'ordine, non devono cambiare con la lingua del
+    cliente. Non sono testo mostrato al cliente.
+  - Il messaggio regalo si mostra solo con la confezione spuntata (CSS, group-has-checked), o sempre se la
+    confezione non è attiva.
+  - Una data salvata e ormai troppo vicina non viene riproposta: il campo vuoto la rimuove al checkout.
+
+  Parametri:
+  - section_id: id della section (il form è "CartForm-<section_id>")
+  - collapsed: true per i campi richiudibili (cassetto)
+
+  Uso: {% render 'cart-attributes', section_id: section.id, collapsed: true %}
+{%- endcomment -%}
+{%- if settings.cart_gift_wrap or settings.cart_gift_message or settings.cart_delivery_date -%}
+  {%- liquid
+    assign form_id = 'CartForm-' | append: section_id
+    assign error_id = 'CartAttributesError-' | append: section_id
+
+    assign wrap_key = 'Confezione regalo'
+    assign message_key = 'Messaggio regalo'
+    assign date_key = 'Data di consegna'
+
+    assign wrap_value = cart.attributes[wrap_key]
+    assign message_value = cart.attributes[message_key]
+    assign date_value = cart.attributes[date_key]
+
+    assign lead_seconds = settings.cart_delivery_lead_days | times: 86400
+    assign min_date = 'now' | date: '%s' | plus: lead_seconds | date: '%Y-%m-%d'
+    assign min_date_label = min_date | date: '%d/%m/%Y'
+    if date_value != blank and date_value < min_date
+      assign date_value = ''
+    endif
+
+    assign has_values = false
+    if wrap_value != blank or message_value != blank or date_value != blank
+      assign has_values = true
+    endif
+
+    capture field_class
+      echo 'w-full rounded-md border border-border-strong bg-background px-3 py-2 text-body text-foreground transition-colors duration-150 hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none'
+    endcapture
+  -%}
+
+  <cart-attributes
+    class="group/attributes flex flex-col gap-3"
+    data-attributes="{{ cart.attributes | json | escape }}"
+    data-saving="{{ 'sections.cart.attributes.saving' | t | escape }}"
+    data-saved="{{ 'sections.cart.attributes.saved' | t | escape }}"
+    data-error="{{ 'sections.cart.attributes.error' | t | escape }}"
+    data-date-error="{{ 'sections.cart.attributes.date_error' | t: date: min_date_label | escape }}"
+  >
+    {%- capture fields -%}
+      <div class="flex flex-col gap-4">
+        {%- if settings.cart_gift_wrap -%}
+          <label for="CartGiftWrap-{{ section_id }}" class="group flex cursor-pointer items-start gap-3 text-body text-foreground">
+            <input type="hidden" name="attributes[{{ wrap_key }}]" value="" form="{{ form_id }}">
+            <span class="relative mt-0.5 flex size-5 shrink-0">
+              <input
+                type="checkbox"
+                id="CartGiftWrap-{{ section_id }}"
+                name="attributes[{{ wrap_key }}]"
+                value="Sì"
+                form="{{ form_id }}"
+                class="peer checkbox group-hover:border-foreground"
+                data-attribute="{{ wrap_key }}"
+                data-attribute-wrap
+                {% if wrap_value != blank %}
+                  checked
+                {% endif %}
+              >
+              {% render 'icon',
+                name: 'check',
+                class: 'check-tick pointer-events-none absolute inset-0 m-auto size-4 text-primary-foreground'
+              %}
+            </span>
+            <span>{{ 'sections.cart.attributes.gift_wrap' | t }}</span>
+          </label>
+        {%- endif -%}
+
+        {%- if settings.cart_gift_message -%}
+          <div class="flex-col gap-2 {% if settings.cart_gift_wrap %}hidden group-has-checked/attributes:flex{% else %}flex{% endif %}">
+            <label for="CartGiftMessage-{{ section_id }}" class="text-body-sm font-semibold text-foreground">
+              {{- 'sections.cart.attributes.gift_message' | t -}}
+            </label>
+            <textarea
+              id="CartGiftMessage-{{ section_id }}"
+              name="attributes[{{ message_key }}]"
+              form="{{ form_id }}"
+              rows="2"
+              maxlength="250"
+              class="{{ field_class }}"
+              data-attribute="{{ message_key }}"
+              data-attribute-message
+            >{{ message_value | escape }}</textarea>
+          </div>
+        {%- endif -%}
+
+        {%- if settings.cart_delivery_date -%}
+          <div class="flex flex-col gap-2">
+            <label for="CartDeliveryDate-{{ section_id }}" class="text-body-sm font-semibold text-foreground">
+              {{- 'sections.cart.attributes.delivery_date' | t -}}
+            </label>
+            <input
+              type="date"
+              id="CartDeliveryDate-{{ section_id }}"
+              name="attributes[{{ date_key }}]"
+              value="{{ date_value | escape }}"
+              min="{{ min_date }}"
+              form="{{ form_id }}"
+              aria-describedby="CartDeliveryDateHint-{{ section_id }} {{ error_id }}"
+              class="min-h-11 {{ field_class }}"
+              data-attribute="{{ date_key }}"
+              data-attribute-date
+            >
+            {%- comment -%} Su bg-surface: foreground/80, come il resto del riepilogo {%- endcomment -%}
+            <p id="CartDeliveryDateHint-{{ section_id }}" class="text-body-sm text-foreground/80">
+              {{- 'sections.cart.attributes.delivery_date_hint' | t -}}
+            </p>
+          </div>
+        {%- endif -%}
+
+        <p id="{{ error_id }}" class="text-body-sm text-danger-foreground empty:hidden" role="alert" data-attributes-error></p>
+        {%- comment -%} min-h: la riga è sempre riservata, il testo di stato non sposta il riepilogo {%- endcomment -%}
+        <p class="hidden min-h-5 text-body-sm text-foreground/80 js:block" role="status" data-attributes-status></p>
+      </div>
+    {%- endcapture -%}
+
+    {%- if collapsed -%}
+      <details class="group"{% if has_values %} open{% endif %}>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 rounded-sm text-body-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
+          {{- 'sections.cart.attributes.toggle' | t -}}
+          {% render 'icon', name: 'chevron-down', class: 'size-5 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none' %}
+        </summary>
+        <div class="pt-3">{{ fields }}</div>
+      </details>
+    {%- else -%}
+      <fieldset class="flex flex-col gap-3">
+        <legend class="mb-3 text-body-sm font-semibold text-foreground">{{ 'sections.cart.attributes.heading' | t }}</legend>
+        {{ fields }}
+      </fieldset>
+    {%- endif -%}
+  </cart-attributes>
+{%- endif -%}

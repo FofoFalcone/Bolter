@@ -1,0 +1,43 @@
+{%- comment -%}
+  Anteprime per social e app di messaggistica: Open Graph (Facebook, LinkedIn, WhatsApp, iMessage…) e Twitter/X.
+  Reso nel <head> del layout. Titolo, description e immagine dagli oggetti SEO di Shopify (page_title,
+  page_description, page_image: immagine del prodotto, della collezione, dell'articolo o quella di condivisione
+  impostata in Preferenze del negozio); URL = canonical_url.
+
+  Uso: {% render 'meta-tags' %}
+{%- endcomment -%}
+{%- liquid
+  assign og_title = page_title | default: shop.name
+  assign og_description = page_description | default: shop.description | default: shop.name
+  assign og_url = canonical_url | default: request.origin
+  assign og_type = 'website'
+  if request.page_type == 'product'
+    assign og_type = 'product'
+  elsif request.page_type == 'article'
+    assign og_type = 'article'
+  endif
+-%}
+<meta property="og:site_name" content="{{ shop.name | escape }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:title" content="{{ og_title | escape }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ og_description | escape }}">
+{%- if page_image %}
+  {%- liquid
+    assign og_image_width = page_image.width | at_most: 1200
+    assign og_image_height = og_image_width | divided_by: page_image.aspect_ratio | round
+  -%}
+  <meta property="og:image" content="https:{{ page_image | image_url: width: og_image_width }}">
+  <meta property="og:image:width" content="{{ og_image_width }}">
+  <meta property="og:image:height" content="{{ og_image_height }}">
+  {%- if page_image.alt != blank %}
+    <meta property="og:image:alt" content="{{ page_image.alt | escape }}">
+  {%- endif %}
+{%- endif %}
+{%- if request.page_type == 'product' %}
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html | escape }}">
+  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+{%- endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title | escape }}">
+<meta name="twitter:description" content="{{ og_description | escape }}">

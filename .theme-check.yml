@@ -1,0 +1,13 @@
+# Estendi le regole di default di Shopify
+extends: theme-check:recommended # Parte dal set di regole consigliato da Shopify (buon default per la maggior parte dei temi).
+
+# Escludi le cartelle che non contengono Liquid
+ignore:
+  - node_modules/** # Ignora le dipendenze Node: non contengono Liquid, quindi non ha senso controllare questa cartella.
+  - frontend/** # Ignora i sorgenti Vite (JS/CSS): Theme Check analizza solo Liquid, non ha senso controllare frontend/.
+
+# Personalizza le regole (opzionale)
+MissingTemplate: # Regola per evitare template mancanti
+  enabled: true
+UnusedAssign: # Regola per evitare variabili non utilizzate
+  severity: suggestion # La regola è attiva, ma segnala solo come suggerimento (non è un errore).

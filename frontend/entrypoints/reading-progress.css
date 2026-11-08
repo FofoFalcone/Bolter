@@ -1,0 +1,45 @@
+/*
+ * Barra di avanzamento della lettura (sections/main-article.liquid, impostazione show_reading_progress).
+ * Solo CSS: animazione legata alla posizione del contenuto con una view timeline nativa, fuori dal main thread.
+ * Range "contain": 0 quando il testo arriva in cima allo schermo, 100% quando la sua fine arriva in fondo.
+ * Senza supporto (o con movimento ridotto) la barra resta nascosta: è solo un'aggiunta.
+ */
+@layer components {
+  .reading-progress {
+    display: none;
+  }
+
+  @supports (animation-timeline: view()) and (timeline-scope: --article-content) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reading-progress-scope {
+        timeline-scope: --article-content;
+      }
+
+      .reading-progress-content {
+        view-timeline-name: --article-content;
+      }
+
+      .reading-progress {
+        animation: reading-progress linear both;
+        animation-range: contain 0% contain 100%;
+        animation-timeline: --article-content;
+        background: var(--color-primary);
+        display: block;
+        height: 3px;
+        inset-inline: 0;
+        pointer-events: none;
+        position: fixed;
+        top: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+        z-index: 60;
+      }
+    }
+  }
+
+  @keyframes reading-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+}

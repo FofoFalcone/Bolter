@@ -1,0 +1,766 @@
+{%- comment -%}
+  Modulo di contatto: {% form 'contact' %} di Shopify (invio a /contact, email al negozio, hCaptcha automatico da
+  content_for_header) con recapiti a lato. Funziona senza JS: validazione nativa, esito dopo il ricaricamento
+  (form.posted_successfully? / form.errors) con il messaggio che prende il focus (autofocus) e viene letto.
+  Con JS (frontend/entrypoints/contact-form.js) il pulsante mostra l'invio in corso ed evita i doppi invii.
+
+  - Campi inviati: contact[email] e contact[body] richiesti da Shopify; gli altri con il nome tradotto come chiave
+    (è il titolo che il merchant legge nell'email di notifica).
+  - Recapiti (blocchi): email, telefono e indirizzo presi dalle impostazioni del negozio (mai dati di esempio:
+    se il dato manca il blocco non si vede), più blocchi di testo liberi.
+  - Dopo `main-page` (template page.contact) il margine superiore si azzera: è la continuazione della pagina
+    (con !important: deve vincere anche su md:py-16, che Tailwind emette dopo la variante in-*).
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{%- liquid
+  assign s = section.settings
+  assign form_id = 'ContactForm-' | append: section.id
+
+  case s.width
+    when 'narrow'
+      assign width_class = 'max-w-2xl'
+    when 'medium'
+      assign width_class = 'max-w-3xl'
+    else
+      assign width_class = 'max-w-5xl'
+  endcase
+
+  assign subject_options = s.subject_options | newline_to_br | split: '<br />'
+  assign subjects = ''
+  for option in subject_options
+    assign option_text = option | strip
+    if option_text != blank
+      assign subjects = subjects | append: option_text | append: '§'
+    endif
+  endfor
+  assign subjects = subjects | split: '§'
+
+  assign has_details = false
+  for block in section.blocks
+    case block.type
+      when 'email'
+        if shop.email != blank
+          assign has_details = true
+        endif
+      when 'phone'
+        if shop.phone != blank
+          assign has_details = true
+        endif
+      when 'address'
+        if shop.address.address1 != blank
+          assign has_details = true
+        endif
+      else
+        assign has_details = true
+    endcase
+  endfor
+  if request.design_mode and section.blocks.size > 0
+    assign has_details = true
+  endif
+  assign two_columns = false
+  if has_details and s.width != 'narrow'
+    assign two_columns = true
+  endif
+
+  # Testi di privacy e termini: personalizzati dal merchant o predefiniti con il link alla policy di Shopify
+  # (Impostazioni → Policy). Senza policy il testo resta, senza link, e l'editor mostra un avviso.
+  # Link in una nuova scheda: nella stessa il cliente perderebbe quanto ha già scritto nel modulo.
+  assign new_window = 'accessibility.new_window' | t
+  if shop.privacy_policy != blank
+    capture privacy_link
+      echo '<a href="' | append: shop.privacy_policy.url | append: '" target="_blank" rel="noopener">'
+      echo 'sections.contact_form.privacy_policy' | t
+      echo '<span class="sr-only"> (' | append: new_window | append: ')</span></a>'
+    endcapture
+    assign consent_notice = 'sections.contact_form.consent_notice_html' | t: link: privacy_link
+    assign consent_label = 'sections.contact_form.consent_label_html' | t: link: privacy_link
+  else
+    assign consent_notice = 'sections.contact_form.consent_notice_no_policy' | t
+    assign consent_label = 'sections.contact_form.consent_label_no_policy' | t
+  endif
+  if s.consent_text != blank
+    assign consent_notice = s.consent_text
+    assign consent_label = s.consent_text
+  endif
+
+  if shop.terms_of_service != blank
+    capture terms_link
+      echo '<a href="' | append: shop.terms_of_service.url | append: '" target="_blank" rel="noopener">'
+      echo 'sections.contact_form.terms_of_service' | t
+      echo '<span class="sr-only"> (' | append: new_window | append: ')</span></a>'
+    endcapture
+    assign terms_label = 'sections.contact_form.terms_label_html' | t: link: terms_link
+  else
+    assign terms_label = 'sections.contact_form.terms_label_no_policy' | t
+  endif
+  if s.terms_text != blank
+    assign terms_label = s.terms_text
+  endif
+
+  assign label_name = 'sections.contact_form.name' | t
+  assign label_phone = 'sections.contact_form.phone' | t
+  assign label_subject = 'sections.contact_form.subject' | t
+  assign button_label = s.button_label
+  if button_label == blank
+    assign button_label = 'sections.contact_form.submit' | t
+  endif
+-%}
+
+{%- capture label_class -%}text-body-sm font-semibold text-foreground{%- endcapture -%}
+{%- capture optional_mark -%}
+  <span class="font-normal text-foreground/80">({{ 'sections.contact_form.optional' | t }})</span>
+{%- endcapture -%}
+{%- comment -%}
+  Campi SDS "Input": bordo border-strong (contrasto 3:1), stato non valido solo dopo l'interazione (user-invalid) o
+  dopo un errore del server (aria-invalid), focus con contorno primary.
+{%- endcomment -%}
+{%- capture field_class -%}
+  block w-full min-h-11 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary user-invalid:border-danger aria-invalid:border-danger motion-reduce:transition-none
+{%- endcapture -%}
+{%- capture icon_box_class -%}flex size-11 shrink-0 items-center justify-center rounded-md bg-surface text-foreground{%- endcapture -%}
+
+<contact-form
+  class="page-width block py-8 md:py-16 in-[.section-main-page+.section-contact-form]:pt-0!"
+  data-sending-label="{{ 'sections.contact_form.sending' | t | escape }}"
+>
+  <div class="mx-auto flex {{ width_class }} flex-col gap-8 md:gap-12">
+    {% render 'section-header', heading: s.heading, intro: s.intro, align: s.alignment %}
+
+    <div class="grid gap-12{% if two_columns %} lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-16{% endif %}">
+      {%- form 'contact', id: form_id, class: 'flex flex-col gap-6' -%}
+        {%- if form.posted_successfully? -%}
+          <div
+            class="flex flex-col items-start gap-4 rounded-lg bg-positive-surface p-6 text-positive-foreground outline-none md:p-8"
+            tabindex="-1"
+            autofocus
+            role="status"
+          >
+            {% render 'icon', name: 'check-circle', class: 'size-8' %}
+            <div class="flex flex-col gap-2">
+              <h2 class="text-heading text-balance">{{ 'sections.contact_form.success_title' | t }}</h2>
+              {%- if s.success_text != blank -%}
+                <div class="prose prose-theme max-w-none text-pretty [--tw-prose-body:currentColor] [--tw-prose-links:currentColor]">
+                  {{ s.success_text }}
+                </div>
+              {%- else -%}
+                <p class="text-body text-pretty">{{ 'sections.contact_form.success_text' | t }}</p>
+              {%- endif -%}
+            </div>
+            <a
+              href="{{ request.path }}#{{ form_id }}"
+              class="text-body font-semibold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            >
+              {{- 'sections.contact_form.send_another' | t -}}
+            </a>
+          </div>
+        {%- else -%}
+          {%- if form.errors -%}
+            <div
+              class="flex gap-3 rounded-lg bg-danger-surface p-4 text-danger-foreground outline-none md:p-6"
+              tabindex="-1"
+              autofocus
+              role="alert"
+            >
+              {% render 'icon', name: 'exclamation-circle', class: 'mt-0.5 size-5' %}
+              <div class="flex flex-col gap-2">
+                <h2 class="text-body font-semibold">{{ 'sections.contact_form.error_title' | t }}</h2>
+                <ul class="flex flex-col gap-1 text-body-sm" role="list">
+                  {%- for error in form.errors -%}
+                    <li>
+                      {%- if error == 'form' -%}
+                        {{ form.errors.messages[error] }}
+                      {%- else -%}
+                        <a href="#{{ form_id }}-{{ error }}" class="underline underline-offset-4 hover:no-underline">
+                          {{- form.errors.translated_fields[error] | capitalize }}
+                          {{ form.errors.messages[error] -}}
+                        </a>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </div>
+          {%- endif -%}
+
+          <div class="grid gap-6{% if s.show_name %} md:grid-cols-2{% endif %}">
+            {%- if s.show_name -%}
+              <div class="flex flex-col gap-2">
+                <label for="{{ form_id }}-name" class="{{ label_class }}">{{ label_name }}</label>
+                <input
+                  type="text"
+                  id="{{ form_id }}-name"
+                  name="contact[{{ label_name }}]"
+                  value="{{ customer.name | escape }}"
+                  autocomplete="name"
+                  required
+                  class="{{ field_class }}"
+                >
+              </div>
+            {%- endif -%}
+
+            <div class="flex flex-col gap-2">
+              <label for="{{ form_id }}-email" class="{{ label_class }}">{{ 'sections.contact_form.email' | t }}</label>
+              <input
+                type="email"
+                id="{{ form_id }}-email"
+                name="contact[email]"
+                value="{% if form.email %}{{ form.email | escape }}{% else %}{{ customer.email | escape }}{% endif %}"
+                autocomplete="email"
+                autocapitalize="off"
+                spellcheck="false"
+                required
+                class="{{ field_class }}"
+                {% if form.errors contains 'email' %}
+                  aria-invalid="true"
+                  aria-describedby="{{ form_id }}-email-error"
+                {% endif %}
+              >
+              {%- if form.errors contains 'email' -%}
+                <p id="{{ form_id }}-email-error" class="flex items-center gap-1.5 text-body-sm text-danger-foreground">
+                  {% render 'icon', name: 'exclamation-circle', class: 'size-4' %}
+                  {{- form.errors.translated_fields.email | capitalize }}
+                  {{ form.errors.messages.email -}}
+                </p>
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- if s.show_phone or subjects.size > 0 -%}
+            <div class="grid gap-6{% if s.show_phone and subjects.size > 0 %} md:grid-cols-2{% endif %}">
+              {%- if s.show_phone -%}
+                <div class="flex flex-col gap-2">
+                  <label for="{{ form_id }}-phone" class="{{ label_class }}">
+                    {{ label_phone }}
+                    {% unless s.phone_required %}{{ optional_mark }}{% endunless %}
+                  </label>
+                  <input
+                    type="tel"
+                    id="{{ form_id }}-phone"
+                    name="contact[{{ label_phone }}]"
+                    value="{{ customer.phone | escape }}"
+                    autocomplete="tel"
+                    {% if s.phone_required %}
+                      required
+                    {% endif %}
+                    class="{{ field_class }}"
+                  >
+                </div>
+              {%- endif -%}
+
+              {%- if subjects.size > 0 -%}
+                <div class="flex flex-col gap-2">
+                  <label for="{{ form_id }}-subject" class="{{ label_class }}">{{ label_subject }}</label>
+                  <div class="relative">
+                    <select
+                      id="{{ form_id }}-subject"
+                      name="contact[{{ label_subject }}]"
+                      class="{{ field_class }} cursor-pointer appearance-none pe-11"
+                    >
+                      {%- for subject in subjects -%}
+                        <option value="{{ subject | escape }}">{{ subject | escape }}</option>
+                      {%- endfor -%}
+                    </select>
+                    {% render 'icon',
+                      name: 'chevron-down',
+                      class: 'pointer-events-none absolute inset-y-0 end-4 my-auto size-5 text-foreground'
+                    %}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          <div class="flex flex-col gap-2">
+            <label for="{{ form_id }}-body" class="{{ label_class }}">{{ 'sections.contact_form.message' | t }}</label>
+            <textarea
+              id="{{ form_id }}-body"
+              name="contact[body]"
+              rows="6"
+              required
+              class="{{ field_class }} min-h-36 resize-y"
+              {% if form.errors contains 'body' %}
+                aria-invalid="true"
+                aria-describedby="{{ form_id }}-body-error"
+              {% endif %}
+            >
+              {{- form.body -}}
+            </textarea>
+            {%- if form.errors contains 'body' -%}
+              <p id="{{ form_id }}-body-error" class="flex items-center gap-1.5 text-body-sm text-danger-foreground">
+                {% render 'icon', name: 'exclamation-circle', class: 'size-4' %}
+                {{- form.errors.translated_fields.body | capitalize }}
+                {{ form.errors.messages.body -}}
+              </p>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%}
+            Consensi: caselle obbligatorie e separate (privacy e termini non vanno uniti in un'unica spunta, GDPR
+            art. 7.2). Il valore inviato finisce nell'email di notifica come traccia del consenso.
+          {%- endcomment -%}
+          {%- if s.consent == 'checkbox' or s.require_terms -%}
+            <div class="flex flex-col gap-3">
+              {%- if s.consent == 'checkbox' -%}
+                {%- liquid
+                  assign checkbox_name = 'sections.contact_form.consent_field' | t
+                  assign checkbox_value = 'sections.contact_form.consent_given' | t
+                  assign checkbox_missing = false
+                  if shop.privacy_policy == blank and s.consent_text == blank
+                    assign checkbox_missing = true
+                  endif
+                -%}
+                {%- capture checkbox_text -%}{{ consent_label }}{%- endcapture -%}
+                {%- render 'contact-form-checkbox',
+                  id: form_id,
+                  key: 'privacy',
+                  name: checkbox_name,
+                  value: checkbox_value,
+                  text: checkbox_text,
+                  policy_missing: checkbox_missing
+                -%}
+              {%- endif -%}
+              {%- if s.require_terms -%}
+                {%- liquid
+                  assign checkbox_name = 'sections.contact_form.terms_field' | t
+                  assign checkbox_value = 'sections.contact_form.terms_given' | t
+                  assign checkbox_missing = false
+                  if shop.terms_of_service == blank and s.terms_text == blank
+                    assign checkbox_missing = true
+                  endif
+                -%}
+                {%- capture checkbox_text -%}{{ terms_label }}{%- endcapture -%}
+                {%- render 'contact-form-checkbox',
+                  id: form_id,
+                  key: 'terms',
+                  name: checkbox_name,
+                  value: checkbox_value,
+                  text: checkbox_text,
+                  policy_missing: checkbox_missing
+                -%}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
+            <button type="submit" class="button button-primary button-lg w-full md:w-auto" data-contact-submit>
+              <span data-contact-label>{{ button_label | escape }}</span>
+            </button>
+            {%- if s.consent == 'notice' -%}
+              <p class="text-body-sm text-pretty text-foreground/80 [&_a]:text-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:no-underline">
+                {{ consent_notice }}
+              </p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endform -%}
+
+      {%- if has_details -%}
+        <dl class="grid gap-6 sm:grid-cols-2{% if two_columns %} lg:sticky lg:top-[calc(var(--header-height,0px)+2rem)] lg:grid-cols-1 lg:self-start{% endif %}">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign icon = block.settings.icon
+              assign value_missing = false
+              case block.type
+                when 'email'
+                  assign icon = 'envelope'
+                  assign term = 'sections.contact_form.email' | t
+                  if shop.email == blank
+                    assign value_missing = true
+                  endif
+                when 'phone'
+                  assign icon = 'phone'
+                  assign term = 'sections.contact_form.phone' | t
+                  if shop.phone == blank
+                    assign value_missing = true
+                  endif
+                when 'address'
+                  assign icon = 'map-pin'
+                  assign term = 'sections.contact_form.address' | t
+                  if shop.address.address1 == blank
+                    assign value_missing = true
+                  endif
+                else
+                  assign term = 'sections.contact_form.info' | t
+                  if block.settings.text == blank
+                    assign value_missing = true
+                  endif
+              endcase
+            -%}
+            {%- if value_missing and request.design_mode == false -%}
+              {%- continue -%}
+            {%- endif -%}
+            <div class="flex gap-4" {{ block.shopify_attributes }}>
+              {%- if icon != 'none' and icon != blank -%}
+                <span class="{{ icon_box_class }}" aria-hidden="true">
+                  {% render 'icon', name: icon, class: 'size-6' %}
+                </span>
+              {%- endif -%}
+              <div class="flex min-w-0 flex-col gap-1 pt-0.5">
+                {%- comment -%} <dt> sempre presente (struttura della lista): senza titolo resta per i lettori di schermo {%- endcomment -%}
+                {%- if block.settings.heading != blank -%}
+                  <dt class="text-body font-semibold text-foreground">{{ block.settings.heading | escape }}</dt>
+                {%- else -%}
+                  <dt class="sr-only">{{ term }}</dt>
+                {%- endif -%}
+                <dd class="flex flex-col gap-1 text-body text-foreground/80">
+                  {%- if value_missing -%}
+                    <span class="text-body-sm italic">{{ 'sections.contact_form.missing_value' | t }}</span>
+                  {%- else -%}
+                    {%- case block.type -%}
+                      {%- when 'email' -%}
+                        <a href="mailto:{{ shop.email }}" class="w-fit break-all text-foreground underline underline-offset-4 hover:no-underline">
+                          {{- shop.email -}}
+                        </a>
+                      {%- when 'phone' -%}
+                        <a href="tel:{{ shop.phone | remove: ' ' }}" class="w-fit text-foreground underline underline-offset-4 hover:no-underline">
+                          {{- shop.phone -}}
+                        </a>
+                      {%- when 'address' -%}
+                        <address class="not-italic [&_p]:m-0">{{ shop.address | format_address }}</address>
+                        {%- if block.settings.show_map_link -%}
+                          <a
+                            href="https://www.google.com/maps/search/?api=1&query={{ shop.address.summary | url_encode }}"
+                            class="inline-flex w-fit items-center gap-1 text-body-sm font-semibold text-foreground underline underline-offset-4 hover:no-underline"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            {{- 'sections.contact_form.open_map' | t -}}
+                            <span class="sr-only"> {{ 'accessibility.new_window' | t }}</span>
+                            {% render 'icon', name: 'arrow-right', class: 'size-4' %}
+                          </a>
+                        {%- endif -%}
+                    {%- endcase -%}
+                    {%- if block.settings.text != blank -%}
+                      <div class="prose prose-theme max-w-none text-body-sm text-pretty">
+                        {{ block.settings.text }}
+                      </div>
+                    {%- endif -%}
+                  {%- endif -%}
+                </dd>
+              </div>
+            </div>
+          {%- endfor -%}
+        </dl>
+      {%- endif -%}
+    </div>
+  </div>
+</contact-form>
+
+{% render 'vite-tag', entry: 'contact-form.js' %}
+
+{% schema %}
+{
+  "name": "t:sections.contact_form.name",
+  "tag": "section",
+  "class": "section-contact-form",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.contact_form.settings.heading.label",
+      "default": "t:sections.contact_form.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.contact_form.settings.intro.label",
+      "default": "t:sections.contact_form.settings.intro.default"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:sections.contact_form.settings.alignment.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.contact_form.settings.alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.contact_form.settings.alignment.options.center"
+        }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:sections.contact_form.settings.width.label",
+      "info": "t:sections.contact_form.settings.width.info",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "t:sections.contact_form.settings.width.options.narrow"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.contact_form.settings.width.options.medium"
+        },
+        {
+          "value": "wide",
+          "label": "t:sections.contact_form.settings.width.options.wide"
+        }
+      ],
+      "default": "wide"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact_form.settings.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_name",
+      "label": "t:sections.contact_form.settings.show_name.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_phone",
+      "label": "t:sections.contact_form.settings.show_phone.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "phone_required",
+      "label": "t:sections.contact_form.settings.phone_required.label",
+      "default": false,
+      "visible_if": "{{ section.settings.show_phone }}"
+    },
+    {
+      "type": "textarea",
+      "id": "subject_options",
+      "label": "t:sections.contact_form.settings.subject_options.label",
+      "info": "t:sections.contact_form.settings.subject_options.info",
+      "default": "t:sections.contact_form.settings.subject_options.default"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.contact_form.settings.button_label.label",
+      "info": "t:sections.contact_form.settings.button_label.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact_form.settings.header_2.content"
+    },
+    {
+      "type": "select",
+      "id": "consent",
+      "label": "t:sections.contact_form.settings.consent.label",
+      "info": "t:sections.contact_form.settings.consent.info",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.contact_form.settings.consent.options.none"
+        },
+        {
+          "value": "notice",
+          "label": "t:sections.contact_form.settings.consent.options.notice"
+        },
+        {
+          "value": "checkbox",
+          "label": "t:sections.contact_form.settings.consent.options.checkbox"
+        }
+      ],
+      "default": "checkbox"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "consent_text",
+      "label": "t:sections.contact_form.settings.consent_text.label",
+      "info": "t:sections.contact_form.settings.consent_text.info",
+      "visible_if": "{{ section.settings.consent != 'none' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "require_terms",
+      "label": "t:sections.contact_form.settings.require_terms.label",
+      "info": "t:sections.contact_form.settings.require_terms.info",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "terms_text",
+      "label": "t:sections.contact_form.settings.terms_text.label",
+      "info": "t:sections.contact_form.settings.terms_text.info",
+      "visible_if": "{{ section.settings.require_terms }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact_form.settings.header_3.content"
+    },
+    {
+      "type": "richtext",
+      "id": "success_text",
+      "label": "t:sections.contact_form.settings.success_text.label",
+      "info": "t:sections.contact_form.settings.success_text.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact_form.settings.header_4.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.contact_form.settings.color_background.label",
+      "info": "t:sections.contact_form.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.contact_form.settings.color_text.label",
+      "info": "t:sections.contact_form.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "email",
+      "name": "t:sections.contact_form.blocks.email.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.contact_form.blocks.email.settings.paragraph_1.content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.contact_form.blocks.email.settings.heading.label",
+          "default": "t:sections.contact_form.blocks.email.settings.heading.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.contact_form.blocks.email.settings.text.label",
+          "info": "t:sections.contact_form.blocks.email.settings.text.info"
+        }
+      ]
+    },
+    {
+      "type": "phone",
+      "name": "t:sections.contact_form.blocks.phone.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.contact_form.blocks.phone.settings.paragraph_1.content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.contact_form.blocks.phone.settings.heading.label",
+          "default": "t:sections.contact_form.blocks.phone.settings.heading.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.contact_form.blocks.phone.settings.text.label",
+          "info": "t:sections.contact_form.blocks.phone.settings.text.info"
+        }
+      ]
+    },
+    {
+      "type": "address",
+      "name": "t:sections.contact_form.blocks.address.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.contact_form.blocks.address.settings.paragraph_1.content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.contact_form.blocks.address.settings.heading.label",
+          "default": "t:sections.contact_form.blocks.address.settings.heading.default"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_map_link",
+          "label": "t:sections.contact_form.blocks.address.settings.show_map_link.label",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.contact_form.blocks.address.settings.text.label",
+          "info": "t:sections.contact_form.blocks.address.settings.text.info"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.contact_form.blocks.text.name",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:sections.contact_form.blocks.text.settings.icon.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.none"
+            },
+            {
+              "value": "clock",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.clock"
+            },
+            {
+              "value": "chat-bubble-left-right",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.chat_bubble_left_right"
+            },
+            {
+              "value": "building-storefront",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.building_storefront"
+            },
+            {
+              "value": "map-pin",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.map_pin"
+            },
+            {
+              "value": "envelope",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.envelope"
+            },
+            {
+              "value": "phone",
+              "label": "t:sections.contact_form.blocks.text.settings.icon.options.phone"
+            }
+          ],
+          "default": "clock"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.contact_form.blocks.text.settings.heading.label",
+          "default": "t:sections.contact_form.blocks.text.settings.heading.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.contact_form.blocks.text.settings.text.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.contact_form.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "email"
+        },
+        {
+          "type": "phone"
+        },
+        {
+          "type": "address"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

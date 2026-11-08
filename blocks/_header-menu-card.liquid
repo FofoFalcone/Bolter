@@ -1,0 +1,144 @@
+{%- comment -%}
+  Card promo dentro un mega menu (figlia di blocks/_header-mega-menu.liquid).
+  Con un prodotto o una collezione scelti, immagine, titolo, link (e prezzo del prodotto) arrivano da lì;
+  i campi compilati a mano hanno sempre la precedenza.
+{%- endcomment -%}
+{%- liquid
+  assign s = block.settings
+  assign card_product = s.product
+  assign card_collection = s.collection
+
+  assign image = s.image
+  assign heading = s.heading
+  assign url = s.link
+  if card_product != blank
+    assign image = image | default: card_product.featured_image
+    assign heading = heading | default: card_product.title
+    assign url = url | default: card_product.url
+  elsif card_collection != blank
+    assign image = image | default: card_collection.featured_image
+    assign heading = heading | default: card_collection.title
+    assign url = url | default: card_collection.url
+  endif
+
+  assign tag = 'div'
+  if url != blank
+    assign tag = 'a'
+  endif
+-%}
+
+<{{ tag }}
+  {% if url != blank %}
+    href="{{ url }}"
+  {% endif %}
+  class="group/card flex w-60 shrink-0 snap-start flex-col gap-3 rounded-lg motion-safe:transition-[opacity,translate] motion-safe:delay-150 motion-safe:duration-500 motion-safe:ease-theme motion-safe:starting:translate-y-2 motion-safe:starting:opacity-0 lg:w-48 xl:w-52"
+  {{ block.shopify_attributes }}
+>
+  <span class="relative block aspect-4/5 overflow-hidden rounded-lg bg-surface">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 800
+        | image_tag:
+          loading: 'lazy',
+          widths: '240, 360, 480, 640, 800',
+          sizes: '(min-width: 1280px) 13rem, (min-width: 990px) 12rem, 15rem',
+          alt: '',
+          class: 'size-full object-cover transition-transform duration-700 ease-theme group-hover/card:scale-105 motion-reduce:transition-none'
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
+    {%- endif -%}
+    {%- if s.badge != blank -%}
+      <span class="absolute top-3 left-3 rounded-full bg-background/90 px-2.5 py-1 text-body-sm font-semibold text-foreground backdrop-blur-sm">
+        {{- s.badge | escape -}}
+      </span>
+    {%- endif -%}
+  </span>
+
+  <span class="flex flex-col gap-1">
+    {%- if heading != blank -%}
+      <span class="text-body font-semibold text-foreground">{{ heading | escape }}</span>
+    {%- endif -%}
+    {%- if card_product != blank and s.show_price -%}
+      {% render 'price', product: card_product %}
+    {%- endif -%}
+    {%- if s.text != blank -%}
+      <span class="text-body-sm text-muted">{{ s.text | escape }}</span>
+    {%- endif -%}
+    {%- if url != blank and s.link_label != blank -%}
+      <span class="mt-1 inline-flex items-center gap-1.5 text-body-sm font-semibold text-foreground underline-offset-4 group-hover/card:underline">
+        {{- s.link_label | escape -}}
+        {% render 'icon', name: 'arrow-right', class: 'size-4 transition-transform group-hover/card:translate-x-0.5 motion-reduce:transition-none' %}
+      </span>
+    {%- endif -%}
+  </span>
+</{{ tag }}>
+
+{% schema %}
+{
+  "name": "t:blocks.header_menu_card.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:blocks.header_menu_card.settings.paragraph_1.content"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:blocks.header_menu_card.settings.product.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "t:blocks.header_menu_card.settings.show_price.label",
+      "default": true,
+      "visible_if": "{{ block.settings.product != blank }}"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:blocks.header_menu_card.settings.collection.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:blocks.header_menu_card.settings.image.label",
+      "info": "t:blocks.header_menu_card.settings.image.info"
+    },
+    {
+      "type": "text",
+      "id": "badge",
+      "label": "t:blocks.header_menu_card.settings.badge.label",
+      "info": "t:blocks.header_menu_card.settings.badge.info"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:blocks.header_menu_card.settings.heading.label"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:blocks.header_menu_card.settings.text.label"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:blocks.header_menu_card.settings.link.label"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "t:blocks.header_menu_card.settings.link_label.label",
+      "default": "t:blocks.header_menu_card.settings.link_label.default"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.header_menu_card.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

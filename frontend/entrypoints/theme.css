@@ -1,0 +1,99 @@
+/*
+ * CSS globale del tema, caricato dal layout su ogni pagina.
+ *
+ * Tailwind CSS v4: le utility vengono generate solo per le classi trovate nei file indicati da @source.
+ * Ordine dei layer: theme → base → components → utilities.
+ * Il CSS delle section (frontend/entrypoints/<section>.css) va in @layer components,
+ * così le utility nel Liquid possono sempre sovrascriverlo.
+ */
+
+/* source(none): niente scansione automatica dell'intero progetto (README, docs, node_modules…) */
+@import 'tailwindcss' source(none);
+
+/* File in cui Tailwind cerca le classi */
+@source '../../layout/**/*.liquid';
+@source '../../sections/**/*.liquid';
+@source '../../blocks/**/*.liquid';
+@source '../../snippets/**/*.liquid';
+@source '../../templates/**/*.{liquid,json}';
+@source '../**/*.js';
+
+/*
+ * Esclusi: file generati dalla build. vite-tag.liquid viene riscritto a ogni build da vite-plugin-shopify:
+ * se Tailwind lo osservasse, in `npm run watch` ogni build ne avvierebbe un'altra (ciclo infinito).
+ */
+@source not '../../snippets/vite-tag.liquid';
+
+/*
+ * Varianti custom:
+ * - js:         solo con JS attivo (classe .js su <html>, impostata nel layout)      es. hidden js:flex
+ * - js-motion:  JS attivo e prefers-reduced-motion: no-preference (modalità animate) es. js-motion:opacity-15
+ */
+@custom-variant js (&:where(.js *));
+
+/*
+ * Header trasparente (sections/header.liquid, data-transparent) sopra la prima section della pagina, se questa
+ * lo consente ([data-header-overlay="light|dark"]: hero a tutta larghezza con media). Tutto in CSS (:has), quindi
+ * corretto dal primo rendering. header.js aggiunge [data-solid] quando l'header deve tornare pieno.
+ * Solo se l'header è l'ultima section del gruppo header (body:has(> .section-header + main)): una section dopo
+ * l'header (es. barra annunci spostata sotto) starebbe tra header e hero, e il margine negativo dell'header la
+ * porterebbe sotto di lui. In quel caso l'header resta pieno.
+ * - overlay:        header trasparente in questo momento (su <site-header> e discendenti)
+ * - overlay-light:  idem, sopra una hero con testo chiaro (header con testo bianco)
+ * - under-header:   contenuto della prima section che sta sotto un header trasparente (spazio in alto)
+ */
+@custom-variant overlay (&:is(body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) site-header[data-transparent]:not([data-solid]), body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) site-header[data-transparent]:not([data-solid]) *));
+@custom-variant overlay-light (&:is(body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent]:not([data-solid]), body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent]:not([data-solid]) *));
+@custom-variant under-header (&:is(body:has(> .section-header + main):has(site-header[data-transparent]) main > .shopify-section:first-child [data-header-overlay] *));
+@custom-variant js-motion {
+  @media (prefers-reduced-motion: no-preference) {
+    &:where(.js *) {
+      @slot;
+    }
+  }
+}
+
+/* Design token (@theme) — Simple Design System */
+@import '../styles/tokens.css';
+
+/* Font-face */
+@import '../styles/fonts.css';
+
+/* Stili di base sopra il Preflight */
+@import '../styles/base.css';
+
+/* Utility custom (@utility) */
+@import '../styles/utilities.css';
+
+/* Componenti base SDS come utility: button, button-primary, button-neutral, button-subtle, prose-theme */
+@import '../styles/components.css';
+
+/* Stati di caricamento per tipo di contenuto: media-loading, skeleton, navigation-progress */
+@import '../styles/loading.css';
+
+/* Testi richtext del merchant: utility `prose` del tema (al posto del plugin @tailwindcss/typography) */
+@import '../styles/prose.css';
+
+/* Blocco dello scroll dei pannelli aperti ([data-scroll-lock]): la pagina sotto resta ferma */
+@import '../styles/scroll-lock.css';
+
+/* Header (presente su ogni pagina) */
+@import '../styles/header.css';
+
+/* Accordion (pagina prodotto, FAQ): pochi byte, meglio qui che un CSS che blocca il rendering nel body */
+@import '../styles/accordion.css';
+
+/* Stato iniziale delle animazioni Motion ([data-animate]) */
+@import '../styles/animations.css' layer(components);
+
+/*
+ * Transizioni tra pagine: CSS a parte (frontend/entrypoints/page-transitions.css), caricato da
+ * snippets/page-transitions.liquid solo se attive. Le sue regole sono in @layer components: restano sotto le
+ * utility anche in un file separato (l'ordine dei layer lo fissa questo file, caricato prima).
+ */
+
+/*
+ * Scorrimento morbido (frontend/scripts/smooth-scroll.js): regole consigliate da Lenis, attive solo con le
+ * classi che Lenis aggiunge a <html> (nessun effetto se lo scorrimento morbido è spento).
+ */
+@import 'lenis/dist/lenis.css' layer(components);

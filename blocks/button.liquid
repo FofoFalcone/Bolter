@@ -1,0 +1,99 @@
+{%- comment -%}
+  Pulsante per le section componibili (sections/content.liquid, blocks/group.liquid).
+  Senza link non compare nel negozio: nell'editor resta visibile come disattivato, così si può selezionare.
+{%- endcomment -%}
+{%- liquid
+  case block.settings.variant
+    when 'neutral'
+      assign variant_class = 'button-neutral'
+    when 'subtle'
+      assign variant_class = 'button-subtle'
+    else
+      assign variant_class = 'button-primary'
+  endcase
+  case block.settings.size
+    when 'small'
+      assign size_class = 'button-sm'
+    when 'large'
+      assign size_class = 'button-lg'
+    else
+      assign size_class = ''
+  endcase
+-%}
+{%- if block.settings.text != blank -%}
+  {%- if block.settings.link != blank -%}
+    <a href="{{ block.settings.link }}" class="button {{ variant_class }} {{ size_class }} w-fit" {{ block.shopify_attributes }}>
+      {{- block.settings.text | escape -}}
+    </a>
+  {%- elsif request.design_mode -%}
+    <span class="button {{ size_class }} w-fit" aria-disabled="true" {{ block.shopify_attributes }}>
+      {{- block.settings.text | escape -}}
+    </span>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.button.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:blocks.button.settings.text.label",
+      "default": "t:blocks.button.settings.text.default"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:blocks.button.settings.link.label",
+      "info": "t:blocks.button.settings.link.info"
+    },
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "t:blocks.button.settings.variant.label",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:blocks.button.settings.variant.options.primary"
+        },
+        {
+          "value": "neutral",
+          "label": "t:blocks.button.settings.variant.options.neutral"
+        },
+        {
+          "value": "subtle",
+          "label": "t:blocks.button.settings.variant.options.subtle"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "t:blocks.button.settings.size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:blocks.button.settings.size.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:blocks.button.settings.size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:blocks.button.settings.size.options.large"
+        }
+      ],
+      "default": "medium"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.button.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

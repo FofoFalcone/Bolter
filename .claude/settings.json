@@ -1,0 +1,58 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(npm run lint)",
+      "Bash(npx vite build*)",
+      "PowerShell(npm run build)",
+      "PowerShell(npm run lint)",
+      "PowerShell(npx vite build*)"
+    ],
+    "deny": [
+      "Bash(npm run shopify:push:prod*)",
+      "Bash(shopify theme publish*)",
+      "Bash(shopify theme delete*)",
+      "Bash(shopify theme rename*)",
+      "Bash(npx shopify theme publish*)",
+      "Bash(npx shopify theme delete*)",
+      "Bash(npx shopify theme rename*)",
+      "PowerShell(npm run shopify:push:prod*)",
+      "PowerShell(shopify theme publish*)",
+      "PowerShell(shopify theme delete*)",
+      "PowerShell(shopify theme rename*)",
+      "PowerShell(npx shopify theme publish*)",
+      "PowerShell(npx shopify theme delete*)",
+      "PowerShell(npx shopify theme rename*)"
+    ],
+    "ask": [
+      "Bash(npm run shopify:push:dev*)",
+      "Bash(shopify theme push*)",
+      "Bash(npx shopify theme push*)",
+      "PowerShell(npm run shopify:push:dev*)",
+      "PowerShell(shopify theme push*)",
+      "PowerShell(npx shopify theme push*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "-e",
+              "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{let c='';try{c=String(JSON.parse(d).tool_input.command||'')}catch(e){}const rules=[/shopify:push:prod/,/shopify\\s+theme\\s+(publish|delete|rename)\\b/,/shopify\\s+theme\\s+push\\b[^\\n;&|]*(\\s(-e|--environment)[\\s=]+['\"]?production\\b|\\s--live\\b|\\s(-a|--allow-live)\\b)/];if(rules.some(r=>r.test(c))){process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'bolt-theme: comando bloccato (push in produzione, publish, delete o rename del tema). Va eseguito manualmente da una persona del team.'}}))}});"
+            ],
+            "timeout": 10,
+            "statusMessage": "Controllo comandi verso lo store Shopify"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "shopify-ai-toolkit@claude-plugins-official": true
+  }
+}

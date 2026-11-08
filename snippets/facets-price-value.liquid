@@ -1,0 +1,29 @@
+{%- comment -%}
+  Importo per i campi prezzo dei filtri (filter.v.price.gte / lte): numero con il punto come separatore decimale,
+  nella valuta del negozio, come lo vuole il parametro dell'URL (es. 1234.5).
+
+  I valori di Shopify (filter.min_value.value, filter.range_max) sono in centesimi: si passa da money_without_currency,
+  che rispetta le cifre decimali della valuta (anche quelle senza decimali, es. JPY), e si normalizzano i separatori
+  del formato del negozio ("1.234,56", "1,234.56", "1 234,56", "1'234.56" → 1234.56).
+
+  Parametri:
+  - amount: importo in centesimi. Vuoto → nessun output.
+
+  Uso: {%- capture value -%}{% render 'facets-price-value', amount: filter.min_value.value %}{%- endcapture -%}
+{%- endcomment -%}
+{%- liquid
+  if amount != blank
+    assign formatted = amount | money_without_currency | strip_html | remove: ' ' | remove: ' ' | remove: ' ' | remove: "'"
+    assign decimal_separator = formatted | slice: -3, 1
+
+    if decimal_separator == ','
+      assign formatted = formatted | remove: '.' | replace: ',', '.'
+    elsif decimal_separator == '.'
+      assign formatted = formatted | remove: ','
+    else
+      assign formatted = formatted | remove: ',' | remove: '.'
+    endif
+
+    echo formatted
+  endif
+-%}

@@ -1,0 +1,368 @@
+{%- comment -%}
+  Card prodotto unica del tema (collezioni in tab, galleria animata, ricerca, raccomandazioni).
+  Aspetto deciso dalle impostazioni del tema → Card prodotto (stile, proporzioni, seconda immagine,
+  selettore colore), così è identico in ogni section. Stile: token Simple Design System, utility Tailwind.
+
+  Struttura:
+  - tutta la card è cliccabile: il link del titolo ([data-card-link]) si estende con ::after;
+  - [data-card-part]: parti aggiornate quando si sceglie un colore (immagini e badge, prezzo);
+  - selettore colore (solo con JS, frontend/scripts/product-card.js): per l'opzione con swatch Shopify
+    (`product_option_value.swatch`) o, in mancanza, per l'opzione con uno dei nomi indicati nelle impostazioni.
+    Alla scelta la card si ricarica con la Section Rendering API (sections/product-card.liquid, ?variant=…)
+    ed emette lo standard event shopify:product:select;
+  - shopify:product:view (contesto `event_context`) quando la card entra nello schermo.
+
+  Parametri:
+  - product: prodotto. Se vuoto mostra un placeholder (utile nel theme editor).
+  - card_id: prefisso univoco nella pagina per id e name del selettore colore (default: id del prodotto;
+    da passare se lo stesso prodotto può comparire più volte, es. block.id)
+  - heading_tag: tag del titolo (default 'h3')
+  - layout: 'grid' (default; immagine con le proporzioni delle impostazioni) o 'fill' (la card riempie
+    l'altezza del contenitore e l'immagine si adatta, es. galleria animata)
+  - loading / fetchpriority: 'lazy' / 'auto' (default); 'eager' / 'high' per la card dell'immagine LCP
+  - full_width: true se la card sta in una section a tutta larghezza: aggiunge formati più grandi all'immagine
+  - sizes: attributo sizes delle immagini
+  - event_context: contesto di shopify:product:view ('collection' default, 'search', 'recommendation')
+  - quick_view: true per aprire l'anteprima rapida (snippets/quick-view.liquid) al clic sulla card (con JS)
+  - control_attributes: attributi extra sul controllo principale della card (pulsante dell'anteprima
+    rapida o link del titolo), es. 'data-gallery-control tabindex="-1"'
+
+  Uso: {% render 'product-card', product: product, card_id: card_id, heading_tag: 'h4', sizes: sizes %}
+{%- endcomment -%}
+{%- liquid
+  assign image_max = 1000
+  # 500: tra 400 e 600 il salto era il più largo (1,5×). Card da 280px con DPR 1,75 (490px, galleria su Lighthouse
+  # mobile) o da ~175px con DPR 2,6 (455px, due colonne su mobile): prima 600, ora 500 (circa il 30% di pixel in meno)
+  assign image_widths = '200, 300, 400, 500, 600, 800, 1000'
+  if full_width
+    assign image_max = 2000
+    assign image_widths = image_widths | append: ', 1200, 1600, 2000'
+  endif
+  assign heading_tag = heading_tag | default: 'h3'
+  assign layout = layout | default: 'grid'
+  assign event_context = event_context | default: 'collection'
+  assign loading = loading | default: 'lazy'
+  assign fetchpriority = fetchpriority | default: 'auto'
+  assign sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign card_id = card_id | default: product.id | default: 'placeholder' | prepend: 'ProductCard-'
+
+  if product != blank
+    assign title = product.title
+    assign variant = product.selected_variant
+    assign url = variant.url | default: product.url
+    assign available = product.available
+    assign compare_at_price = product.compare_at_price
+    assign price = product.price
+    if variant
+      assign available = variant.available
+      assign compare_at_price = variant.compare_at_price
+      assign price = variant.price
+    endif
+
+    # Immagine: quella della variante scelta (cambio colore o filtro attivo), altrimenti quella del prodotto
+    assign primary_media = product.featured_media
+    if variant.featured_media
+      assign primary_media = variant.featured_media
+    endif
+    assign image_alt = primary_media.alt | default: title
+
+    # Seconda immagine al passaggio del mouse: il primo media diverso da quello mostrato
+    assign secondary_media = nil
+    if settings.product_card_hover_image and product.media.size > 1
+      for media in product.media
+        if media.id != primary_media.id
+          assign secondary_media = media
+          break
+        endif
+      endfor
+    endif
+
+    # Opzione del selettore colore: la prima con swatch Shopify, altrimenti la prima con un nome indicato
+    assign swatch_option = nil
+    if settings.product_card_swatches and product.has_only_default_variant == false
+      for option in product.options_with_values
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        if swatch_count > 0
+          assign swatch_option = option
+          break
+        endif
+      endfor
+      unless swatch_option
+        assign color_names = settings.product_card_swatch_options | downcase | split: ','
+        assign option_name = ''
+        for option in product.options_with_values
+          assign option_name = option.name | downcase | strip
+          for color_name in color_names
+            assign color_name = color_name | strip
+            if color_name != blank and option_name == color_name
+              assign swatch_option = option
+              break
+            endif
+          endfor
+          if swatch_option
+            break
+          endif
+        endfor
+      endunless
+    endif
+  else
+    # Segnaposto (solo theme editor): nessun link, niente href="#"
+    assign title = 'products.product.placeholder_title' | t
+    assign url = nil
+    assign available = true
+  endif
+
+  case settings.product_card_style
+    when 'plain'
+      assign card_class = ''
+      assign media_class = 'rounded-lg'
+      assign info_class = 'pt-3'
+    else
+      assign card_class = 'overflow-hidden rounded-lg border border-border bg-background'
+      assign media_class = ''
+      assign info_class = 'p-3 @3xs:p-4'
+  endcase
+
+  # 'fill': cresce l'immagine; 'grid': immagine a proporzioni fisse, cresce il testo (riquadri allineati)
+  assign price_class = ''
+  if layout == 'fill'
+    assign media_class = media_class | append: ' min-h-0 flex-1'
+    assign price_class = 'h-[2lh] overflow-hidden @3xs:h-[1lh]'
+  else
+    assign info_class = info_class | append: ' grow'
+    case settings.product_card_image_ratio
+      when 'square'
+        assign media_class = media_class | append: ' aspect-square'
+      when 'landscape'
+        assign media_class = media_class | append: ' aspect-4/3'
+      else
+        assign media_class = media_class | append: ' aspect-4/5'
+    endcase
+  endif
+-%}
+
+{%- if product != blank -%}
+  <s-view-event
+    class="block h-full"
+    view-event-trigger="intersect"
+    view-event-payload='{{ product | standard_event_data: "view", context: event_context | escape }}'
+  >
+{%- endif -%}
+{%- comment -%}
+  h-full: in una griglia le card di una riga hanno la stessa altezza (stile "Riquadro").
+  @container: le altezze delle informazioni dipendono dalla larghezza della card (vedi sotto).
+{%- endcomment -%}
+<product-card
+  class="group/card @container relative flex h-full flex-col {{ card_class }}"
+  {% if product != blank %}
+    data-product-url="{{ product.url }}"
+    data-product-gid="gid://shopify/Product/{{ product.id }}"
+    data-product-title="{{ product.title | escape }}"
+    data-product-handle="{{ product.handle }}"
+  {% endif %}
+>
+  {%- comment -%}
+    Area immagine (dimensioni dal layout): immagini e badge in [data-card-part="media"], sostituiti alla
+    scelta di un colore; il selettore colore è sovrapposto in basso, fuori dalla parte sostituita.
+  {%- endcomment -%}
+  <div class="relative shrink-0 {{ media_class }}">
+  <div data-card-part="media" data-card-media class="isolate absolute inset-0 overflow-hidden rounded-[inherit] bg-surface">
+    {%- if primary_media -%}
+      {%- capture primary_class -%}
+        absolute inset-0 size-full object-cover
+        {%- unless secondary_media %} transition-[scale] duration-500 motion-safe:group-hover/card:scale-105{% endunless -%}
+      {%- endcapture -%}
+      {%- comment -%}
+        media-loading solo attorno all'immagine principale: il riflesso si ferma appena un'img del contenitore ha
+        data-loaded, e la seconda immagine qui sotto su (hover: none) carica la GIF in data URI in pochi millisecondi.
+        Ritaglio e angoli arrotondati vengono dalla parte media (overflow-hidden), che contiene anche lo scale all'hover.
+      {%- endcomment -%}
+      <div class="media-loading absolute inset-0">
+        {{
+          primary_media
+          | image_url: width: image_max
+          | image_tag:
+            loading: loading,
+            fetchpriority: fetchpriority,
+            sizes: sizes,
+            widths: image_widths,
+            alt: image_alt,
+            class: primary_class
+        }}
+      </div>
+      {%- if secondary_media -%}
+        {%- comment -%}
+          Seconda immagine: compare solo con group-hover/card, che in Tailwind v4 vale dentro @media (hover: hover).
+          Dove quella condizione è falsa, (hover: none) sceglie la <source> con una GIF trasparente in data URI e il
+          file non si scarica (telefoni, tablet senza mouse, Lighthouse mobile). È il complemento esatto della
+          variante: con (any-hover) una penna o un mouse secondario la farebbero scaricare dove l'effetto non c'è.
+          image_tag genera solo l'<img>: il <picture> va scritto a mano. Sui dispositivi con hover resta lazy e con
+          priorità bassa, per non togliere banda alle immagini visibili. L'<img> principale resta la prima della
+          parte (quick-view.js, page-transitions e product-card.js leggono querySelector('img') / img[sizes]).
+        {%- endcomment -%}
+        <picture>
+          <source media="(hover: none)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+          {{
+            secondary_media
+            | image_url: width: image_max
+            | image_tag:
+              loading: 'lazy',
+              fetchpriority: 'low',
+              sizes: sizes,
+              widths: image_widths,
+              alt: '',
+              class: 'absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 group-hover/card:opacity-100 motion-reduce:transition-none'
+          }}
+        </picture>
+      {%- endif -%}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'absolute inset-0 size-full fill-subtle' }}
+    {%- endif -%}
+
+    {%- if product != blank -%}
+      {%- unless available -%}
+        <span class="absolute top-2 left-2 rounded-sm bg-neutral-surface px-2 py-1 text-body-sm font-semibold text-foreground">
+          {{- 'products.product.sold_out' | t -}}
+        </span>
+      {%- else -%}
+        {%- if compare_at_price > price -%}
+          <span class="absolute top-2 left-2 rounded-sm bg-danger-surface px-2 py-1 text-body-sm font-semibold text-danger-foreground">
+            {{- 'products.product.on_sale' | t -}}
+          </span>
+        {%- endif -%}
+      {%- endunless -%}
+    {%- endif -%}
+  </div>
+
+  {%- if swatch_option -%}
+    {%- comment -%}
+      Selettore colore: radio (solo con JS), in basso sull'immagine e sopra il link esteso della card (z-10).
+      Così l'altezza delle informazioni non dipende dalla presenza dei colori. Se i colori non ci stanno la
+      riga scorre in orizzontale. Selezionato solo se il prodotto ha già una variante scelta (es. filtro colore).
+    {%- endcomment -%}
+    <fieldset
+      class="absolute bottom-2 left-2 z-10 hidden h-8 max-w-[calc(100%-1rem)] flex-nowrap items-center gap-2 overflow-x-auto rounded-full bg-background/90 px-1.5 shadow-200 [scrollbar-width:none] js:flex"
+      data-card-swatches
+    >
+      <legend class="sr-only">{{ swatch_option.name | escape }}</legend>
+      {%- assign swatch_limit = settings.product_card_swatch_limit -%}
+      {%- for value in swatch_option.values limit: swatch_limit -%}
+        {%- liquid
+          assign swatch_background = nil
+          if value.swatch.image
+            assign swatch_background = value.swatch.image | image_url: width: 72 | prepend: 'url(' | append: ')'
+          elsif value.swatch.color
+            assign swatch_background = value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
+          elsif value.variant.featured_media
+            assign swatch_background = value.variant.featured_media | image_url: width: 72 | prepend: 'url(' | append: ')'
+          endif
+          assign input_id = card_id | append: '-' | append: swatch_option.position | append: '-' | append: forloop.index0
+        -%}
+        <div class="relative shrink-0">
+          <input
+            type="radio"
+            class="peer sr-only"
+            id="{{ input_id }}"
+            name="{{ card_id }}-{{ swatch_option.position }}"
+            value="{{ value | escape }}"
+            data-option-name="{{ swatch_option.name | escape }}"
+            data-option-value-id="{{ value.id }}"
+            {% if value.variant %}
+              data-variant-id="{{ value.variant.id }}"
+            {% endif %}
+            {% if value.product_url %}
+              data-product-url="{{ value.product_url }}"
+            {% endif %}
+            {% if value.selected and variant %}
+              checked
+            {% endif %}
+          >
+          {%- if swatch_background -%}
+            <label
+              for="{{ input_id }}"
+              class="block size-5 cursor-pointer rounded-full border border-border-strong [background:var(--swatch)_center/cover_no-repeat] peer-checked:outline-2 peer-checked:outline-offset-1 peer-checked:outline-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-primary{% unless value.available %} opacity-40{% endunless %}"
+              style="--swatch: {{ swatch_background }};"
+              title="{{ value | escape }}"
+            >
+              <span class="sr-only">
+                {{- value | escape -}}
+                {%- unless value.available %}, {{ 'products.product.unavailable' | t }}{% endunless -%}
+              </span>
+            </label>
+          {%- else -%}
+            <label
+              for="{{ input_id }}"
+              class="flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full border border-border px-2 text-body-sm whitespace-nowrap text-foreground peer-checked:border-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-1 peer-focus-visible:outline-primary{% unless value.available %} text-muted line-through{% endunless %}"
+            >
+              {{- value | escape -}}
+              {%- unless value.available -%}
+                <span class="sr-only">, {{ 'products.product.unavailable' | t }}</span>
+              {%- endunless -%}
+            </label>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+      {%- assign hidden_values = swatch_option.values.size | minus: swatch_limit -%}
+      {%- if hidden_values > 0 -%}
+        <a
+          href="{{ url }}"
+          class="shrink-0 pe-1 text-body-sm text-foreground underline-offset-4 hover:underline"
+          aria-label="{{ 'products.product_card.more_values' | t: count: hidden_values, option: swatch_option.name | escape }}"
+        >
+          +{{ hidden_values }}
+        </a>
+      {%- endif -%}
+    </fieldset>
+  {%- endif -%}
+  </div>
+
+  {%- comment -%}
+    Informazioni:
+    - titolo: 2 righe (line-clamp; il testo completo resta nel link per i lettori di schermo). Nelle card strette
+      (< 16rem, es. 2 colonne su mobile) testo più piccolo, per non troncarlo dopo poche parole. La soglia si misura
+      sulla card intera (@container su <product-card>), non sull'area di testo: il padding dello stile "Riquadro" la
+      farebbe scattare anche in card di ~280px;
+    - prezzo: altezza libera in griglia, dove le immagini hanno proporzioni fisse e restano comunque allineate (una
+      riga riservata lasciava un vuoto sotto ogni prezzo). Altezza fissa solo con layout 'fill', dove l'immagine prende
+      lo spazio che resta: 1 riga, 2 nelle card strette, dove "A partire da" e prezzo barrato vanno a capo. La misura
+      sta fuori da [data-card-part], perché sections/product-card.liquid ristampa la parte sempre in layout 'grid'.
+  {%- endcomment -%}
+  <div class="flex flex-col gap-1 {{ info_class }}">
+    <{{ heading_tag }} class="line-clamp-2 h-[2lh] text-body-sm text-foreground @3xs:text-body">
+      <a
+        {% if url %}
+          href="{{ url }}"
+        {% endif %}
+        data-card-link
+        class="outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
+        {% unless quick_view %}
+          {{ control_attributes }}
+        {% endunless %}
+      >
+        {{- title | escape -}}
+      </a>
+    </{{ heading_tag }}>
+
+    <div class="text-body {{ price_class }}">
+      <div data-card-part="price">
+        {% render 'price', product: product, variant: variant %}
+      </div>
+    </div>
+
+  </div>
+
+  {%- if quick_view and product != blank -%}
+    {%- comment -%} Con JS il clic sulla card apre l'anteprima rapida; senza JS resta il link del titolo {%- endcomment -%}
+    <button
+      type="button"
+      data-quick-view-url="{{ url }}"
+      class="absolute inset-0 z-[1] hidden cursor-[inherit] rounded-lg focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-primary js:block"
+      aria-haspopup="dialog"
+      aria-label="{{ 'products.quick_view.open' | t: name: title | escape }}"
+      {{ control_attributes }}
+    ></button>
+  {%- endif -%}
+</product-card>
+{%- if product != blank -%}
+  </s-view-event>
+{%- endif -%}

@@ -1,0 +1,127 @@
+{%- comment -%}
+  Form di aggiunta al carrello (pagina prodotto, anteprima rapida). Senza JS: <select name="id"> nativo
+  e invio verso /cart/add. Con JS il select è nascosto (resta il campo inviato) e <product-page>
+  (frontend/scripts/product-page.js) aggiunge al carrello senza ricaricare.
+
+  Parametri:
+  - product: prodotto (obbligatorio)
+  - variant: variante selezionata (obbligatorio, anche vuota se la combinazione non esiste)
+  - section_id: id della section (obbligatorio)
+  - form_id: id del form, usato anche dallo snippet product-quantity (obbligatorio)
+  - show_dynamic_checkout: true per i pulsanti di pagamento rapido
+  - attributes: attributi extra sul contenitore (es. block.shopify_attributes)
+  - sticky_actions: true per tenere il pulsante del carrello (e il suo messaggio d'errore) sempre in vista mentre si
+    scorre il contenitore (anteprima rapida). Il contenitore deve essere un flex a colonna che scorre o sta dentro
+    un'area che scorre. Il form è display: contents: un elemento sticky non esce dal suo genitore, e dentro il form
+    resterebbe sotto la piega insieme a lui. Il pagamento rapido resta fuori dalla barra, che sarebbe troppo alta.
+
+  Uso: {% render 'product-buy-buttons', product: product, variant: current_variant, section_id: section.id, form_id: product_form_id %}
+{%- endcomment -%}
+{%- liquid
+  assign form_class = 'flex flex-col gap-3'
+  if sticky_actions
+    assign form_class = 'contents'
+  endif
+-%}
+<div {% if sticky_actions %}class="contents"{% endif %} data-product-part="buy-buttons" {{ attributes }}>
+  {%- form 'product', product, id: form_id, class: form_class, novalidate: 'novalidate' -%}
+    {%- if product.has_only_default_variant -%}
+      <input type="hidden" name="id" value="{{ variant.id }}">
+    {%- else -%}
+      {%- comment -%} Senza JS: scelta della variante nativa. Con JS è nascosto ma resta il campo inviato. {%- endcomment -%}
+      <div class="flex flex-col gap-2 js:hidden">
+        <label for="Variant-{{ section_id }}" class="text-body-sm font-semibold text-foreground">
+          {{- 'products.product.variant' | t -}}
+        </label>
+        <select
+          id="Variant-{{ section_id }}"
+          name="id"
+          class="rounded-md border border-border-strong bg-background px-3 py-2 text-body"
+        >
+          {%- for product_variant in product.variants -%}
+            <option
+              value="{{ product_variant.id }}"
+              {% if product_variant.id == variant.id %}
+                selected
+              {% endif %}
+              {% unless product_variant.available %}
+                disabled
+              {% endunless %}
+            >
+              {{ product_variant.title | escape }} – {{ product_variant.price | money }}
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+    {%- endif -%}
+
+    {% render 'product-selling-plans', product: product, variant: variant, section_id: section_id %}
+
+    {%- if product.gift_card? -%}
+      {% render 'gift-card-recipient-form', form: form, section_id: section_id %}
+    {%- endif -%}
+
+    {%- comment -%}
+      Limite di quantità (snippet variant-quantity-limit): se non si può aggiungere nemmeno il minimo il pulsante si spegne.
+      Il pagamento rapido resta: acquista la variante da sola, senza passare dal carrello.
+      Ai cambi di carrello stato ed etichetta si aggiornano sullo stesso pulsante (refreshCartLimit in product-page.js).
+    {%- endcomment -%}
+    {%- capture quantity_limit -%}{% render 'variant-quantity-limit', variant: variant %}{%- endcapture -%}
+    {%- liquid
+      assign cart_full = false
+      if quantity_limit != blank
+        assign limit_left = quantity_limit | plus: 0
+        assign minimum_quantity = variant.quantity_rule.min | default: 1
+        if limit_left < minimum_quantity
+          assign cart_full = true
+        endif
+      endif
+
+      if variant == blank
+        assign button_label = 'products.product.unavailable' | t
+      elsif variant.available == false
+        assign button_label = 'products.product.sold_out' | t
+      elsif cart_full
+        assign button_label = 'products.product.max_in_cart' | t
+      else
+        assign button_label = 'products.product.add_to_cart' | t
+      endif
+    -%}
+    {%- comment -%} Barra sticky: margini negativi pari al padding dell'anteprima rapida, così lo sfondo arriva ai bordi; la sfumatura segnala che sotto c'è altro {%- endcomment -%}
+    <div class="flex flex-col gap-3{% if sticky_actions %} sticky bottom-0 z-10 -mx-6 -mt-3 bg-background px-6 py-3 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-3 before:bg-linear-to-t before:from-background before:to-transparent md:-mx-10 md:px-10{% endif %}">
+      <p
+        class="rounded-md bg-danger-surface p-3 text-body-sm text-danger-foreground"
+        role="alert"
+        data-product-form-error
+        data-generic-error="{{ 'products.product.add_to_cart_error' | t | escape }}"
+        hidden
+      ></p>
+
+      <button
+        type="submit"
+        name="add"
+        class="button button-primary button-lg w-full"
+        data-label-idle="{{ button_label | escape }}"
+        data-label-adding="{{ 'products.product.adding_to_cart' | t | escape }}"
+        data-label-added="{{ 'products.product.added_to_cart' | t | escape }}"
+        {% if quantity_limit != blank %}
+          data-limited
+        {% endif %}
+        {% if variant == blank or variant.available == false or cart_full %}
+          disabled
+        {% endif %}
+      >
+        <span data-add-label aria-live="polite">{{ button_label }}</span>
+      </button>
+    </div>
+
+    {%- comment -%}
+      Pagamento rapido solo per una variante acquistabile: con "Esaurito" un "Acquista ora" attivo sarebbe un
+      invito contraddittorio. La parte buy-buttons si aggiorna al cambio variante, quindi ricompare da sola.
+      Niente pagamento rapido sui buoni regalo: la convalida dei dati del destinatario funziona solo con "Aggiungi al carrello".
+    {%- endcomment -%}
+    {%- if show_dynamic_checkout and variant.available and product.gift_card? == false -%}
+      {{ form | payment_button }}
+    {%- endif -%}
+  {%- endform -%}
+</div>

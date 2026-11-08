@@ -1,0 +1,24 @@
+{%- comment -%}
+  Section a tutta larghezza (setting section_width): ridefinisce sul wrapper .shopify-section i token che usano
+  page-width e max-w-page, così il markup della section non cambia. Con "Pagina" non stampa nulla.
+
+  - Sopra la larghezza massima della pagina il contenuto occupa tutto lo schermo e il margine cresce da 24 a 48px.
+  - Sotto quella larghezza non cambia nulla: margine e larghezza sono già quelli della pagina. Sui telefoni testi e
+    card tengono il margine; una section con un'immagine grande può portarla ai bordi con -mx-(--page-gutter).
+  - sizes delle immagini: accetta solo lunghezze, non var(). La section lo calcola da settings.layout_page_width,
+    oppure da 100vw a tutta larghezza. Anche i widths crescono solo in quel caso (parametro full_width delle card).
+
+  Parametri:
+  - section_id: section.id
+  - width: valore del setting ('page' o 'full')
+
+  Uso: {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- endcomment -%}
+{%- if width == 'full' -%}
+  {% style %}
+    #shopify-section-{{ section_id }} {
+      --container-page: 100vw;
+      --page-gutter: clamp(1.5rem, 1.5rem + (100vw - {{ settings.layout_page_width }}px) * 0.1, 3rem);
+    }
+  {% endstyle %}
+{%- endif -%}

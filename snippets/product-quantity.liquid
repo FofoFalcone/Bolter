@@ -1,0 +1,167 @@
+{%- comment -%}
+  Quantità da aggiungere al carrello (pagina prodotto, anteprima rapida). L'input è collegato al form
+  con l'attributo `form`, quindi lo snippet può stare ovunque nella section. I pulsanti −/+ (solo con JS)
+  sono gestiti da <product-page> (frontend/scripts/product-page.js).
+
+  Regole di quantità e prezzi a scaglioni (cataloghi B2B, variant.quantity_rule e variant.quantity_price_breaks):
+  min, max e step dell'input seguono la regola, che viene anche spiegata; gli scaglioni sono in una tabella.
+  La parte si aggiorna al cambio variante (data-product-part); il valore scelto resta, se la nuova regola lo consente.
+
+  Variante esaurita o combinazione inesistente: controlli disabilitati, come il pulsante di product-buy-buttons, e
+  niente tabella degli scaglioni (restano le regole, valide anche quando la variante tornerà disponibile).
+  Il valore resta nel campo, quindi tornando su una variante acquistabile la quantità scelta non si perde.
+
+  − e + al limite: aria-disabled, aggiornato da syncQuantity() in product-page.js. Il − parte spento perché il valore
+  iniziale è il minimo.
+
+  Massimo: quante unità si possono ancora aggiungere (snippet variant-quantity-limit: regola, giacenza tracciata e unità
+  già nel carrello). Se non si può aggiungere nemmeno il minimo i controlli si disabilitano. Ai cambi di carrello la parte
+  si rilegge dal server (refreshCartLimit in product-page.js). Il messaggio "Massimo disponibile" dipende da Impostazioni
+  tema → Disponibilità; il limite no.
+
+  Parametri:
+  - product: prodotto (obbligatorio, per le etichette dei pulsanti)
+  - variant: variante corrente (obbligatorio per seguire le regole; vuota se la combinazione non esiste)
+  - section_id: id della section (obbligatorio)
+  - form_id: id del form prodotto (obbligatorio)
+  - attributes: attributi extra sul contenitore (es. block.shopify_attributes)
+  - inline: true per etichetta e selettore sulla stessa riga (anteprima rapida, dove lo spazio in altezza è poco)
+
+  Uso: {% render 'product-quantity', product: product, variant: variant, section_id: section.id, form_id: product_form_id %}
+{%- endcomment -%}
+{%- capture quantity_limit -%}{% render 'variant-quantity-limit', variant: variant %}{%- endcapture -%}
+{%- liquid
+  assign rule = variant.quantity_rule
+  assign quantity_min = rule.min | default: 1
+  assign quantity_step = rule.increment | default: 1
+  assign quantity_max = nil
+  assign in_cart = 0
+  assign stock_limited = false
+  assign quantity_disabled = true
+  if variant.available
+    assign quantity_disabled = false
+  endif
+
+  if quantity_limit != blank
+    assign quantity_max = quantity_limit | plus: 0
+    assign in_cart = cart | item_count_for_variant: variant.id
+    assign rule_left = rule.max | minus: in_cart
+    if rule.max == blank or quantity_max < rule_left
+      assign stock_limited = true
+    endif
+    if quantity_max < quantity_min
+      assign quantity_disabled = true
+    endif
+  endif
+
+  assign show_available = false
+  assign show_in_cart = false
+  if variant.available
+    if stock_limited and quantity_disabled == false and settings.quantity_show_available and quantity_max <= settings.quantity_available_threshold
+      assign show_available = true
+    endif
+    if in_cart > 0
+      assign show_in_cart = true
+    endif
+  endif
+-%}
+<div class="{% if inline %}flex flex-wrap items-center justify-between gap-x-4 gap-y-2{% else %}flex flex-col gap-2{% endif %}" data-quantity data-product-part="quantity" {{ attributes }}>
+  <label for="Quantity-{{ section_id }}" class="text-body-sm font-semibold text-foreground">
+    {{- 'products.product.quantity.label' | t -}}
+  </label>
+  <div class="flex w-fit items-center rounded-button border border-border-strong bg-background p-1 has-disabled:cursor-not-allowed has-disabled:border-border has-disabled:bg-surface">
+    <button
+      type="button"
+      class="button button-subtle button-sm button-icon hidden js:inline-flex"
+      data-quantity-step="down"
+      {% if quantity_disabled %}
+        disabled
+      {% else %}
+        aria-disabled="true"
+      {% endif %}
+    >
+      {% render 'icon', name: 'minus', class: 'size-5' %}
+      <span class="sr-only">{{ 'products.product.quantity.decrease' | t: product: product.title }}</span>
+    </button>
+    <input
+      type="number"
+      id="Quantity-{{ section_id }}"
+      name="quantity"
+      form="{{ form_id }}"
+      value="{{ quantity_min }}"
+      min="{{ quantity_min }}"
+      step="{{ quantity_step }}"
+      {% if quantity_max %}
+        max="{{ quantity_max }}"
+      {% endif %}
+      {% if quantity_disabled %}
+        disabled
+      {% endif %}
+      data-preserve-field
+      class="h-9 w-12 rounded-sm border-0 bg-transparent text-center text-body font-semibold tabular-nums [appearance:textfield] focus-visible:outline-offset-0 disabled:cursor-not-allowed disabled:text-subtle [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+    >
+    <button
+      type="button"
+      class="button button-subtle button-sm button-icon hidden js:inline-flex"
+      data-quantity-step="up"
+      {% if quantity_disabled %}
+        disabled
+      {% endif %}
+    >
+      {% render 'icon', name: 'plus', class: 'size-5' %}
+      <span class="sr-only">{{ 'products.product.quantity.increase' | t: product: product.title }}</span>
+    </button>
+  </div>
+
+  {%- if quantity_min > 1 or quantity_step > 1 or rule.max or show_available or show_in_cart -%}
+    <ul class="flex w-full flex-wrap gap-x-3 gap-y-1 text-body-sm text-foreground/80" role="list">
+      {%- if quantity_min > 1 -%}
+        <li>{{ 'products.product.quantity.min_of' | t: quantity: quantity_min }}</li>
+      {%- endif -%}
+      {%- if rule.max -%}
+        <li>{{ 'products.product.quantity.max_of' | t: quantity: rule.max }}</li>
+      {%- endif -%}
+      {%- if quantity_step > 1 -%}
+        <li>{{ 'products.product.quantity.multiples_of' | t: quantity: quantity_step }}</li>
+      {%- endif -%}
+      {%- if show_available -%}
+        <li>{{ 'products.product.quantity.max_available' | t: quantity: quantity_max }}</li>
+      {%- endif -%}
+      {%- if show_in_cart -%}
+        <li>{{ 'products.product.quantity.in_cart' | t: quantity: in_cart }}</li>
+      {%- endif -%}
+    </ul>
+  {%- endif -%}
+
+  {%- if variant.available and variant.quantity_price_breaks_configured? -%}
+    <table class="mt-2 w-full max-w-sm text-body-sm">
+      <caption class="pb-2 text-start font-semibold text-foreground">
+        {{- 'products.product.volume_pricing.title' | t -}}
+      </caption>
+      <thead class="sr-only">
+        <tr>
+          <th scope="col">{{ 'products.product.quantity.label' | t }}</th>
+          <th scope="col">{{ 'products.product.volume_pricing.price_each' | t }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border border-y border-border">
+        <tr>
+          <th scope="row" class="py-2 text-start font-normal tabular-nums text-foreground">{{ quantity_min }}+</th>
+          <td class="py-2 text-end tabular-nums text-foreground">
+            {%- assign unit_price = variant.price | money -%}
+            {{- 'products.product.volume_pricing.price_at_each' | t: price: unit_price -}}
+          </td>
+        </tr>
+        {%- for price_break in variant.quantity_price_breaks -%}
+          <tr>
+            <th scope="row" class="py-2 text-start font-normal tabular-nums text-foreground">{{ price_break.minimum_quantity }}+</th>
+            <td class="py-2 text-end tabular-nums text-foreground">
+              {%- assign unit_price = price_break.price | money -%}
+              {{- 'products.product.volume_pricing.price_at_each' | t: price: unit_price -}}
+            </td>
+          </tr>
+        {%- endfor -%}
+      </tbody>
+    </table>
+  {%- endif -%}
+</div>

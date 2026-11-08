@@ -1,0 +1,65 @@
+{%- comment -%}
+  Anteprima rapida del prodotto: <dialog> a tutto schermo aperto da JS (frontend/entrypoints/quick-view.js, custom
+  element <quick-view>). Il contenuto arriva da sections/quick-view.liquid con la Section Rendering API; nel
+  frattempo si vede lo scheletro qui sotto. Solo con JS: senza JS i trigger sono normali link alla pagina prodotto.
+
+  Sotto i 750px è un pannello dal basso (a portata di pollice): scorre tutto insieme, immagine compresa, e
+  l'aggiunta al carrello resta sempre visibile (sections/quick-view.liquid). Da 750px pannello centrale a due colonne.
+
+  Sfondo e chiusura cliccando fuori sono gestiti dal JS ([data-quick-view-backdrop]) per animarli
+  insieme al pannello; focus intrappolato, Esc e pagina inerte restano quelli nativi di showModal().
+
+  Dialog largo 100vw (w-screen), non 100%: con lo scorrimento morbido il blocco dello scroll toglie la barra
+  qualche fotogramma dopo l'apertura (transizione di Lenis, vedi frontend/styles/scroll-lock.css), e con una
+  larghezza al 100% il pannello centrato si sposterebbe di metà barra dopo che quick-view.js ha misurato dove far
+  atterrare l'immagine in volo.
+
+  Parametri:
+  - id: id dell'elemento <quick-view>, letto dai trigger (es. data-quick-view su <animated-gallery>)
+
+  Uso: {% render 'quick-view', id: quick_view_id %} (carica da sé quick-view.js)
+{%- endcomment -%}
+<quick-view
+  id="{{ id }}"
+  class="contents"
+  data-error="{{ 'products.quick_view.error' | t | escape }}"
+  data-view-product="{{ 'products.quick_view.view_product' | t | escape }}"
+>
+  <dialog data-scroll-lock class="fixed inset-0 m-0 h-dvh w-screen max-h-none max-w-none overflow-hidden bg-transparent p-0 text-foreground backdrop:bg-transparent">
+    <div data-quick-view-backdrop class="absolute inset-0 bg-overlay"></div>
+
+    <div class="pointer-events-none relative flex size-full items-end justify-center md:items-center md:p-8">
+      <div
+        data-quick-view-panel
+        class="pointer-events-auto relative h-[92dvh] w-full max-w-5xl overflow-hidden rounded-t-xl bg-background shadow-600 md:h-full md:max-h-176 md:rounded-xl"
+      >
+        <button
+          type="button"
+          data-quick-view-close
+          class="button button-neutral button-icon md:button-sm absolute end-3 top-3 z-20 shadow-300"
+          aria-label="{{ 'products.quick_view.close' | t | escape }}"
+        >
+          {% render 'icon', name: 'x-mark', class: 'size-5' %}
+        </button>
+        <div data-quick-view-content class="size-full"></div>
+      </div>
+    </div>
+
+    {%- comment -%} Scheletro di caricamento: stessa griglia di sections/quick-view.liquid {%- endcomment -%}
+    <template data-quick-view-skeleton>
+      <div class="size-full overflow-hidden md:grid md:grid-cols-2">
+        <div class="media-loading relative h-[clamp(10rem,30dvh,20rem)] overflow-hidden bg-background md:h-auto md:bg-surface" data-quick-view-media></div>
+        <div class="flex flex-col gap-4 p-6 md:p-10" aria-busy="true">
+          <p class="sr-only" role="status">{{ 'products.quick_view.loading' | t }}</p>
+          <div class="skeleton h-4 w-1/4 rounded-sm"></div>
+          <div class="skeleton h-8 w-3/4 rounded-sm"></div>
+          <div class="skeleton h-6 w-1/3 rounded-sm"></div>
+          <div class="skeleton mt-4 h-24 w-full rounded-md"></div>
+          <div class="skeleton h-13 w-full rounded-button"></div>
+        </div>
+      </div>
+    </template>
+  </dialog>
+</quick-view>
+
+{% render 'vite-tag', entry: 'quick-view.js' %}

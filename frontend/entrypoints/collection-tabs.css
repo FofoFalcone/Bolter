@@ -1,0 +1,17 @@
+/*
+ * Collezioni in tab — sections/collection-tabs.liquid
+ * Lo stile è nelle utility Tailwind del markup; qui solo gli stati prima che il custom element
+ * <collection-tabs> sia definito (il JS posiziona l'indicatore e gestisce l'attributo hidden).
+ */
+
+@layer components {
+  /* Indicatore non ancora posizionato: la tab attiva mostra il proprio bordo */
+  collection-tabs:not(:defined) .collection-tabs__tab[aria-selected='true'] {
+    box-shadow: inset 0 -2px 0 var(--color-neutral);
+  }
+
+  /* Con JS: solo il primo pannello visibile già al primo paint (niente salti di layout) */
+  .js collection-tabs:not(:defined) .collection-tabs__panel + .collection-tabs__panel {
+    display: none;
+  }
+}

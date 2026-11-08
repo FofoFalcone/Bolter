@@ -1,0 +1,217 @@
+{%- comment -%}
+  Risultati della ricerca predittiva. Non si aggiunge dal theme editor (niente preset): Shopify la renderizza
+  su /search/suggest?q=…&section_id=predictive-search (Predictive Search API + Section Rendering API) e
+  frontend/scripts/predictive-search.js la inserisce nel pannello di ricerca dell'header.
+
+  - Elenco unico role="listbox" con gruppi (suggerimenti, prodotti, collezioni, pagine e articoli):
+    ogni risultato è un link con role="option" e id, navigabile con le frecce dal campo (aria-activedescendant).
+    Il ruolo sta sull'<a> (dentro <li role="presentation">): un link dentro un'opzione sarebbe un elemento
+    interattivo annidato (axe "nested-interactive"). Opzione attiva con contorno visibile, non solo uno sfondo.
+  - Mai il "body" delle risorse: nei negozi multilingua mescola le lingue (indicazione Shopify).
+  - Comparsa dei risultati con leggero ritardo progressivo (solo CSS, @starting-style).
+{%- endcomment -%}
+{%- if predictive_search.performed -%}
+  {%- liquid
+    assign resources = predictive_search.resources
+    assign queries = resources.queries
+    assign products = resources.products
+    assign collections = resources.collections
+    assign pages = resources.pages
+    assign articles = resources.articles
+    # I tipi senza risultati possono essere nil (non elenchi vuoti): conteggi con il filtro size, che vale 0 su nil
+    assign query_count = queries | size
+    assign product_count = products | size
+    assign collection_count = collections | size
+    assign page_count = pages | size
+    assign article_count = articles | size
+    assign side_count = query_count | plus: collection_count | plus: page_count | plus: article_count
+    assign total = side_count | plus: product_count
+    assign terms = predictive_search.terms | escape
+  -%}
+
+  {%- capture reveal_class -%}
+    motion-safe:transition-[opacity,translate] motion-safe:delay-[calc(var(--i,0)*25ms)] motion-safe:duration-300 motion-safe:ease-theme motion-safe:starting:translate-y-1 motion-safe:starting:opacity-0
+  {%- endcapture -%}
+  {%- capture option_class -%}
+    block rounded-md px-3 py-2 text-body text-foreground transition-colors hover:bg-surface aria-selected:bg-surface aria-selected:outline-2 aria-selected:-outline-offset-2 aria-selected:outline-foreground
+  {%- endcapture -%}
+  {%- capture group_label_class -%}
+    px-3 pb-1 text-body-sm font-semibold text-muted
+  {%- endcapture -%}
+
+  <div data-predictive-results data-total="{{ total }}" data-terms="{{ terms }}">
+    {%- comment -%} Testo per la regione live del pannello (frontend/scripts/predictive-search.js) {%- endcomment -%}
+    <p hidden data-predictive-announcement>{{ 'general.predictive_search.results_count' | t: count: total }}</p>
+
+    {%- if total == 0 -%}
+      <div class="flex flex-col items-start gap-2 py-6">
+        <p class="text-subheading text-foreground">{{ 'general.predictive_search.no_results' | t: terms: terms }}</p>
+        <p class="text-body text-muted">{{ 'general.predictive_search.no_results_hint' | t }}</p>
+      </div>
+    {%- else -%}
+      <div
+        id="PredictiveSearchResults"
+        role="listbox"
+        aria-label="{{ 'general.predictive_search.results_label' | t }}"
+        class="grid gap-8{% if side_count > 0 and product_count > 0 %} lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] lg:gap-12{% endif %}"
+      >
+        {%- comment -%} Colonna sinistra: suggerimenti di ricerca, collezioni, pagine e articoli {%- endcomment -%}
+        {%- if side_count > 0 -%}
+          {%- comment -%} -mx-3: testi allineati al bordo, lo sfondo di hover/selezione sporge verso l'esterno {%- endcomment -%}
+          <div class="-mx-3 flex flex-col gap-6">
+            {%- if query_count > 0 -%}
+              <ul role="group" aria-labelledby="PredictiveSearchQueries" class="flex flex-col">
+                <li id="PredictiveSearchQueries" role="presentation" class="{{ group_label_class }}">
+                  {{- 'general.predictive_search.suggestions' | t -}}
+                </li>
+                {%- for query in queries -%}
+                  <li role="presentation" class="{{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                    <a
+                      href="{{ query.url }}"
+                      id="PredictiveSearchOption-query-{{ forloop.index }}"
+                      role="option"
+                      aria-selected="false"
+                      tabindex="-1"
+                      class="{{ option_class }} [&_mark]:bg-transparent [&_mark]:font-semibold [&_mark]:text-foreground"
+                    >
+                      {{- query.styled_text -}}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+            {%- if collection_count > 0 -%}
+              <ul role="group" aria-labelledby="PredictiveSearchCollections" class="flex flex-col">
+                <li id="PredictiveSearchCollections" role="presentation" class="{{ group_label_class }}">
+                  {{- 'general.predictive_search.collections' | t -}}
+                </li>
+                {%- for collection in collections -%}
+                  <li role="presentation" class="{{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                    <a
+                      href="{{ collection.url }}"
+                      id="PredictiveSearchOption-collection-{{ forloop.index }}"
+                      role="option"
+                      aria-selected="false"
+                      tabindex="-1"
+                      class="{{ option_class }}"
+                    >
+                      {{- collection.title | escape -}}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+            {%- if page_count > 0 or article_count > 0 -%}
+              <ul role="group" aria-labelledby="PredictiveSearchPages" class="flex flex-col">
+                <li id="PredictiveSearchPages" role="presentation" class="{{ group_label_class }}">
+                  {{- 'general.predictive_search.pages' | t -}}
+                </li>
+                {%- for page in pages -%}
+                  <li role="presentation" class="{{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                    <a
+                      href="{{ page.url }}"
+                      id="PredictiveSearchOption-page-{{ forloop.index }}"
+                      role="option"
+                      aria-selected="false"
+                      tabindex="-1"
+                      class="{{ option_class }}"
+                    >
+                      {{- page.title | escape -}}
+                    </a>
+                  </li>
+                {%- endfor -%}
+                {%- for article in articles -%}
+                  <li role="presentation" class="{{ reveal_class }}" style="--i: {{ forloop.index0 | plus: page_count }};">
+                    <a
+                      href="{{ article.url }}"
+                      id="PredictiveSearchOption-article-{{ forloop.index }}"
+                      role="option"
+                      aria-selected="false"
+                      tabindex="-1"
+                      class="{{ option_class }} flex flex-col"
+                    >
+                      {{- article.title | escape -}}
+                      {%- comment -%} text-foreground/80: resta ≥ 4.5:1 anche sullo sfondo bg-surface di hover e selezione {%- endcomment -%}
+                      <span class="text-body-sm text-foreground/80">{{ article.blog.title | escape }}</span>
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Prodotti: griglia con immagine, titolo e prezzo {%- endcomment -%}
+        {%- if product_count > 0 -%}
+          {%- comment -%} Etichetta fuori dalla griglia (allineata alle immagini); <ul> di presentazione: opzioni dentro il gruppo {%- endcomment -%}
+          <div
+            role="group"
+            aria-labelledby="PredictiveSearchProducts"
+            class="flex flex-col gap-1"
+          >
+            <p id="PredictiveSearchProducts" class="pb-1 text-body-sm font-semibold text-muted">
+              {{- 'general.predictive_search.products' | t -}}
+            </p>
+            <ul role="presentation" class="grid grid-cols-2 gap-x-4 gap-y-6 pt-2 sm:grid-cols-3 xl:grid-cols-6">
+            {%- for product in products -%}
+              <li role="presentation" class="{{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                <a
+                  href="{{ product.url }}"
+                  id="PredictiveSearchOption-product-{{ forloop.index }}"
+                  role="option"
+                  aria-selected="false"
+                  tabindex="-1"
+                  class="group/result flex flex-col gap-3 rounded-lg outline-offset-4 aria-selected:outline-2 aria-selected:outline-foreground"
+                >
+                  <span class="block aspect-square overflow-hidden rounded-lg bg-surface">
+                    {%- if product.featured_image != blank -%}
+                      {{
+                        product.featured_image
+                        | image_url: width: 480
+                        | image_tag:
+                          widths: '160, 240, 320, 480',
+                          sizes: '(min-width: 1280px) 9rem, (min-width: 640px) 30vw, 45vw',
+                          alt: '',
+                          class: 'size-full object-cover transition-transform duration-500 ease-theme group-hover/result:scale-105 motion-reduce:transition-none'
+                      }}
+                    {%- else -%}
+                      {{ 'product-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
+                    {%- endif -%}
+                  </span>
+                  <span class="flex flex-col gap-1">
+                    <span class="text-body text-foreground underline-offset-4 group-hover/result:underline">{{ product.title | escape }}</span>
+                    {% render 'price', product: product %}
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Tutti i risultati nella pagina di ricerca (anche con zero risultati: la pagina suggerisce alternative) {%- endcomment -%}
+    <div class="mt-8 border-t border-border pt-4">
+      {%- comment -%} Stesso effetto di Invio nel campo senza un risultato attivo {%- endcomment -%}
+      <a
+        href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}&options%5Bprefix%5D=last"
+        class="group/all inline-flex items-center gap-1.5 rounded-md text-body font-semibold text-foreground underline-offset-4 hover:underline"
+      >
+        {{- 'general.predictive_search.search_for' | t: terms: terms -}}
+        {% render 'icon', name: 'arrow-right', class: 'size-4 transition-transform group-hover/all:translate-x-0.5 motion-reduce:transition-none' %}
+      </a>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.predictive_search.name",
+  "tag": "div",
+  "class": "section-predictive-search",
+  "settings": []
+}
+{% endschema %}

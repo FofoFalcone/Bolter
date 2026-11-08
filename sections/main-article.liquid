@@ -1,0 +1,372 @@
+{%- comment -%}
+  Pagina articolo (templates/article.json): intestazione (ritorno al blog, tag, titolo, autore, data, tempo di
+  lettura), immagine in evidenza (LCP), contenuto, condivisione, autore, articolo precedente/successivo e commenti.
+
+  - Dati strutturati: filtro structured_data (schema.org Article); il percorso Home › Blog › Articolo è in
+    snippets/structured-data.liquid.
+  - Commenti (se attivi sul blog): {% form 'new_comment', article %} nativo, senza JS (hCaptcha automatico per i form
+    con action /blogs); esito dopo il ricaricamento con il messaggio che prende il focus (autofocus). Con la
+    moderazione il commento compare solo dopo l'approvazione: il messaggio lo dice. Elenco paginato (20 per pagina).
+  - Condivisione: <share-button> (frontend/entrypoints/share-button.js), solo con JS: condivisione nativa del
+    dispositivo o copia del link.
+  - Tempo di lettura: parole del contenuto / 200 al minuto (stima, arrotondata per eccesso).
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{%- liquid
+  assign s = section.settings
+  assign words = article.content | strip_html | split: ' ' | size
+  assign reading_minutes = words | divided_by: 200.0 | ceil | at_least: 1
+  assign form_id = 'CommentForm-' | append: section.id
+  assign above_fold = false
+  if section.index == 1
+    assign above_fold = true
+  endif
+-%}
+
+<script type="application/ld+json">
+  {{ article | structured_data }}
+</script>
+
+<article class="page-width py-10 md:py-16{% if s.show_reading_progress %} reading-progress-scope{% endif %}">
+  {%- if s.show_reading_progress -%}
+    {% render 'vite-tag', entry: 'reading-progress.css' %}
+    <div class="reading-progress" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <header class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+    <a
+      href="{{ blog.url }}"
+      class="inline-flex items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground/80 transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
+      {% render 'icon', name: 'chevron-left', class: 'size-4' %}
+      {{- blog.title | escape -}}
+    </a>
+
+    {%- if s.show_tags and article.tags.size > 0 -%}
+      <ul class="flex flex-wrap justify-center gap-2" role="list" aria-label="{{ 'blogs.article.tags' | t | escape }}">
+        {%- for tag in article.tags -%}
+          <li>
+            <a
+              href="{{ blog.url }}/tagged/{{ tag | handle }}"
+              class="inline-flex h-8 items-center rounded-button bg-surface px-3 text-body-sm text-foreground transition-colors duration-150 hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+            >
+              {{- tag | escape -}}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    <h1 class="text-heading text-balance text-foreground md:text-title-page">{{ article.title | escape }}</h1>
+
+    <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-body-sm text-foreground/80">
+      {%- if s.show_author and article.author != blank -%}
+        <span class="inline-flex items-center gap-2 font-semibold text-foreground">
+          {%- if article.user.image -%}
+            {{
+              article.user.image
+              | image_url: width: 80, height: 80, crop: 'center'
+              | image_tag: alt: '', class: 'size-8 rounded-full object-cover', loading: 'eager'
+            }}
+          {%- endif -%}
+          {{ article.author | escape }}
+        </span>
+        <span aria-hidden="true">·</span>
+      {%- endif -%}
+      <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'date' }}</time>
+      {%- if s.show_reading_time -%}
+        <span aria-hidden="true">·</span>
+        <span>{{ 'blogs.article.reading_time' | t: count: reading_minutes }}</span>
+      {%- endif -%}
+    </div>
+  </header>
+
+  {%- if s.show_image and article.image -%}
+    {%- liquid
+      assign image_loading = 'lazy'
+      assign image_priority = 'auto'
+      if above_fold
+        assign image_loading = 'eager'
+        assign image_priority = 'high'
+      endif
+      assign image_alt = article.image.alt | default: ''
+    -%}
+    <figure class="mx-auto mt-10 max-w-5xl md:mt-14">
+      {{
+        article.image
+        | image_url: width: 2000
+        | image_tag:
+          loading: image_loading,
+          fetchpriority: image_priority,
+          sizes: '(min-width: 1088px) 1024px, calc(100vw - 2rem)',
+          widths: '600, 800, 1000, 1200, 1600, 2000',
+          alt: image_alt,
+          class: 'w-full rounded-xl bg-surface object-cover'
+      }}
+    </figure>
+  {%- endif -%}
+
+  <div class="reading-progress-content prose prose-theme mx-auto mt-10 max-w-2xl text-body leading-relaxed text-pretty md:mt-14 md:text-subheading md:leading-relaxed">
+    {{ article.content }}
+  </div>
+
+  <footer class="mx-auto mt-12 flex max-w-2xl flex-col gap-8 border-t border-border pt-8 md:mt-16">
+    {%- if s.show_share -%}
+      <share-button
+        class="hidden items-center gap-3 js:flex"
+        data-url="{{ request.origin }}{{ article.url }}"
+        data-title="{{ article.title | escape }}"
+        data-copied="{{ 'blogs.article.link_copied' | t | escape }}"
+      >
+        <button type="button" class="button button-neutral button-sm" data-share-trigger>
+          {{- 'blogs.article.share' | t -}}
+        </button>
+        <span class="text-body-sm text-foreground/80" role="status" data-share-status></span>
+      </share-button>
+    {%- endif -%}
+
+    {%- if s.show_author and article.user.bio != blank -%}
+      <div class="flex gap-4 rounded-lg bg-surface p-6">
+        {%- if article.user.image -%}
+          {{
+            article.user.image
+            | image_url: width: 128, height: 128, crop: 'center'
+            | image_tag: alt: '', class: 'size-16 shrink-0 rounded-full object-cover', loading: 'lazy'
+          }}
+        {%- endif -%}
+        <div class="flex flex-col gap-1">
+          <p class="text-body-sm text-foreground/80">{{ 'blogs.article.written_by' | t }}</p>
+          <p class="text-body font-semibold text-foreground">{{ article.author | escape }}</p>
+          <p class="text-body-sm text-pretty text-foreground/80">{{ article.user.bio | escape }}</p>
+          {%- if article.user.homepage != blank -%}
+            <a href="{{ article.user.homepage }}" class="w-fit text-body-sm font-semibold text-foreground underline underline-offset-4 hover:no-underline" rel="noopener">
+              {{- 'blogs.article.author_website' | t -}}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </footer>
+
+  {%- if blog.previous_article or blog.next_article -%}
+    <nav class="mx-auto mt-12 grid max-w-3xl gap-4 md:mt-16 md:grid-cols-2" aria-label="{{ 'blogs.article.more_articles' | t | escape }}">
+      {%- capture nav_class -%}
+        group flex flex-col gap-1 rounded-lg border border-border p-5 transition-colors duration-150 hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none
+      {%- endcapture -%}
+      {%- if blog.next_article -%}
+        <a href="{{ blog.next_article.url }}" class="{{ nav_class }}">
+          <span class="inline-flex items-center gap-1 text-body-sm text-foreground/80">
+            {% render 'icon', name: 'chevron-left', class: 'size-4' %}
+            {{- 'blogs.article.older' | t -}}
+          </span>
+          <span class="text-body font-semibold text-balance text-foreground">{{ blog.next_article.title | escape }}</span>
+        </a>
+      {%- else -%}
+        <span class="max-md:hidden"></span>
+      {%- endif -%}
+      {%- if blog.previous_article -%}
+        <a href="{{ blog.previous_article.url }}" class="{{ nav_class }} md:items-end md:text-end">
+          <span class="inline-flex items-center gap-1 text-body-sm text-foreground/80">
+            {{- 'blogs.article.newer' | t -}}
+            {% render 'icon', name: 'chevron-right', class: 'size-4' %}
+          </span>
+          <span class="text-body font-semibold text-balance text-foreground">{{ blog.previous_article.title | escape }}</span>
+        </a>
+      {%- endif -%}
+    </nav>
+  {%- endif -%}
+
+  {%- if blog.comments_enabled? -%}
+    {%- capture label_class -%}text-body-sm font-semibold text-foreground{%- endcapture -%}
+    {%- capture field_class -%}
+      block w-full min-h-11 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary user-invalid:border-danger aria-invalid:border-danger motion-reduce:transition-none
+    {%- endcapture -%}
+    <section id="Comments-{{ section.id }}" class="mx-auto mt-16 flex max-w-2xl scroll-mt-[calc(var(--header-height,0px)+2rem)] flex-col gap-8 md:mt-24" aria-labelledby="CommentsTitle-{{ section.id }}">
+      <h2 id="CommentsTitle-{{ section.id }}" class="text-heading text-foreground">
+        {{- 'blogs.comments.title' | t: count: article.comments_count -}}
+      </h2>
+
+      {%- if article.comments_count > 0 -%}
+        {%- paginate article.comments by 20 -%}
+          <ol class="flex flex-col divide-y divide-border" role="list">
+            {%- for comment in article.comments -%}
+              <li id="comment-{{ comment.id }}" class="flex flex-col gap-2 py-6 first:pt-0">
+                <p class="flex flex-wrap items-baseline gap-x-2 text-body-sm">
+                  <span class="font-semibold text-foreground">{{ comment.author | escape }}</span>
+                  <time class="text-foreground/80" datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">{{ comment.created_at | date: format: 'date' }}</time>
+                </p>
+                <div class="prose prose-theme max-w-none text-body text-pretty">{{ comment.content }}</div>
+              </li>
+            {%- endfor -%}
+          </ol>
+          {%- assign comments_anchor = '#Comments-' | append: section.id -%}
+          {%- render 'pagination', paginate: paginate, anchor: comments_anchor -%}
+        {%- endpaginate -%}
+      {%- endif -%}
+
+      {%- form 'new_comment', article, id: form_id, class: 'flex scroll-mt-[calc(var(--header-height,0px)+2rem)] flex-col gap-6 rounded-lg bg-surface p-6 md:p-8' -%}
+        <h3 class="text-subheading text-foreground">{{ 'blogs.comments.form_title' | t }}</h3>
+
+        {%- if form.posted_successfully? -%}
+          <div class="flex items-start gap-3 rounded-md bg-positive-surface p-4 text-positive-foreground outline-none" tabindex="-1" autofocus role="status">
+            {% render 'icon', name: 'check-circle', class: 'mt-0.5 size-5' %}
+            <p class="text-body text-pretty">
+              {%- if blog.moderated? -%}
+                {{ 'blogs.comments.success_moderated' | t }}
+              {%- else -%}
+                {{ 'blogs.comments.success' | t }}
+              {%- endif -%}
+            </p>
+          </div>
+        {%- elsif form.errors -%}
+          <div class="flex items-start gap-3 rounded-md bg-danger-surface p-4 text-danger-foreground outline-none" tabindex="-1" autofocus role="alert">
+            {% render 'icon', name: 'exclamation-circle', class: 'mt-0.5 size-5' %}
+            <ul class="flex flex-col gap-1 text-body-sm" role="list">
+              {%- for error in form.errors -%}
+                <li>
+                  {%- if error == 'form' -%}
+                    {{ form.errors.messages[error] }}
+                  {%- else -%}
+                    {{ form.errors.translated_fields[error] | capitalize }} {{ form.errors.messages[error] }}
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label for="{{ form_id }}-author" class="{{ label_class }}">{{ 'blogs.comments.name' | t }}</label>
+            <input
+              type="text"
+              id="{{ form_id }}-author"
+              name="comment[author]"
+              value="{% if form.author %}{{ form.author | escape }}{% else %}{{ customer.name | escape }}{% endif %}"
+              autocomplete="name"
+              required
+              class="{{ field_class }}"
+              {% if form.errors contains 'author' %}
+                aria-invalid="true"
+              {% endif %}
+            >
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="{{ form_id }}-email" class="{{ label_class }}">{{ 'blogs.comments.email' | t }}</label>
+            <input
+              type="email"
+              id="{{ form_id }}-email"
+              name="comment[email]"
+              value="{% if form.email %}{{ form.email | escape }}{% else %}{{ customer.email | escape }}{% endif %}"
+              autocomplete="email"
+              autocapitalize="off"
+              spellcheck="false"
+              required
+              aria-describedby="{{ form_id }}-email-info"
+              class="{{ field_class }}"
+              {% if form.errors contains 'email' %}
+                aria-invalid="true"
+              {% endif %}
+            >
+            <p id="{{ form_id }}-email-info" class="text-body-sm text-foreground/80">{{ 'blogs.comments.email_info' | t }}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="{{ form_id }}-body" class="{{ label_class }}">{{ 'blogs.comments.message' | t }}</label>
+          <textarea
+            id="{{ form_id }}-body"
+            name="comment[body]"
+            rows="5"
+            required
+            class="{{ field_class }} min-h-32 resize-y"
+            {% if form.errors contains 'body' %}
+              aria-invalid="true"
+            {% endif %}
+          >
+            {{- form.body -}}
+          </textarea>
+        </div>
+
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
+          <button type="submit" class="button button-primary w-full md:w-auto">{{ 'blogs.comments.submit' | t }}</button>
+          {%- if blog.moderated? -%}
+            <p class="text-body-sm text-pretty text-foreground/80">{{ 'blogs.comments.moderated_notice' | t }}</p>
+          {%- endif -%}
+        </div>
+      {%- endform -%}
+    </section>
+  {%- endif -%}
+</article>
+
+{%- if s.show_share -%}
+  {% render 'vite-tag', entry: 'share-button.js' %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.main_article.name",
+  "tag": "section",
+  "class": "section-main-article",
+  "enabled_on": {
+    "templates": [
+      "article"
+    ]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "t:sections.main_article.settings.show_image.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "t:sections.main_article.settings.show_tags.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reading_progress",
+      "label": "t:sections.main_article.settings.show_reading_progress.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "t:sections.main_article.settings.show_author.label",
+      "info": "t:sections.main_article.settings.show_author.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reading_time",
+      "label": "t:sections.main_article.settings.show_reading_time.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share",
+      "label": "t:sections.main_article.settings.show_share.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_article.settings.header_1.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.main_article.settings.color_background.label",
+      "info": "t:sections.main_article.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.main_article.settings.color_text.label",
+      "info": "t:sections.main_article.settings.color_text.info"
+    }
+  ]
+}
+{% endschema %}

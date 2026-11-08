@@ -1,0 +1,397 @@
+{%- comment -%}
+  Pannello dei filtri Search & Discovery (storefront filtering), condiviso da collezione e ricerca.
+
+  - Sotto i 990px: cassetto da sinistra = popover nativo (popover + popovertarget, si apre anche senza JS);
+    da 990px il popover è sempre visibile come barra laterale ('sidebar') o barra orizzontale di tendine ('toolbar').
+  - Senza JS: form GET con "Mostra N prodotti". Con JS (frontend/entrypoints/collection.js, <product-facets>)
+    ogni modifica aggiorna i risultati con la Section Rendering API: le parti marcate data-facets-part vengono
+    sostituite, gli id restano stabili (focus e gruppi aperti ripristinati).
+  - Tipi di filtro: list (valori come testo, swatch o immagine secondo filter.presentation), boolean, price_range.
+    Valori senza risultati disattivati (se non attivi); oltre 10 valori il resto è in "Mostra altri".
+  - Le etichette in data-filter-label / data-value-label servono a <product-facets> per il payload dello
+    standard event shopify:collection:update (productFilters).
+
+  Parametri:
+  - results: collection o search (filters, products_count / results_count)
+  - results_count: numero di prodotti con i filtri attuali (testo del pulsante "Mostra")
+  - section_id: id della section (id univoci)
+  - layout: 'sidebar' (default) o 'toolbar' (disposizione da 990px)
+  - action: URL del form (collection.url o routes.search_url)
+  - clear_url: URL senza filtri (mantiene ordinamento e ricerca)
+  - sort_by: ordinamento attuale, mantenuto nel form senza JS
+  - terms: termini di ricerca (solo nella ricerca: input nascosto q)
+
+  Uso: {% render 'facets-panel', results: collection, results_count: collection.products_count, section_id: section.id, layout: 'sidebar', action: collection.url, clear_url: clear_url, sort_by: collection.sort_by %}
+{%- endcomment -%}
+{%- liquid
+  assign toolbar = false
+  if layout == 'toolbar'
+    assign toolbar = true
+  endif
+  assign panel_id = 'FacetsPanel-' | append: section_id
+  assign form_id = 'FacetsForm-' | append: section_id
+  assign title_id = 'FacetsTitle-' | append: section_id
+  assign submit_id = 'FacetsSubmit-' | append: section_id
+  assign visible_values = 10
+
+  # "Cancella tutto" solo con almeno un filtro attivo (stessa condizione di snippets/facets-active.liquid)
+  assign has_active = false
+  for filter in results.filters
+    if filter.active_values.size > 0
+      assign has_active = true
+      break
+    endif
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign has_active = true
+        break
+      endif
+    endif
+  endfor
+
+  if toolbar
+    assign summary_class = 'lg:h-9 lg:w-auto lg:gap-2 lg:rounded-button lg:border lg:border-border lg:px-4 lg:py-0 lg:text-body-sm lg:font-normal lg:hover:bg-surface-hover lg:group-open/facet:border-foreground'
+    assign content_class = 'lg:absolute lg:top-full lg:left-0 lg:z-20 lg:mt-2 lg:max-h-[min(28rem,60dvh)] lg:w-72 lg:overflow-y-auto lg:overscroll-contain lg:rounded-lg lg:border lg:border-border lg:bg-background lg:p-4 lg:shadow-400'
+  else
+    assign summary_class = ''
+    assign content_class = ''
+  endif
+-%}
+
+<div
+  id="{{ panel_id }}"
+  popover
+  class="facets-drawer m-0 h-dvh max-h-dvh w-[min(24rem,calc(100vw-3rem))] max-w-none overflow-hidden border-0 bg-background p-0 text-foreground shadow-600 lg:static lg:block lg:h-auto lg:max-h-none lg:w-auto lg:overflow-visible lg:bg-transparent lg:shadow-none"
+  role="region"
+  aria-labelledby="{{ title_id }}"
+  data-facets-panel
+>
+  <form
+    id="{{ form_id }}"
+    action="{{ action }}"
+    method="get"
+    class="flex h-full flex-col lg:h-auto"
+    data-facets-form
+  >
+    {%- if terms != blank -%}
+      <input type="hidden" name="q" value="{{ terms | escape }}">
+      <input type="hidden" name="options[prefix]" value="last">
+    {%- endif -%}
+    {%- if sort_by != blank -%}
+      <input type="hidden" name="sort_by" value="{{ sort_by | escape }}" data-facets-sort-fallback>
+    {%- endif -%}
+
+    <div class="flex items-center justify-between gap-4 border-b border-border px-6 py-4 lg:border-0 lg:p-0{% if toolbar %} lg:sr-only{% else %} lg:pb-2{% endif %}">
+      <h2 id="{{ title_id }}" class="text-heading text-foreground lg:text-subheading">{{ 'sections.collection.filters' | t }}</h2>
+      <button
+        type="button"
+        class="button button-subtle button-sm button-icon lg:hidden"
+        popovertarget="{{ panel_id }}"
+        popovertargetaction="hide"
+      >
+        {% render 'icon', name: 'x-mark', class: 'size-6' %}
+        <span class="sr-only">{{ 'sections.collection.close_filters' | t }}</span>
+      </button>
+    </div>
+
+    <div
+      class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 lg:overflow-visible lg:px-0{% if toolbar %} lg:flex lg:flex-wrap lg:items-center lg:gap-2{% endif %}"
+      data-facets-part="filters"
+      data-facets-scroll
+      data-lenis-prevent
+    >
+      {%- for filter in results.filters -%}
+        {%- liquid
+          assign group_id = 'FacetGroup-' | append: section_id | append: '-' | append: filter.param_name | handleize
+          assign active_count = filter.active_values.size
+          if filter.type == 'price_range'
+            assign active_count = 0
+            if filter.min_value.value != nil or filter.max_value.value != nil
+              assign active_count = 1
+            endif
+          endif
+
+          # Barra laterale e cassetto: aperti i primi 5 gruppi e quelli con filtri attivi (linee guida UX Shopify)
+          assign open = false
+          unless toolbar
+            if forloop.index <= 5 or active_count > 0
+              assign open = true
+            endif
+          endunless
+        -%}
+        <details
+          id="{{ group_id }}"
+          class="group/facet border-b border-border{% if toolbar %} lg:relative lg:border-0{% endif %}"
+          {% if toolbar %}
+            name="facets-{{ section_id }}"
+          {% endif %}
+          {% if open %}
+            open
+          {% endif %}
+          data-facet-group
+        >
+          <summary id="{{ group_id }}-summary" class="flex w-full cursor-pointer list-none items-center justify-between gap-3 rounded-sm py-4 text-body font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden {{ summary_class }}">
+            <span class="flex items-center gap-2">
+              {{- filter.label | escape -}}
+              {%- if active_count > 0 -%}
+                <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-body-sm leading-5 font-semibold text-primary-foreground tabular-nums" aria-hidden="true">
+                  {{- active_count -}}
+                </span>
+                <span class="sr-only">({{ 'sections.collection.selected_count' | t: count: active_count }})</span>
+              {%- endif -%}
+            </span>
+            {% render 'icon', name: 'chevron-down', class: 'size-5 shrink-0 text-muted transition-transform duration-200 ease-theme group-open/facet:rotate-180 motion-reduce:transition-none' %}
+          </summary>
+
+          <div class="pb-4 {{ content_class }}"{% if toolbar %} data-lenis-prevent{% endif %}>
+            {%- if active_count > 0 -%}
+              <a
+                href="{{ filter.url_to_remove }}"
+                class="mb-2 inline-block text-body-sm text-muted underline underline-offset-4 hover:text-foreground"
+                data-facets-link
+              >
+                {{- 'sections.collection.reset_group' | t -}}
+                <span class="sr-only">: {{ filter.label | escape }}</span>
+              </a>
+            {%- endif -%}
+
+            {%- case filter.type -%}
+              {%- when 'price_range' -%}
+                {%- liquid
+                  capture min_value
+                    render 'facets-price-value', amount: filter.min_value.value
+                  endcapture
+                  capture max_value
+                    render 'facets-price-value', amount: filter.max_value.value
+                  endcapture
+                  capture range_max
+                    render 'facets-price-value', amount: filter.range_max
+                  endcapture
+                  assign min_id = group_id | append: '-min'
+                  assign max_id = group_id | append: '-max'
+
+                  # Slider: unità intere da 0 al prezzo più alto arrotondato per eccesso (raggiungibile con step 1).
+                  # Posizioni iniziali in % sulla stessa scala dello slider (centesimi / unità = percentuale):
+                  # nessun salto all'avvio del JS.
+                  assign slider_max = filter.range_max | divided_by: 100.0 | ceil
+                  assign slider_min_value = min_value | default: 0
+                  assign slider_max_value = max_value | default: slider_max
+                  assign min_percent = 0
+                  assign max_percent = 100
+                  if slider_max > 0
+                    if filter.min_value.value != nil
+                      assign min_percent = filter.min_value.value | times: 1.0 | divided_by: slider_max | at_most: 100 | round: 2
+                    endif
+                    if filter.max_value.value != nil
+                      assign max_percent = filter.max_value.value | times: 1.0 | divided_by: slider_max | at_most: 100 | round: 2
+                    endif
+                  endif
+                  assign min_money = filter.min_value.value | default: 0 | money
+                  assign max_money = filter.max_value.value | default: filter.range_max | money
+                  # Placeholder: solo testo da leggere, nel formato del negozio (36,50). range_max resta col punto per max e URL
+                  assign max_placeholder = filter.range_max | money_without_currency | strip_html
+                -%}
+                <fieldset class="flex flex-col gap-3" data-facets-price>
+                  <legend class="sr-only">{{ filter.label | escape }}</legend>
+
+                  {%- if slider_max > 0 -%}
+                    {%- comment -%}
+                      Slider a due maniglie (linee guida UX di Shopify: slider + campi numerici): componente del tema
+                      <price-range> (frontend/scripts/price-range.js, pattern WAI-ARIA "Multi-Thumb Slider"). Solo con
+                      JS; non invia nulla: collection.js lo sincronizza con i campi Da/A, che restano quelli inviati.
+                      Maniglia a un estremo = nessun limite su quel lato. Maniglie centrate sui valori: sia la parte
+                      colorata sia le maniglie stanno nella barra rientrata di 10px per lato (metà maniglia).
+                      Transizioni di posizione solo per i tocchi sulla barra e i tasti: niente ritardo mentre si trascina.
+                    {%- endcomment -%}
+                    {%- capture thumb_class -%}
+                      absolute top-1/2 size-5 -translate-1/2 cursor-grab touch-none rounded-full border-2 border-primary bg-background shadow-200 transition-[left,scale] duration-150 ease-theme before:absolute before:-inset-3 before:content-[''] hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:cursor-grabbing data-front:z-10 group-data-dragging/range:transition-[scale] motion-reduce:transition-none
+                    {%- endcapture -%}
+                    {%- comment -%} --tooltip-x segue la maniglia: a inizio barra l'etichetta è allineata a sinistra, a fine barra a destra, e resta nel pannello {%- endcomment -%}
+                    {%- capture thumb_value_class -%}
+                      tooltip tabular-nums group-data-dragging/range:in-data-front:opacity-100
+                    {%- endcapture -%}
+                    <price-range
+                      class="group/range relative mt-1 hidden h-7 touch-none select-none js:block"
+                      style="--range-min: {{ min_percent }}%; --range-max: {{ max_percent }}%;"
+                      data-max="{{ slider_max }}"
+                      data-currency="{{ cart.currency.iso_code }}"
+                      data-price-range
+                    >
+                      <div class="absolute inset-x-2.5 top-1/2 h-1 -translate-y-1/2 cursor-pointer rounded-full bg-border" data-price-range-track>
+                        <div class="absolute inset-y-0 right-[calc(100%-var(--range-max))] left-(--range-min) rounded-full bg-primary transition-[left,right] duration-150 ease-theme group-data-dragging/range:transition-none motion-reduce:transition-none"></div>
+                        <span
+                          id="{{ min_id }}-thumb"
+                          class="{{ thumb_class }} left-(--range-min)"
+                          role="slider"
+                          tabindex="0"
+                          aria-label="{{ 'sections.collection.price_range_min' | t | escape }}"
+                          aria-orientation="horizontal"
+                          aria-valuemin="0"
+                          aria-valuemax="{{ slider_max_value }}"
+                          aria-valuenow="{{ slider_min_value }}"
+                          aria-valuetext="{{ min_money | strip_html | escape }}"
+                          data-thumb="min"
+                        >
+                          <span class="{{ thumb_value_class }} [--tooltip-x:calc(var(--range-min)*-1)]" aria-hidden="true" data-thumb-value>{{ min_money | strip_html }}</span>
+                        </span>
+                        <span
+                          id="{{ max_id }}-thumb"
+                          class="{{ thumb_class }} left-(--range-max)"
+                          role="slider"
+                          tabindex="0"
+                          aria-label="{{ 'sections.collection.price_range_max' | t | escape }}"
+                          aria-orientation="horizontal"
+                          aria-valuemin="{{ slider_min_value }}"
+                          aria-valuemax="{{ slider_max }}"
+                          aria-valuenow="{{ slider_max_value }}"
+                          aria-valuetext="{{ max_money | strip_html | escape }}"
+                          data-thumb="max"
+                        >
+                          <span class="{{ thumb_value_class }} [--tooltip-x:calc(var(--range-max)*-1)]" aria-hidden="true" data-thumb-value>{{ max_money | strip_html }}</span>
+                        </span>
+                      </div>
+                    </price-range>
+                  {%- endif -%}
+
+                  <div class="grid grid-cols-2 gap-3">
+                    {%- capture price_field_class -%}
+                      h-11 w-full min-w-0 rounded-button border border-border-strong bg-background ps-8 pe-3 text-body text-foreground tabular-nums placeholder:text-muted aria-invalid:border-danger-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary
+                    {%- endcapture -%}
+                    <div class="flex flex-col gap-1">
+                      <label for="{{ min_id }}" class="text-body-sm text-muted">{{ 'sections.collection.price_from' | t }}</label>
+                      <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-body text-muted" aria-hidden="true">{{ cart.currency.symbol }}</span>
+                        <input
+                          id="{{ min_id }}"
+                          class="{{ price_field_class }}"
+                          type="number"
+                          inputmode="decimal"
+                          min="0"
+                          {% if range_max != blank %}
+                            max="{{ range_max }}"
+                          {% endif %}
+                          step="any"
+                          name="{{ filter.min_value.param_name }}"
+                          value="{{ min_value }}"
+                          placeholder="0"
+                          data-filter-label="{{ filter.label | escape }}"
+                          data-price-input="min"
+                        >
+                      </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label for="{{ max_id }}" class="text-body-sm text-muted">{{ 'sections.collection.price_to' | t }}</label>
+                      <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-body text-muted" aria-hidden="true">{{ cart.currency.symbol }}</span>
+                        <input
+                          id="{{ max_id }}"
+                          class="{{ price_field_class }}"
+                          type="number"
+                          inputmode="decimal"
+                          min="0"
+                          {% if range_max != blank %}
+                            max="{{ range_max }}"
+                          {% endif %}
+                          step="any"
+                          name="{{ filter.max_value.param_name }}"
+                          value="{{ max_value }}"
+                          placeholder="{{ max_placeholder }}"
+                          data-filter-label="{{ filter.label | escape }}"
+                          data-price-input="max"
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  {%- assign range_max_money = filter.range_max | money -%}
+                  <p class="text-body-sm text-muted">
+                    {{- 'sections.collection.price_max' | t: price: range_max_money -}}
+                  </p>
+                  {%- comment -%}
+                    Importo non valido (negativo, oltre il massimo): collection.js mostra il messaggio, lo collega al campo
+                    con aria-describedby e imposta aria-invalid; i risultati non si aggiornano finché non è corretto.
+                  {%- endcomment -%}
+                  <p id="{{ group_id }}-error" class="text-body-sm text-danger-foreground" role="alert" data-price-error hidden>
+                    {{- 'sections.collection.price_invalid' | t -}}
+                  </p>
+                </fieldset>
+
+              {%- else -%}
+                {%- liquid
+                  # list e boolean: filter.values contiene tutti i valori (per boolean: vero e falso, se presenti)
+                  assign values = filter.values
+
+                  # "Mostra altri" aperto se uno dei valori nascosti è attivo
+                  assign more_open = false
+                  for filter_value in values offset: visible_values
+                    if filter_value.active
+                      assign more_open = true
+                      break
+                    endif
+                  endfor
+                -%}
+                <fieldset>
+                  <legend class="sr-only">{{ filter.label | escape }}</legend>
+                  <ul class="flex flex-col" role="list">
+                    {%- for filter_value in values limit: visible_values -%}
+                      {%- assign input_id = group_id | append: '-' | append: forloop.index0 -%}
+                      <li>
+                        {% render 'facets-value', filter: filter, filter_value: filter_value, input_id: input_id %}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+
+                  {%- assign hidden_values = values.size | minus: visible_values -%}
+                  {%- if hidden_values > 0 -%}
+                    <details
+                      id="{{ group_id }}-more"
+                      class="group/more"
+                      {% if more_open %}
+                        open
+                      {% endif %}
+                    >
+                      <summary class="mt-1 inline-flex cursor-pointer list-none items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
+                        <span class="group-open/more:hidden">{{ 'sections.collection.show_more' | t: count: hidden_values }}</span>
+                        <span class="hidden group-open/more:inline">{{ 'sections.collection.show_less' | t }}</span>
+                        {% render 'icon', name: 'chevron-down', class: 'size-4 transition-transform duration-200 group-open/more:rotate-180 motion-reduce:transition-none' %}
+                      </summary>
+                      <ul class="flex flex-col" role="list">
+                        {%- for filter_value in values offset: visible_values -%}
+                          {%- assign value_index = forloop.index0 | plus: visible_values -%}
+                          {%- assign input_id = group_id | append: '-' | append: value_index -%}
+                          <li>
+                            {% render 'facets-value', filter: filter, filter_value: filter_value, input_id: input_id %}
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    </details>
+                  {%- endif -%}
+                </fieldset>
+            {%- endcase -%}
+          </div>
+        </details>
+      {%- endfor -%}
+    </div>
+
+    {%- comment -%}
+      Azioni: sempre nel cassetto; da 990px solo senza JS (con JS i risultati si aggiornano a ogni modifica).
+      Con JS "Mostra N prodotti" chiude il cassetto: i risultati sono già aggiornati.
+      Sempre in colonna, con l'azione principale in basso sotto il pollice: i pulsanti non vanno a capo e affiancati non
+      ci stanno nel cassetto (331px contro 279 a 375px di schermo). A riga con un flex-wrap la disposizione cambierebbe
+      con il numero di prodotti nell'etichetta, a ogni filtro.
+      "Cancella tutto" è una parte aggiornata anche se vuota: il contenitore deve esistere perché il link possa
+      comparire al primo filtro. Quando sparisce il focus passa a "Mostra N prodotti" (id stabile, collection.js).
+    {%- endcomment -%}
+    <div class="flex flex-col gap-2 border-t border-border bg-background px-6 py-3 lg:mt-4 lg:border-0 lg:p-0 lg:js:hidden">
+      <div class="contents" data-facets-part="clear">
+        {%- if has_active -%}
+          <a href="{{ clear_url }}" class="button button-neutral" data-facets-link>
+            {{- 'sections.collection.clear_all' | t -}}
+          </a>
+        {%- endif -%}
+      </div>
+      <button id="{{ submit_id }}" type="submit" class="button button-primary" data-facets-part="submit" data-facets-submit>
+        {{- 'sections.collection.show_results' | t: count: results_count -}}
+      </button>
+    </div>
+  </form>
+</div>

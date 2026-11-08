@@ -1,0 +1,95 @@
+{%- comment -%}
+  Riepilogo del carrello: sconti, attributi (snippets/cart-attributes), subtotale, nota, aggiornamento (solo senza JS), checkout.
+  I pulsanti puntano al form del carrello con l'attributo form (il riepilogo può stare fuori dal <form>).
+
+  Parametri:
+  - section_id: id della section (il form è "CartForm-<section_id>")
+  - show_note: true per mostrare la nota per l'ordine
+  - show_dynamic_checkout: true per i pulsanti di pagamento rapido (Shop Pay, PayPal…)
+  - show_discount: true per il campo dei codici sconto (snippets/cart-discount.liquid)
+  - discount_collapsed: true per il campo richiudibile (cassetto)
+{%- endcomment -%}
+{%- assign form_id = 'CartForm-' | append: section_id -%}
+
+<div class="flex flex-col gap-4">
+  {%- if show_discount -%}
+    {% render 'cart-discount', section_id: section_id, collapsed: discount_collapsed %}
+  {%- endif -%}
+
+  {%- comment -%} Nel cassetto, richiudibile accanto ai codici sconto; nella pagina, accanto alla nota più sotto {%- endcomment -%}
+  {%- if discount_collapsed -%}
+    {% render 'cart-attributes', section_id: section_id, collapsed: true %}
+  {%- endif -%}
+
+  {%- if cart.cart_level_discount_applications.size > 0 -%}
+    <ul class="flex flex-col gap-1" role="list" aria-label="{{ 'sections.cart.discounts' | t }}">
+      {%- for discount in cart.cart_level_discount_applications -%}
+        <li class="flex justify-between gap-4 text-body-sm text-positive-foreground">
+          <span>{{ discount.title | escape }}</span>
+          <span>−{{ discount.total_allocated_amount | money }}</span>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  <div class="flex flex-col gap-1">
+    <div class="flex items-baseline justify-between gap-4">
+      <span class="text-body font-semibold text-foreground">{{ 'sections.cart.subtotal' | t }}</span>
+      <span class="text-heading text-foreground" data-cart-subtotal>{{ cart.total_price | money_with_currency }}</span>
+    </div>
+    {%- comment -%}
+      Shop Pay a rate sotto il subtotale (documentazione Shopify, che legge data-cart-subtotal). Form a sé perché il
+      riepilogo è fuori dal form del carrello. Se le rate non sono disponibili Shopify non mostra nulla.
+    {%- endcomment -%}
+    {%- assign installments_form_id = 'CartInstallments-' | append: section_id -%}
+    {%- form 'cart', cart, id: installments_form_id -%}
+      {{ form | payment_terms }}
+    {%- endform -%}
+  </div>
+
+  {%- comment -%} Su bg-surface: foreground/80 (text-muted scenderebbe sotto 4.5:1) {%- endcomment -%}
+  <p class="text-body-sm text-foreground/80">
+    {%- if cart.taxes_included -%}
+      {{ 'sections.cart.taxes_included_shipping_at_checkout' | t }}
+    {%- else -%}
+      {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+    {%- endif -%}
+  </p>
+
+  {%- if show_note -%}
+    <div class="flex flex-col gap-2">
+      <label for="CartNote-{{ section_id }}" class="text-body-sm font-semibold text-foreground">
+        {{- 'sections.cart.note' | t -}}
+      </label>
+      <textarea
+        id="CartNote-{{ section_id }}"
+        name="note"
+        form="{{ form_id }}"
+        rows="3"
+        class="rounded-md border border-border-strong bg-background px-3 py-2 text-body"
+        data-cart-note
+        data-error-message="{{ 'sections.cart.note_error' | t | escape }}"
+      >{{ cart.note }}</textarea>
+    </div>
+  {%- endif -%}
+
+  {%- unless discount_collapsed -%}
+    {% render 'cart-attributes', section_id: section_id, collapsed: false %}
+  {%- endunless -%}
+
+  {%- comment -%} Senza JS le quantità si aggiornano con questo pulsante; con JS si aggiornano subito {%- endcomment -%}
+  <button type="submit" name="update" form="{{ form_id }}" class="button button-neutral w-full js:hidden">
+    {{- 'sections.cart.update' | t -}}
+  </button>
+
+  {%- comment -%} Nel cassetto il riepilogo può scorrere (campi aperti, schermi bassi): il checkout resta a vista {%- endcomment -%}
+  <div{% if discount_collapsed %} class="sticky bottom-0 bg-surface py-2"{% endif %}>
+    <button type="submit" name="checkout" form="{{ form_id }}" class="button button-primary button-lg w-full">
+      {{- 'sections.cart.checkout' | t -}}
+    </button>
+  </div>
+
+  {%- if show_dynamic_checkout and additional_checkout_buttons -%}
+    <div>{{ content_for_additional_checkout_buttons }}</div>
+  {%- endif -%}
+</div>

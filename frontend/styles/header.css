@@ -1,0 +1,129 @@
+/*
+ * Header — sections/header.liquid (incluso in theme.css: l'header è su ogni pagina).
+ * Lo stile è nelle utility Tailwind del markup; qui solo ciò che riguarda il wrapper della section
+ * generato da Shopify (.section-header, dallo schema) e le transizioni di apertura.
+ */
+
+/*
+ * Base dei popover dell'header (snippet header-panel e header-localization). Sotto 990px: secondo livello del
+ * cassetto mobile (entra da destra, a tutta altezza sotto l'header). Da 990px: pannello sotto l'header che
+ * compare dall'alto. Posizione e dimensioni desktop specifiche restano nel markup (lg:…).
+ */
+@utility header-popover {
+  @apply fixed inset-x-0 top-(--header-bottom) bottom-0 z-50 m-0 h-auto max-h-none w-full max-w-none translate-x-full overflow-y-auto overscroll-contain border-0 bg-background p-0 text-foreground transition-[translate,opacity,display,overlay] transition-discrete duration-300 ease-theme open:translate-x-0 motion-reduce:transition-none starting:open:translate-x-full lg:bottom-auto lg:max-h-[calc(100dvh-var(--header-bottom))] lg:-translate-y-1 lg:translate-x-0 lg:opacity-0 lg:duration-200 lg:open:translate-y-0 lg:open:opacity-100 lg:starting:open:-translate-y-1 lg:starting:open:translate-x-0 lg:starting:open:opacity-0;
+}
+
+@layer components {
+  /*
+   * Header fisso: elementi raggiunti con Tab o con un'ancora si fermano sotto l'header invece che dietro
+   * (WCAG 2.4.11, focus non nascosto). scroll-margin sull'elemento raggiunto, MAI scroll-padding su <html>:
+   * le scroll timeline native (hero, parallax, scroll gallery, frase rivelata) misurano l'area visibile meno lo
+   * scroll-padding, e a pagina ferma partirebbero già avanzate (immagine della hero spostata in basso).
+   */
+  html:has(site-header[data-sticky='always']) :is(:focus, :target),
+  html:has(site-header[data-sticky='scroll-up']) :is(:focus, :target) {
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+  }
+
+  /* Header fisso: deve essere sticky il wrapper della section, non l'elemento interno */
+  .section-header:has(site-header[data-sticky='always']),
+  .section-header:has(site-header[data-sticky='scroll-up']) {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  /*
+   * Header trasparente: la prima section sale sotto l'header (margine negativo pari alla sua altezza) e
+   * l'header le resta sopra. Solo se quella section lo consente e l'header è l'ultima section del gruppo header
+   * (subito prima di <main>): stesse condizioni della variante overlay (theme.css).
+   */
+  body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) .section-header:has(site-header[data-transparent]) {
+    z-index: 40;
+    margin-bottom: calc(-1 * var(--header-height));
+  }
+
+  /* Gli header sticky sono già posizionati (regola sopra): solo quello non sticky ha bisogno di relative */
+  body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) .section-header:has(site-header[data-transparent][data-sticky='none']) {
+    position: relative;
+  }
+
+  /*
+   * Componente account di Shopify (<shopify-account> in sections/header.liquid): si stila solo con queste variabili
+   * e con il part del pulsante (avatar da connesso: frontend/scripts/account-avatar.js). Dimensioni riservate prima
+   * della definizione: niente salto nell'header.
+   */
+  shopify-account {
+    --shopify-account-color-accent: var(--color-primary);
+    --shopify-account-color-accent-text: var(--color-primary-foreground);
+    --shopify-account-color-background: var(--color-background);
+    --shopify-account-color-text: var(--color-foreground);
+    --shopify-account-font-body: var(--font-sans);
+    --shopify-account-font-heading: var(--font-heading);
+    --shopify-account-radius-base: var(--radius-lg);
+    --shopify-account-radius-button: var(--button-radius);
+    --shopify-account-radius-button-small: var(--button-radius);
+    --shopify-account-radius-input: var(--radius-md);
+    --shopify-account-dialog-position-top: calc(var(--header-bottom, var(--header-height, 0px)) + 0.5rem);
+    --shopify-account-signed-in-avatar-size: calc(var(--spacing) * 9);
+    --shopify-account-signed-in-avatar-color-background: var(--color-primary);
+    --shopify-account-signed-in-avatar-color-text: var(--color-primary-foreground);
+    align-items: center;
+    justify-content: center;
+    min-height: calc(var(--spacing) * 9);
+    min-width: calc(var(--spacing) * 9);
+  }
+
+  /* Riscontro dell'avatar da connesso: il colore, come il pulsante del carrello accanto (non più lo scale di Shopify) */
+  @media (hover: hover) {
+    shopify-account:hover {
+      --shopify-account-signed-in-avatar-color-background: var(--color-primary-hover);
+    }
+  }
+
+  shopify-account::part(signed-out-avatar) {
+    border-radius: var(--button-radius);
+    padding: 0;
+    transition: background-color 150ms ease;
+  }
+
+  /* --account-accent: bianco sopra una hero con header trasparente (overlay-light: in sections/header.liquid) */
+  shopify-account::part(signed-out-avatar):hover {
+    background-color: color-mix(in srgb, var(--account-accent, var(--color-foreground)) 12%, transparent);
+  }
+
+  shopify-account::part(signed-out-avatar):focus-visible {
+    outline: 2px solid var(--account-accent, var(--color-primary));
+    outline-offset: 2px;
+  }
+
+  /* Header "a scomparsa" (frontend/scripts/header.js) */
+  .section-header {
+    transition: translate 250ms ease;
+  }
+
+  .section-header[data-header-hidden] {
+    translate: 0 -100%;
+  }
+
+  /* Apertura del menu mobile */
+  .header-drawer__panel {
+    transition:
+      opacity 200ms ease,
+      translate 200ms ease;
+  }
+
+  @starting-style {
+    .header-drawer[open] > .header-drawer__panel {
+      opacity: 0;
+      translate: 0 -0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-header,
+    .header-drawer__panel {
+      transition: none;
+    }
+  }
+}

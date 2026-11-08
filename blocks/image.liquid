@@ -1,0 +1,134 @@
+{%- comment -%}
+  Immagine per le section componibili (sections/content.liquid, blocks/group.liquid).
+  La larghezza dipende dal gruppo in cui si trova, che il blocco non conosce: per le immagini lazy sizes="auto" lascia
+  misurare al browser (dove non è supportato vale il valore successivo). Prima section: eager, e priorità alta se è il
+  primo blocco (probabile LCP).
+{%- endcomment -%}
+{%- liquid
+  assign image = block.settings.image
+  assign link = block.settings.link
+
+  case block.settings.ratio
+    when 'square'
+      assign ratio_class = 'aspect-square'
+    when 'portrait'
+      assign ratio_class = 'aspect-3/4'
+    when 'landscape'
+      assign ratio_class = 'aspect-4/3'
+    else
+      assign ratio_class = ''
+  endcase
+  if ratio_class == ''
+    assign image_class = 'block h-auto w-full'
+  else
+    assign image_class = 'size-full object-cover'
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  assign sizes = 'auto, (min-width: 750px) 50vw, 100vw'
+  if section.index == 1
+    assign loading = 'eager'
+    assign sizes = '(min-width: 750px) 50vw, 100vw'
+    if section.blocks.first.id == block.id
+      assign fetchpriority = 'high'
+    endif
+  endif
+
+  # Dentro una section a tutta larghezza (setting width di sections/content.liquid) servono formati più grandi
+  assign image_max = 2000
+  assign image_widths = '400, 600, 800, 1100, 1500, 2000'
+  if section.settings.width == 'full'
+    assign image_max = 3200
+    assign image_widths = image_widths | append: ', 2600, 3200'
+  endif
+
+  # Un link che contiene solo l'immagine prende il nome dal suo alt
+  assign alt = image.alt
+  if link != blank and alt == blank
+    assign alt = shop.name
+  endif
+-%}
+{%- capture media_class -%}
+  media-loading relative block w-full overflow-hidden rounded-lg bg-surface {{ ratio_class }}
+{%- endcapture -%}
+{%- capture media -%}
+  {%- if image != blank -%}
+    {{
+      image
+      | image_url: width: image_max
+      | image_tag:
+        loading: loading,
+        fetchpriority: fetchpriority,
+        sizes: sizes,
+        widths: image_widths,
+        alt: alt,
+        class: image_class
+    }}
+  {%- elsif request.design_mode -%}
+    {{ 'image' | placeholder_svg_tag: 'block aspect-4/3 size-full fill-subtle' }}
+  {%- endif -%}
+{%- endcapture -%}
+{%- if image != blank or request.design_mode -%}
+  {%- if link != blank -%}
+    <a
+      href="{{ link }}"
+      class="{{ media_class }} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      {{ block.shopify_attributes }}
+    >
+      {{- media -}}
+    </a>
+  {%- else -%}
+    <div class="{{ media_class }}" {{ block.shopify_attributes }}>
+      {{- media -}}
+    </div>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.image.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:blocks.image.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "ratio",
+      "label": "t:blocks.image.settings.ratio.label",
+      "options": [
+        {
+          "value": "natural",
+          "label": "t:blocks.image.settings.ratio.options.natural"
+        },
+        {
+          "value": "square",
+          "label": "t:blocks.image.settings.ratio.options.square"
+        },
+        {
+          "value": "portrait",
+          "label": "t:blocks.image.settings.ratio.options.portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "t:blocks.image.settings.ratio.options.landscape"
+        }
+      ],
+      "default": "natural"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:blocks.image.settings.link.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.image.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

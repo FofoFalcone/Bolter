@@ -1,0 +1,119 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "Header",
+  "sections": {
+    "announcement_bar_yg9bP8": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement_3rEtdF": {
+          "type": "_announcement",
+          "name": "t:blocks.announcement.presets.preset_1.name",
+          "settings": {
+            "message": "free_shipping",
+            "text": "Spedizione gratuita sopra i 50 €",
+            "link": ""
+          },
+          "blocks": {}
+        },
+        "announcement_yAtrTQ": {
+          "type": "_announcement",
+          "settings": {
+            "message": "returns",
+            "text": "Resi entro 14 giorni dalla consegna",
+            "link": ""
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "announcement_3rEtdF",
+        "announcement_yAtrTQ"
+      ],
+      "name": "t:sections.announcement_bar.presets.preset_1.name",
+      "settings": {
+        "style": "dark",
+        "autoplay": true,
+        "speed": 5
+      }
+    },
+    "header": {
+      "type": "header",
+      "blocks": {
+        "header_mega_menu_FrDikX": {
+          "type": "_header-mega-menu",
+          "name": "t:blocks.header_mega_menu.presets.preset_1.name",
+          "settings": {
+            "title": "Viso",
+            "layout": "tiles"
+          },
+          "blocks": {
+            "header_menu_card_GKg3ct": {
+              "type": "_header-menu-card",
+              "settings": {
+                "product": "acqua-gel-detergente-struccante-1218",
+                "show_price": true,
+                "collection": "",
+                "badge": "",
+                "heading": "",
+                "text": "",
+                "link": "",
+                "link_label": "Discover"
+              },
+              "blocks": {}
+            },
+            "header_menu_card_NMyL8b": {
+              "type": "_header-menu-card",
+              "settings": {
+                "product": "bionike-balsamo-labbra-ristrutturante-bionike",
+                "show_price": true,
+                "collection": "",
+                "badge": "",
+                "heading": "",
+                "text": "",
+                "link": "",
+                "link_label": "Discover"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "header_menu_card_GKg3ct",
+            "header_menu_card_NMyL8b"
+          ]
+        }
+      },
+      "block_order": [
+        "header_mega_menu_FrDikX"
+      ],
+      "settings": {
+        "logo_width": 100,
+        "menu": "main-menu",
+        "open_on_hover": true,
+        "sticky_header": "scroll-up",
+        "transparent_header": true,
+        "show_search": true,
+        "predictive_search": true,
+        "search_quick_links": "",
+        "show_account": true,
+        "customer_account_menu": "customer-account-main-menu",
+        "show_country": true,
+        "show_language": true,
+        "color_background": "",
+        "color_text": ""
+      }
+    }
+  },
+  "order": [
+    "announcement_bar_yg9bP8",
+    "header"
+  ]
+}

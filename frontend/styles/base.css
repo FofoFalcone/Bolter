@@ -1,0 +1,37 @@
+/*
+ * Stili di base del tema.
+ * Il reset (box-sizing, margini, immagini, form, liste, link) è il Preflight di Tailwind;
+ * font, colore e dimensione del testo sono utility sul <body> (layout/theme.liquid).
+ */
+
+@layer base {
+  body {
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Preflight imposta cursor: default sui pulsanti */
+  button:not(:disabled),
+  [role='button']:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+}

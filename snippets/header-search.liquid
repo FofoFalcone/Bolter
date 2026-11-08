@@ -1,0 +1,97 @@
+{%- comment -%}
+  Pannello di ricerca dell'header (aperto dal pulsante con popovertarget="HeaderSearch").
+  Popover con la stessa base dei pannelli del menu (utility header-popover): da 990px a tutta larghezza
+  sotto l'header con il velo sulla pagina (data-header-panel="mega"), sotto i 990px a tutto schermo.
+
+  - Senza JS: popover nativo + form GET verso la pagina di ricerca (autofocus nativo sul campo).
+  - Con JS: <predictive-search> (frontend/scripts/predictive-search.js, scaricato da header.js solo
+    all'intenzione di aprire la ricerca) mostra i risultati della section predictive-search mentre si digita.
+    Disattivata se la lingua non è supportata dalla Predictive Search API (#shopify-features).
+  - Prima di digitare: link rapidi (Header → Ricerca → Link rapidi), se impostati.
+
+  Parametri:
+  - quick_links: menu dei link rapidi (link_list), facoltativo
+  - predictive: true per la ricerca predittiva
+{%- endcomment -%}
+<div
+  id="HeaderSearch"
+  popover
+  data-header-panel="mega"
+  data-lenis-prevent
+  class="header-popover lg:inset-x-0 lg:border-b lg:border-border lg:shadow-400"
+>
+  <predictive-search
+    class="group/search block px-6 py-6 lg:page-width lg:py-8"
+    {% if predictive %}
+      data-url="{{ routes.predictive_search_url }}"
+      data-section-id="predictive-search"
+    {% endif %}
+  >
+    <form action="{{ routes.search_url }}" method="get" role="search" class="flex items-center gap-3">
+      <input type="hidden" name="options[prefix]" value="last">
+      <label for="HeaderSearchInput" class="sr-only">{{ 'general.search.title' | t }}</label>
+      <div class="relative flex-1">
+        {% render 'icon',
+          name: 'magnifying-glass',
+          class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted lg:left-5 lg:size-6'
+        %}
+        <input
+          id="HeaderSearchInput"
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="{{ 'general.predictive_search.placeholder' | t }}"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          autofocus
+          {% if predictive %}
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="PredictiveSearchResults"
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
+          {% endif %}
+          class="h-13 w-full rounded-button border border-border-strong bg-background pr-4 pl-12 text-subheading text-foreground transition-colors placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:h-16 lg:pl-14 lg:text-heading [&::-webkit-search-cancel-button]:hidden"
+        >
+        {%- comment -%} Caricamento: piccolo indicatore a destra del campo (data-loading su <predictive-search>) {%- endcomment -%}
+        <span
+          class="pointer-events-none absolute top-1/2 right-4 hidden size-5 -translate-y-1/2 animate-spin rounded-full border-2 border-border border-t-foreground group-data-loading/search:block motion-reduce:animate-none"
+          aria-hidden="true"
+        ></span>
+      </div>
+      <button
+        type="button"
+        popovertarget="HeaderSearch"
+        popovertargetaction="hide"
+        class="button button-subtle button-icon shrink-0"
+      >
+        {% render 'icon', name: 'x-mark', class: 'size-6' %}
+        <span class="sr-only">{{ 'general.predictive_search.close' | t }}</span>
+      </button>
+    </form>
+
+    {%- comment -%} Stato per i lettori di schermo (numero di risultati, nessun risultato) {%- endcomment -%}
+    <p class="sr-only" role="status" aria-live="polite" data-predictive-status></p>
+
+    {%- comment -%} Prima di digitare: link rapidi {%- endcomment -%}
+    {%- if quick_links.links.size > 0 -%}
+      <div class="mt-6 flex flex-col gap-3 group-data-results/search:hidden" data-predictive-initial>
+        <p class="text-body-sm font-semibold text-muted">{{ 'general.predictive_search.quick_links' | t }}</p>
+        <ul class="flex flex-wrap gap-2" role="list">
+          {%- for link in quick_links.links -%}
+            <li>
+              <a href="{{ link.url }}" class="button button-neutral button-sm">{{ link.title | escape }}</a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Risultati (section predictive-search); più opachi mentre arrivano quelli nuovi {%- endcomment -%}
+    <div
+      data-predictive-results-container
+      class="mt-6 transition-opacity duration-200 empty:hidden group-data-loading/search:opacity-60 lg:mt-8"
+    ></div>
+  </predictive-search>
+</div>

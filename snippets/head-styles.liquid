@@ -1,0 +1,31 @@
+{%- comment -%}
+  Base comune del <head> di tutte le pagine (layout theme e password, template gift_card): classe .js, font, forma
+  dei pulsanti e CSS globale. Titolo, meta e content_for_header restano nel file che lo include.
+
+  - Classe .js: gli elementi [data-animate] vengono nascosti solo con JS attivo (frontend/styles/animations.css).
+  - Impostazioni tema → Pulsanti: forma letta dal token --radius-button (frontend/styles/tokens.css).
+  - Impostazioni tema → Layout: larghezza massima della pagina, letta dal token --container-page.
+  - Impostazioni tema → Colori: palette (settings.color_palette, valori iniziali in settings_schema.json). Gli altri
+    colori si ricavano da questi quattro (frontend/styles/tokens.css). color-scheme adatta i controlli nativi.
+  - preload_stylesheet: Shopify anticipa il CSS globale con l'header Link (e le 103 Early Hints).
+
+  Uso: {% render 'head-styles' %}
+{%- endcomment -%}
+<script>document.documentElement.classList.replace('no-js', 'js');</script>
+
+{% render 'theme-fonts' %}
+
+{%- assign background_brightness = settings.color_palette.background | color_brightness -%}
+{% style %}
+  :root {
+    --color-background: {{ settings.color_palette.background }};
+    --color-foreground: {{ settings.color_palette.foreground }};
+    --color-primary: {{ settings.color_palette.primary }};
+    --color-primary-foreground: {{ settings.color_palette.primary_foreground }};
+    color-scheme: {% if background_brightness < 128 %}dark{% else %}light{% endif %};
+    --button-radius: {% case settings.button_shape %}{% when 'square' %}0px{% when 'rounded' %}var(--radius-md){% else %}9999px{% endcase %};
+    --container-page: {{ settings.layout_page_width }}px;
+  }
+{% endstyle %}
+
+{% render 'vite-tag', entry: 'theme.css', preload_stylesheet: true %}

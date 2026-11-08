@@ -1,0 +1,13 @@
+/*
+ * Galleria animata — sections/gallery.liquid
+ * Layout e stati sono nelle utility Tailwind del markup (varianti js: e group-data-*).
+ * Qui solo lo stato prima della prima disposizione: con JS attivo gli elementi sono già sovrapposti al
+ * centro della scena 3D, quindi resta visibile solo il primo finché gallery.js non ha caricato la
+ * disposizione e calcolato le posizioni (data-ready): niente lampo di elementi ammucchiati.
+ */
+
+@layer components {
+  .js animated-gallery:not([data-ready]) [data-gallery-item]:not(:first-child) {
+    visibility: hidden;
+  }
+}

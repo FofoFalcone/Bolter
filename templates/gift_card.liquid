@@ -1,0 +1,186 @@
+{% layout none %}
+{%- comment -%}
+  Pagina del buono regalo (deve essere un template Liquid, non JSON). Shopify la serve dal dominio
+  checkout.shopify.com: niente header, footer né JS del tema; asset e link al negozio sono assoluti.
+  Saldo, stato, codice da copiare, QR (libreria di Shopify, con gift_card.qr_identifier), Apple Wallet, messaggio di chi
+  regala e stampa. Lo script inline non passa da Vite né da Theme Check: dopo ogni modifica controllarne la sintassi.
+{%- endcomment -%}
+{%- liquid
+  assign formatted_balance = gift_card.balance | money
+  assign formatted_initial = gift_card.initial_value | money
+  assign is_usable = true
+  if gift_card.enabled == false or gift_card.expired
+    assign is_usable = false
+  endif
+  assign card_image = gift_card.product.featured_image
+-%}
+<!DOCTYPE html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>{{ 'gift_cards.issued.page_title' | t: value: formatted_balance, shop: shop.name | strip_html }}</title>
+    <meta name="description" content="{{ 'gift_cards.issued.subtext' | t | escape }}">
+
+    {% render 'head-styles' %}
+
+    <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer></script>
+
+    {{ content_for_header }}
+  </head>
+  <body class="bg-surface font-sans text-body text-foreground antialiased print:bg-background">
+    <main class="mx-auto flex min-h-svh w-full max-w-lg flex-col gap-6 px-4 py-8 md:py-16 print:p-0">
+      <header class="flex flex-col items-center gap-3 text-center">
+        <a href="{{ shop.url }}" class="rounded-sm text-subheading font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+          {%- if shop.brand.logo != blank -%}
+            {{
+              shop.brand.logo
+              | image_url: width: 320
+              | image_tag: loading: 'eager', widths: '160, 320', sizes: '160px', alt: shop.name, class: 'h-auto w-40'
+            }}
+          {%- else -%}
+            {{- shop.name | escape -}}
+          {%- endif -%}
+        </a>
+        <h1 class="text-heading text-balance text-foreground md:text-subtitle">{{ 'gift_cards.issued.title' | t }}</h1>
+      </header>
+
+      <div class="flex flex-col gap-6 rounded-xl bg-background p-6 shadow-300 md:p-8 print:shadow-none">
+        <div class="overflow-hidden rounded-lg bg-surface">
+          {%- if card_image != blank -%}
+            {{
+              card_image
+              | image_url: width: 960
+              | image_tag:
+                loading: 'eager',
+                fetchpriority: 'high',
+                widths: '480, 720, 960',
+                sizes: '(min-width: 750px) 448px, calc(100vw - 5rem)',
+                alt: '',
+                class: 'aspect-video size-full object-cover'
+            }}
+          {%- else -%}
+            <img
+              src="{{ 'gift-card/card.svg' | shopify_asset_url }}"
+              alt=""
+              width="570"
+              height="356"
+              class="h-auto w-full"
+            >
+          {%- endif -%}
+        </div>
+
+        <div class="flex flex-col items-center gap-2 text-center">
+          <p class="text-body-sm font-semibold text-foreground/80">{{ 'gift_cards.issued.balance' | t }}</p>
+          <p class="text-title-page tabular-nums text-foreground">{{ gift_card.balance | money_with_currency }}</p>
+          {%- if gift_card.balance != gift_card.initial_value -%}
+            <p class="text-body-sm text-foreground/80">{{ 'gift_cards.issued.initial_value' | t: value: formatted_initial }}</p>
+          {%- endif -%}
+
+          {%- if gift_card.enabled == false -%}
+            <p class="mt-1 rounded-button bg-danger-surface px-3 py-1 text-body-sm font-semibold text-danger-foreground">
+              {{- 'gift_cards.issued.disabled' | t -}}
+            </p>
+          {%- elsif gift_card.expired -%}
+            <p class="mt-1 rounded-button bg-danger-surface px-3 py-1 text-body-sm font-semibold text-danger-foreground">
+              {%- assign expired_on = gift_card.expires_on | date: format: 'date' -%}
+              {{- 'gift_cards.issued.expired' | t: date: expired_on -}}
+            </p>
+          {%- elsif gift_card.expires_on -%}
+            <p class="text-body-sm text-foreground/80">
+              {%- assign expires_on = gift_card.expires_on | date: format: 'date' -%}
+              {{- 'gift_cards.issued.expires_on' | t: date: expires_on -}}
+            </p>
+          {%- endif -%}
+        </div>
+
+        {%- if gift_card.message != blank -%}
+          <figure class="flex flex-col gap-1 rounded-lg bg-surface p-4">
+            {%- if gift_card.recipient.name != blank -%}
+              <figcaption class="text-body-sm font-semibold text-foreground">
+                {{- 'gift_cards.issued.for_recipient' | t: name: gift_card.recipient.name -}}
+              </figcaption>
+            {%- endif -%}
+            <blockquote class="text-body text-pretty text-foreground">{{ gift_card.message | escape }}</blockquote>
+          </figure>
+        {%- endif -%}
+
+        <div class="flex flex-col gap-3" data-gift-card-code data-copied="{{ 'gift_cards.issued.copied' | t | escape }}">
+          <p class="text-center text-body-sm font-semibold text-foreground/80">{{ 'gift_cards.issued.code' | t }}</p>
+          <p id="GiftCardCode" class="rounded-md border border-dashed border-border-strong px-4 py-3 text-center text-subheading font-semibold tracking-wider break-all text-foreground tabular-nums">
+            {{- gift_card.code | format_code -}}
+          </p>
+          <div class="print:hidden">
+            <button type="button" class="button button-neutral hidden w-full js:inline-flex" data-copy-code>
+              {{- 'gift_cards.issued.copy' | t -}}
+            </button>
+          </div>
+          <p class="sr-only" role="status" data-copy-status></p>
+        </div>
+
+        {%- if is_usable -%}
+          <div class="flex flex-col items-center gap-3">
+            <div
+              class="min-h-30 min-w-30 [&_img]:size-30"
+              role="img"
+              aria-label="{{ 'gift_cards.issued.qr_label' | t | escape }}"
+              data-gift-card-qr="{{ gift_card.qr_identifier | escape }}"
+            ></div>
+            {%- if gift_card.pass_url -%}
+              <a href="{{ gift_card.pass_url }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary print:hidden">
+                <img
+                  src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}"
+                  width="120"
+                  height="40"
+                  loading="lazy"
+                  alt="{{ 'gift_cards.issued.add_to_apple_wallet' | t | escape }}"
+                >
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        <div class="flex flex-col gap-3 sm:flex-row print:hidden">
+          {%- if is_usable -%}
+            <a href="{{ shop.url }}" class="button button-primary button-lg flex-1">{{ 'gift_cards.issued.shop_link' | t }}</a>
+          {%- endif -%}
+          <button type="button" class="button button-subtle button-lg hidden flex-1 js:inline-flex" data-print>
+            {{- 'gift_cards.issued.print' | t -}}
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        // qrcode.js è in defer: viene eseguito dopo questo script, ma prima di DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function () {
+          var qr = document.querySelector('[data-gift-card-qr]');
+          if (qr && window.QRCode) {
+            new window.QRCode(qr, { text: qr.getAttribute('data-gift-card-qr'), width: 120, height: 120 });
+          }
+        });
+
+        var copy = document.querySelector('[data-copy-code]');
+        if (copy && navigator.clipboard) {
+          copy.addEventListener('click', function () {
+            var code = document.getElementById('GiftCardCode').textContent.trim();
+            navigator.clipboard.writeText(code).then(function () {
+              var root = copy.closest('[data-gift-card-code]');
+              root.querySelector('[data-copy-status]').textContent = root.getAttribute('data-copied');
+              var label = copy.textContent;
+              copy.textContent = root.getAttribute('data-copied');
+              setTimeout(function () { copy.textContent = label; }, 2000);
+            });
+          });
+        } else if (copy) {
+          copy.remove();
+        }
+
+        var print = document.querySelector('[data-print]');
+        if (print) print.addEventListener('click', function () { window.print(); });
+      })();
+    </script>
+  </body>
+</html>

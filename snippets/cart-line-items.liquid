@@ -1,0 +1,244 @@
+{%- comment -%}
+  Elenco degli articoli del carrello (pagina carrello e carrello a cassetto).
+  Va dentro il <form action="{{ routes.cart_url }}" method="post"> del carrello: gli input "updates[]"
+  aggiornano le quantità anche senza JS (pulsante "Aggiorna carrello" in cart-summary).
+  Con JS (frontend/entrypoints/cart.js) quantità e rimozioni si aggiornano subito.
+
+  - Regole di quantità: min, max e step seguono item.variant.quantity_rule. Con la regola predefinita (minimo 1) l'input
+    arriva a 0, che rimuove la riga; con un minimo più alto il − si ferma lì e si rimuove con il link.
+  - Righe annidate (garanzie, add-on, item.parent_relationship): rientrate sotto il prodotto principale. Bundle
+    (item.item_components): elenco dei componenti. item.instructions dice cosa si può modificare: senza quantità
+    modificabile resta un campo nascosto, perché gli "updates[]" senza JS valgono per posizione.
+
+  Parametri:
+  - section_id: id della section (per id univoci di input)
+  - image_size: lato dell'immagine in px (default 96)
+{%- endcomment -%}
+{%- assign image_size = image_size | default: 96 -%}
+
+<ul class="flex flex-col divide-y divide-border" role="list">
+  {%- for item in cart.items -%}
+    {%- capture line_limit -%}{% render 'variant-quantity-limit', variant: item.variant %}{%- endcapture -%}
+    {%- liquid
+      assign line_id = 'CartLine-' | append: section_id | append: '-' | append: forloop.index
+      assign image_sizes = image_size | append: 'px'
+      assign can_update_quantity = item.instructions.can_update_quantity | default: true, allow_false: true
+      assign can_remove = item.instructions.can_remove | default: true, allow_false: true
+      assign rule = item.variant.quantity_rule
+      assign input_min = rule.min | default: 1
+      # Minimo 1: il − su quantità 1 rimuove la riga, se la riga si può rimuovere (bundle e righe annidate possono vietarlo)
+      if input_min == 1 and can_remove
+        assign input_min = 0
+      endif
+      assign quantity_step = rule.increment | default: 1
+      assign next_quantity = item.quantity | plus: quantity_step
+
+      # Massimo della riga: la sua quantità più ciò che si può ancora aggiungere. Il limite conta già le altre righe
+      # con la stessa variante (es. piani di acquisto diversi)
+      assign line_max = nil
+      assign show_available = false
+      if line_limit != blank
+        assign line_max = line_limit | plus: item.quantity
+        assign variant_in_cart = cart | item_count_for_variant: item.variant.id
+        assign other_lines = variant_in_cart | minus: item.quantity
+        assign rule_line_max = rule.max | minus: other_lines
+        if rule.max == blank or line_max < rule_line_max
+          # Il massimo viene dalla giacenza: messaggio da Impostazioni tema → Disponibilità (il limite resta comunque)
+          if settings.quantity_show_available and line_max <= settings.quantity_available_threshold
+            assign show_available = true
+          endif
+        endif
+      endif
+    -%}
+    <li
+      class="cart-line grid grid-cols-[5rem_minmax(0,1fr)] gap-4 py-4 first:pt-0 last:pb-0 md:grid-cols-[6rem_minmax(0,1fr)]{% if item.parent_relationship.parent != null %} ms-8 md:ms-12{% endif %}"
+      id="{{ line_id }}"
+      data-line
+      data-key="{{ item.key }}"
+    >
+      <a href="{{ item.url }}" class="block self-start overflow-hidden rounded-md bg-surface" tabindex="-1" aria-hidden="true">
+        {%- if item.image -%}
+          {{
+            item.image
+            | image_url: width: 240
+            | image_tag: loading: 'lazy', widths: '120, 240', sizes: image_sizes, alt: '', class: 'aspect-square size-full object-cover'
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'aspect-square size-full fill-subtle' }}
+        {%- endif -%}
+      </a>
+
+      <div class="flex min-w-0 flex-col gap-3">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex min-w-0 flex-col gap-1">
+            <a href="{{ item.url }}" class="text-body font-semibold text-foreground underline-offset-4 hover:underline">
+              {{- item.product.title | escape -}}
+              {%- if item.parent_relationship.parent != null -%}
+                <span class="sr-only"> ({{ 'sections.cart.nested_item' | t: parent: item.parent_relationship.parent.product.title }})</span>
+              {%- endif -%}
+            </a>
+
+            {%- if item.item_components.size > 0 -%}
+              <ul class="flex flex-col gap-0.5 text-body-sm text-muted" role="list" aria-label="{{ 'sections.cart.bundle_components' | t | escape }}">
+                {%- for component in item.item_components -%}
+                  <li>{{ component.quantity }} × {{ component.title | escape }}</li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+            {%- unless item.product.has_only_default_variant or item.item_components.size > 0 -%}
+              {%- for option in item.options_with_values -%}
+                <p class="text-body-sm text-muted">{{ option.name | escape }}: {{ option.value | escape }}</p>
+              {%- endfor -%}
+            {%- endunless -%}
+
+            {%- if item.selling_plan_allocation -%}
+              <p class="text-body-sm text-muted">{{ item.selling_plan_allocation.selling_plan.name | escape }}</p>
+              {%- comment -%} Preordini e prova: quanto si paga subito e quanto dopo {%- endcomment -%}
+              {%- if item.selling_plan_allocation.remaining_balance_charge_amount > 0 -%}
+                {%- liquid
+                  assign pay_today = item.selling_plan_allocation.checkout_charge_amount | times: item.quantity | money
+                  assign pay_later = item.selling_plan_allocation.remaining_balance_charge_amount | times: item.quantity | money
+                -%}
+                <p class="text-body-sm text-muted">{{ 'products.product.selling_plans.pay_today_html' | t: today: pay_today, later: pay_later }}</p>
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- for property in item.properties -%}
+              {%- assign first_char = property.first | slice: 0 -%}
+              {%- if property.last != blank and first_char != '_' -%}
+                <p class="text-body-sm text-muted">
+                  {%- comment -%} I nomi dei campi del buono regalo sono fissi in inglese (documentazione Shopify) {%- endcomment -%}
+                  {%- case property.first -%}
+                    {%- when 'Recipient email' -%}
+                      {{- 'products.product.gift_card_recipient.email' | t }}:
+                    {%- when 'Recipient name' -%}
+                      {{- 'products.product.gift_card_recipient.name' | t }}:
+                    {%- when 'Message' -%}
+                      {{- 'products.product.gift_card_recipient.message' | t }}:
+                    {%- when 'Send on' -%}
+                      {{- 'products.product.gift_card_recipient.send_on' | t }}:
+                    {%- else -%}
+                      {{- property.first | escape }}:
+                  {%- endcase %}
+                  {% if property.last contains '/uploads/' -%}
+                    <a href="{{ property.last }}" class="underline">{{ property.last | split: '/' | last }}</a>
+                  {%- else -%}
+                    {{ property.last | escape }}
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- for allocation in item.line_level_discount_allocations -%}
+              <p class="text-body-sm text-positive-foreground">
+                {{- allocation.discount_application.title | escape }} (−{{ allocation.amount | money }})
+              </p>
+            {%- endfor -%}
+          </div>
+
+          <div class="shrink-0 text-end">
+            {%- if item.original_line_price != item.final_line_price -%}
+              <span class="sr-only">{{ 'products.product.price.regular' | t }}</span>
+              <s class="block text-body-sm text-muted">{{ item.original_line_price | money }}</s>
+              <span class="sr-only">{{ 'products.product.price.sale' | t }}</span>
+            {%- endif -%}
+            <span class="text-body font-semibold text-foreground">{{ item.final_line_price | money }}</span>
+            {%- if item.unit_price_measurement -%}
+              <span class="block text-body-sm text-muted">
+                {{- item.unit_price | unit_price_with_measurement: item.unit_price_measurement -}}
+              </span>
+            {%- endif -%}
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4">
+          {%- unless can_update_quantity -%}
+            <input type="hidden" name="updates[]" value="{{ item.quantity }}">
+            <p class="text-body-sm text-muted">{{ 'products.product.quantity.label' | t }}: {{ item.quantity }}</p>
+          {%- else -%}
+          <div class="flex w-fit items-center rounded-button border border-border-strong bg-background p-0.5" data-quantity>
+            {%- comment -%}
+              Id stabili: dopo l'aggiornamento il focus torna sul controllo usato (frontend/scripts/cart-api.js).
+              − e + al limite: aria-disabled, così il focus resta. Il contenuto si sostituisce a ogni modifica, quindi lo
+              stato parte dal Liquid; fra un aggiornamento e l'altro lo tiene syncQuantitySteps (frontend/scripts/quantity-steps.js).
+            {%- endcomment -%}
+            <button
+              type="button"
+              id="{{ line_id }}-decrease"
+              class="button button-subtle button-sm button-icon hidden js:inline-flex"
+              data-quantity-step="down"
+              {% if item.quantity <= input_min %}
+                aria-disabled="true"
+              {% endif %}
+            >
+              {% render 'icon', name: 'minus', class: 'size-4' %}
+              <span class="sr-only">{{ 'products.product.quantity.decrease' | t: product: item.product.title }}</span>
+            </button>
+            <label for="{{ line_id }}-quantity" class="sr-only">
+              {{- 'products.product.quantity.label' | t }}: {{ item.product.title | escape -}}
+            </label>
+            <input
+              type="number"
+              id="{{ line_id }}-quantity"
+              name="updates[]"
+              value="{{ item.quantity }}"
+              min="{{ input_min }}"
+              step="{{ quantity_step }}"
+              {% if line_max %}
+                max="{{ line_max }}"
+              {% endif %}
+              class="h-9 w-10 rounded-sm border-0 bg-transparent text-center text-body-sm font-semibold tabular-nums [appearance:textfield] focus-visible:outline-offset-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              data-quantity-input
+            >
+            <button
+              type="button"
+              id="{{ line_id }}-increase"
+              class="button button-subtle button-sm button-icon hidden js:inline-flex"
+              data-quantity-step="up"
+              {% if line_max and next_quantity > line_max %}
+                aria-disabled="true"
+              {% endif %}
+            >
+              {% render 'icon', name: 'plus', class: 'size-4' %}
+              <span class="sr-only">{{ 'products.product.quantity.increase' | t: product: item.product.title }}</span>
+            </button>
+          </div>
+          {%- endunless -%}
+
+          {%- if can_remove -%}
+          <a
+            href="{{ item.url_to_remove }}"
+            id="{{ line_id }}-remove"
+            class="inline-flex items-center gap-1 text-body-sm text-muted underline-offset-4 hover:text-foreground hover:underline"
+            data-cart-remove
+          >
+            {% render 'icon', name: 'x-mark', class: 'size-4' %}
+            {{ 'sections.cart.remove' | t }}
+            <span class="sr-only">{{ item.product.title | escape }}</span>
+          </a>
+          {%- endif -%}
+        </div>
+
+        {%- if rule.min > 1 or rule.increment > 1 or rule.max or show_available -%}
+          <ul class="flex flex-wrap gap-x-3 text-body-sm text-muted" role="list">
+            {%- if rule.min > 1 -%}
+              <li>{{ 'products.product.quantity.min_of' | t: quantity: rule.min }}</li>
+            {%- endif -%}
+            {%- if rule.max -%}
+              <li>{{ 'products.product.quantity.max_of' | t: quantity: rule.max }}</li>
+            {%- endif -%}
+            {%- if rule.increment > 1 -%}
+              <li>{{ 'products.product.quantity.multiples_of' | t: quantity: rule.increment }}</li>
+            {%- endif -%}
+            {%- if show_available -%}
+              <li>{{ 'products.product.quantity.max_available' | t: quantity: line_max }}</li>
+            {%- endif -%}
+          </ul>
+        {%- endif -%}
+
+        <p class="text-body-sm text-danger-foreground" role="alert" data-line-error hidden></p>
+      </div>
+    </li>
+  {%- endfor -%}
+</ul>

@@ -1,0 +1,536 @@
+{%- comment -%}
+  Header del negozio (section group "header-group").
+  Riferimento: Simple Design System (Figma) → Sections / Header e componenti Navigation Pill + Header Auth.
+  Icone: Heroicons.
+
+  - Desktop (da 990px): logo, menu centrale con evidenziazione che scorre tra le voci, ricerca, account, carrello.
+    Le voci con sottomenu aprono un pannello (snippet header-panel): mega menu a tutta larghezza se il menu
+    ha 3 livelli o se la voce ha un blocco "Mega menu", altrimenti una tendina compatta.
+  - Mobile e tablet: cassetto con le voci di primo livello; il secondo livello è lo stesso pannello, che entra da destra.
+  - Pannelli = popover nativi: funzionano senza JS. frontend/scripts/header.js (in theme.js) aggiunge apertura
+    al passaggio del mouse, posizione dei pannelli, evidenziazione, blocco dello scroll e header "a scomparsa".
+  - Contenuti del mega menu: theme blocks blocks/_header-mega-menu.liquid (+ card _header-menu-card),
+    collegati alla voce del menu per titolo.
+  - Stato sticky: classe .section-header sul wrapper della section (vedi frontend/styles/header.css).
+  - Header trasparente (data-transparent): solo sopra una prima section che lo consente ([data-header-overlay]
+    della hero), in CSS con le varianti overlay: / overlay-light: (frontend/entrypoints/theme.css). header.js
+    aggiunge data-solid oltre la hero, con un menu aperto o con il focus da tastiera nell'header.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  assign menu = section.settings.menu
+  assign logo_width = section.settings.logo_width
+  assign logo_width_2x = logo_width | times: 2
+  assign logo_widths = logo_width | append: ', ' | append: logo_width_2x
+  assign logo_sizes = logo_width | append: 'px'
+  assign account_enabled = false
+  if section.settings.show_account and shop.customer_accounts_enabled
+    assign account_enabled = true
+  endif
+
+  # Selettori di paese/valuta e lingua: solo se attivi e con più di un'opzione (Markets)
+  assign show_country = false
+  if section.settings.show_country and localization.available_countries.size > 1
+    assign show_country = true
+  endif
+  assign show_language = false
+  if section.settings.show_language and localization.available_languages.size > 1
+    assign show_language = true
+  endif
+-%}
+
+{%- comment -%}
+  Pannelli dei blocchi "Mega menu": catturati qui per sapere quali voci ne hanno uno, cercando l'id del pannello
+  nell'HTML. section.blocks non serve: per i theme blocks dà type "@theme" e nessun setting (misurato il 2026-11-06).
+{%- endcomment -%}
+{%- capture mega_panels -%}
+  {% content_for 'blocks' %}
+{%- endcapture -%}
+
+{%- capture pill_class -%}
+  relative flex items-center gap-1 rounded-button px-3.5 py-2 text-body leading-none text-foreground transition-colors hover:bg-surface js:hover:bg-transparent aria-[current=page]:font-semibold overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white
+{%- endcapture -%}
+
+<site-header
+  class="group/header relative block border-b border-border bg-background transition-[background-color,border-color] duration-300 ease-theme overlay:border-transparent overlay:bg-transparent overlay:[--color-foreground:var(--color-black)] motion-reduce:transition-none"
+  data-sticky="{{ section.settings.sticky_header }}"
+  {% if section.settings.transparent_header %}
+    data-transparent
+  {% endif %}
+  {% if section.settings.open_on_hover %}
+    data-hover-open
+  {% endif %}
+  style="--logo-width: {{ logo_width }}px;"
+>
+  <header class="page-width flex h-18 items-center gap-6 md:h-auto md:min-h-20 md:py-4">
+    {%- comment -%} Logo {%- endcomment -%}
+    {%- comment -%} Logo. Sopra una hero con testo chiaro: logo chiaro (se impostato) in dissolvenza incrociata {%- endcomment -%}
+    {%- liquid
+      assign light_logo = nil
+      if section.settings.transparent_header and section.settings.transparent_logo != blank and section.settings.logo != blank
+        assign light_logo = section.settings.transparent_logo
+      endif
+    -%}
+    <a
+      href="{{ routes.root_url }}"
+      class="relative shrink-0 rounded-sm text-foreground transition-colors duration-300 overlay-light:text-white overlay-light:focus-visible:outline-white"
+    >
+      {%- if section.settings.logo != blank -%}
+        {%- capture logo_class -%}
+          h-auto w-(--logo-width){% if light_logo %} transition-opacity duration-300 ease-theme overlay-light:opacity-0 motion-reduce:transition-none{% endif %}
+        {%- endcapture -%}
+        {{
+          section.settings.logo
+          | image_url: width: logo_width_2x
+          | image_tag:
+            loading: 'eager',
+            widths: logo_widths,
+            sizes: logo_sizes,
+            alt: shop.name,
+            class: logo_class
+        }}
+        {%- if light_logo -%}
+          {{
+            light_logo
+            | image_url: width: logo_width_2x
+            | image_tag:
+              loading: 'eager',
+              widths: logo_widths,
+              sizes: logo_sizes,
+              alt: '',
+              class: 'absolute inset-0 h-auto w-(--logo-width) opacity-0 transition-opacity duration-300 ease-theme overlay-light:opacity-100 motion-reduce:transition-none'
+          }}
+        {%- endif -%}
+      {%- else -%}
+        <span class="text-heading">{{ shop.name | escape }}</span>
+      {%- endif -%}
+    </a>
+
+    {%- comment -%} Menu desktop {%- endcomment -%}
+    {%- if menu.links.size > 0 -%}
+      <nav data-header-nav class="hidden flex-1 justify-center lg:flex" aria-label="{{ 'general.header.main_navigation' | t }}">
+        <ul class="relative flex flex-wrap items-center gap-1" role="list">
+          {%- comment -%} Evidenziazione che segue il puntatore e la voce aperta (posizione da header.js) {%- endcomment -%}
+          <span
+            data-nav-highlight
+            aria-hidden="true"
+            class="pointer-events-none absolute top-(--highlight-y) left-0 hidden h-(--highlight-h) w-(--highlight-w) translate-x-(--highlight-x) rounded-button bg-surface opacity-0 transition-[translate,width,opacity] overlay-light:bg-white/15 duration-300 ease-theme js:block data-visible:opacity-100 motion-reduce:transition-none"
+          ></span>
+          {%- for link in menu.links -%}
+            {%- liquid
+              assign key = link.title | handleize
+              assign needle = 'id="HeaderPanel-' | append: key | append: '"'
+              assign has_panel = false
+              if link.links.size > 0 or mega_panels contains needle
+                assign has_panel = true
+              endif
+            -%}
+            <li>
+              {%- if has_panel -%}
+                <button
+                  type="button"
+                  popovertarget="HeaderPanel-{{ key }}"
+                  data-header-trigger
+                  class="group/trigger {{ pill_class }}{% if link.child_active %} font-semibold{% endif %}"
+                >
+                  {{- link.title | escape -}}
+                  {% render 'icon',
+                    name: 'chevron-down',
+                    class: 'size-4 transition-transform duration-300 ease-theme group-data-open/trigger:rotate-180 motion-reduce:transition-none'
+                  %}
+                </button>
+              {%- else -%}
+                <a
+                  href="{{ link.url }}"
+                  class="{{ pill_class }}"
+                  {% if link.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    {%- comment -%} Azioni (SDS Header Auth + Button) {%- endcomment -%}
+    <div class="ms-auto flex items-center gap-2 md:ms-0">
+      {%- comment -%} Paese/valuta e lingua (da 990px; sotto sono nel cassetto) {%- endcomment -%}
+      {%- if show_country -%}
+        {% render 'header-localization', type: 'country', part: 'trigger' %}
+      {%- endif -%}
+      {%- if show_language -%}
+        {% render 'header-localization', type: 'language', part: 'trigger' %}
+      {%- endif -%}
+
+      {%- if section.settings.show_search -%}
+        {%- comment -%} Apre il pannello di ricerca (snippet header-search); data-search-trigger: header.js precarica il JS {%- endcomment -%}
+        <button
+          type="button"
+          popovertarget="HeaderSearch"
+          data-search-trigger
+          class="button button-subtle button-sm button-icon relative overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
+        >
+          {% render 'icon', name: 'magnifying-glass', class: 'size-5' %}
+          <span class="sr-only">{{ 'general.search.title' | t }}</span>
+          <span class="tooltip tooltip-below" aria-hidden="true">{{ 'general.search.title' | t }}</span>
+        </button>
+      {%- endif -%}
+
+      {%- comment -%}
+        Account cliente: componente di Shopify (accesso senza uscire dal negozio, menu dell'account, aggiornato da
+        Shopify), caricato da content_for_header. Variabili di stile in frontend/styles/header.css.
+        data-lenis-prevent: il foglio dell'account scorre da solo. Senza JS resta un link normale.
+      {%- endcomment -%}
+      {%- if account_enabled -%}
+        <a
+          href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
+          class="button button-subtle button-sm button-icon js:hidden overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
+        >
+          {% render 'icon', name: 'user', class: 'size-5' %}
+          <span class="sr-only">
+            {%- if customer -%}
+              {{ 'customer.account.title' | t }}
+            {%- else -%}
+              {{ 'customer.login.title' | t }}
+            {%- endif -%}
+          </span>
+        </a>
+        <shopify-account
+          class="hidden js:flex overlay-light:[--account-accent:white]"
+          menu="{{ section.settings.customer_account_menu.handle | default: 'customer-account-main-menu' }}"
+          data-lenis-prevent
+        >
+          {%- unless customer -%}
+            <span
+              slot="signed-out-avatar"
+              class="flex size-9 items-center justify-center text-foreground overlay-light:text-white"
+            >
+              {% render 'icon', name: 'user', class: 'size-5' %}
+              <span class="sr-only">{{ 'customer.login.title' | t }}</span>
+            </span>
+          {%- endunless -%}
+        </shopify-account>
+      {%- endif -%}
+
+      {%- comment -%}
+        data-header-cart: contenuto aggiornato dopo ogni modifica al carrello (frontend/scripts/cart-api.js).
+        Con il carrello a cassetto il link apre un dialog (aria-haspopup); senza JS porta alla pagina carrello.
+      {%- endcomment -%}
+      <a
+        href="{{ routes.cart_url }}"
+        class="button button-primary button-sm overlay-light:button-inverse overlay-light:focus-visible:outline-white"
+        {% if settings.cart_type == 'drawer' %}
+          aria-haspopup="dialog"
+        {% endif %}
+        data-header-cart
+      >
+        {% render 'icon', name: 'shopping-bag', class: 'size-5' %}
+        <span class="hidden md:inline">{{ 'sections.cart.title_short' | t }}</span>
+        <span class="sr-only">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+        {%- if cart.item_count > 0 -%}
+          <span
+            class="min-w-5 rounded-full bg-primary-foreground px-1.5 text-center text-body-sm leading-5 text-primary overlay-light:bg-foreground overlay-light:text-white"
+            aria-hidden="true"
+          >
+            {{- cart.item_count -}}
+          </span>
+        {%- endif -%}
+      </a>
+
+      {%- comment -%} Menu mobile: primo livello; il secondo è il pannello della voce (stesso popover del desktop) {%- endcomment -%}
+      <details class="header-drawer group lg:hidden" data-scroll-lock>
+        <summary class="button button-subtle button-sm button-icon list-none overlay-light:text-white overlay-light:focus-visible:outline-white [&::-webkit-details-marker]:hidden">
+          {% render 'icon', name: 'bars-3', class: 'size-6 group-open:hidden' %}
+          {% render 'icon', name: 'x-mark', class: 'hidden size-6 group-open:block' %}
+          <span class="sr-only">{{ 'general.header.menu' | t }}</span>
+        </summary>
+
+        <div
+          class="header-drawer__panel absolute inset-x-0 top-full z-40 flex h-[calc(100dvh-100%)] flex-col overflow-y-auto overscroll-contain border-t border-border bg-background"
+          data-lenis-prevent
+        >
+          <nav class="flex-1 px-6 py-2" aria-label="{{ 'general.header.main_navigation' | t }}">
+            <ul class="flex flex-col" role="list">
+              {%- for link in menu.links -%}
+                {%- liquid
+                  assign key = link.title | handleize
+                  assign needle = 'id="HeaderPanel-' | append: key | append: '"'
+                  assign has_panel = false
+                  if link.links.size > 0 or mega_panels contains needle
+                    assign has_panel = true
+                  endif
+                -%}
+                <li class="border-b border-border">
+                  {%- capture drawer_item_class -%}
+                    flex w-full items-center justify-between gap-4 py-4 text-left text-heading text-foreground{% if link.current or link.child_active %} underline decoration-2 underline-offset-8{% endif %}
+                  {%- endcapture -%}
+                  {%- if has_panel -%}
+                    <button type="button" popovertarget="HeaderPanel-{{ key }}" class="{{ drawer_item_class }}">
+                      {{- link.title | escape -}}
+                      {% render 'icon', name: 'chevron-right', class: 'size-5 text-muted' %}
+                    </button>
+                  {%- else -%}
+                    <a
+                      href="{{ link.url }}"
+                      class="{{ drawer_item_class }}"
+                      {% if link.current %}
+                        aria-current="page"
+                      {% endif %}
+                    >
+                      {{- link.title | escape -}}
+                    </a>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+
+          {%- if show_country or show_language -%}
+            <div class="divide-y divide-border border-t border-border px-6">
+              {%- if show_country -%}
+                {% render 'header-localization', type: 'country', part: 'row' %}
+              {%- endif -%}
+              {%- if show_language -%}
+                {% render 'header-localization', type: 'language', part: 'row' %}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+        </div>
+      </details>
+    </div>
+  </header>
+
+  {%- comment -%}
+    Velo sulla pagina mentre un mega menu è aperto (da 990px). Il click sul velo è un click fuori dal popover:
+    lo chiude il browser (light dismiss), senza attivare i link sotto.
+  {%- endcomment -%}
+  <div
+    aria-hidden="true"
+    class="pointer-events-none fixed inset-x-0 top-(--header-bottom) bottom-0 z-30 hidden bg-overlay/50 opacity-0 transition-opacity duration-300 ease-theme lg:block motion-reduce:transition-none group-data-[menu-open=mega]/header:pointer-events-auto group-data-[menu-open=mega]/header:opacity-100"
+  ></div>
+
+  {%- comment -%} Pannelli: prima quelli dei blocchi "Mega menu", poi quelli predefiniti delle altre voci con sottomenu {%- endcomment -%}
+  {%- comment -%}
+    I pannelli sono popover (top layer): il contenitore non li influenza. Serve agli avvisi dell'editor dei
+    blocchi non collegati: sotto l'header, sopra la pagina, senza occupare spazio (h-0) né bloccare i click
+    (pointer-events solo sui figli).
+  {%- endcomment -%}
+  <div class="absolute inset-x-0 top-full z-50 h-0">
+    <div class="page-width pointer-events-none flex flex-col items-start gap-2 pt-3 *:pointer-events-auto">
+      {{ mega_panels }}
+    </div>
+  </div>
+  {%- for link in menu.links -%}
+    {%- liquid
+      assign key = link.title | handleize
+      assign needle = 'id="HeaderPanel-' | append: key | append: '"'
+      assign layout = 'compact'
+      if link.levels > 1
+        assign layout = 'columns'
+      endif
+    -%}
+    {%- if link.links.size > 0 -%}
+      {%- unless mega_panels contains needle -%}
+        {% render 'header-panel', link: link, layout: layout %}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if section.settings.show_search -%}
+    {% render 'header-search',
+      quick_links: section.settings.search_quick_links,
+      predictive: section.settings.predictive_search
+    %}
+  {%- endif -%}
+
+  {%- comment -%} Elenchi di paesi e lingue: una volta sola, aperti dal pulsante desktop o dalla riga del cassetto {%- endcomment -%}
+  {%- if show_country -%}
+    {% render 'header-localization', type: 'country', part: 'popover' %}
+  {%- endif -%}
+  {%- if show_language -%}
+    {% render 'header-localization', type: 'language', part: 'popover' %}
+  {%- endif -%}
+</site-header>
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "tag": "div",
+  "class": "section-header",
+  "enabled_on": {
+    "groups": [
+      "header"
+    ]
+  },
+  "blocks": [
+    {
+      "type": "_header-mega-menu"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.header.settings.section_width.label",
+      "info": "t:sections.header.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.header.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.header.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:sections.header.settings.logo.label"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "t:sections.header.settings.logo_width.label",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "unit": "t:sections.header.settings.logo_width.unit",
+      "default": 100
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:sections.header.settings.menu.label",
+      "default": "main-menu",
+      "info": "t:sections.header.settings.menu.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_on_hover",
+      "label": "t:sections.header.settings.open_on_hover.label",
+      "info": "t:sections.header.settings.open_on_hover.info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "sticky_header",
+      "label": "t:sections.header.settings.sticky_header.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.header.settings.sticky_header.options.none"
+        },
+        {
+          "value": "always",
+          "label": "t:sections.header.settings.sticky_header.options.always"
+        },
+        {
+          "value": "scroll-up",
+          "label": "t:sections.header.settings.sticky_header.options.scroll_up"
+        }
+      ],
+      "default": "scroll-up"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "transparent_header",
+      "label": "t:sections.header.settings.transparent_header.label",
+      "info": "t:sections.header.settings.transparent_header.info",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "transparent_logo",
+      "label": "t:sections.header.settings.transparent_logo.label",
+      "info": "t:sections.header.settings.transparent_logo.info",
+      "visible_if": "{{ section.settings.transparent_header }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header_2.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "t:sections.header.settings.show_search.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "predictive_search",
+      "label": "t:sections.header.settings.predictive_search.label",
+      "info": "t:sections.header.settings.predictive_search.info",
+      "default": true,
+      "visible_if": "{{ section.settings.show_search }}"
+    },
+    {
+      "type": "link_list",
+      "id": "search_quick_links",
+      "label": "t:sections.header.settings.search_quick_links.label",
+      "info": "t:sections.header.settings.search_quick_links.info",
+      "visible_if": "{{ section.settings.show_search }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "t:sections.header.settings.show_account.label",
+      "info": "t:sections.header.settings.show_account.info",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "t:sections.header.settings.customer_account_menu.label",
+      "info": "t:sections.header.settings.customer_account_menu.info",
+      "default": "customer-account-main-menu",
+      "visible_if": "{{ section.settings.show_account }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header_3.content",
+      "info": "t:sections.header.settings.header_3.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country",
+      "label": "t:sections.header.settings.show_country.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_language",
+      "label": "t:sections.header.settings.show_language.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header_4.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.header.settings.color_background.label",
+      "info": "t:sections.header.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.header.settings.color_text.label",
+      "info": "t:sections.header.settings.color_text.info"
+    }
+  ]
+}
+{% endschema %}

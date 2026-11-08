@@ -1,0 +1,116 @@
+{%- comment -%}
+  Card di un articolo del blog (pagina blog, e riusabile in altre section). Tutta la card è cliccabile: il link del
+  titolo si estende con ::after; i tag restano testo (il filtro per tag è nella pagina del blog).
+  In evidenza (featured): immagine e testo affiancati da 990px, titolo più grande.
+
+  Parametri:
+  - article: articolo (obbligatorio)
+  - featured: true per la card in evidenza (primo articolo)
+  - ratio: proporzioni dell'immagine 'landscape' (16:9, default) | 'square' | 'portrait' (4:5)
+  - full_width: true se la card sta in una section a tutta larghezza: aggiunge formati più grandi all'immagine
+  - sizes: attributo sizes dell'immagine
+  - loading / fetchpriority: 'lazy' / 'auto' (default); 'eager' / 'high' per l'immagine LCP
+  - show_image, show_date, show_author, show_excerpt: parti visibili (default true)
+  - heading_tag: tag del titolo (default 'h2')
+
+  Uso: {% render 'article-card', article: article, sizes: sizes, featured: forloop.first %}
+{%- endcomment -%}
+{%- liquid
+  assign image_max = 1600
+  assign image_widths = '400, 600, 800, 1000, 1200, 1600'
+  if full_width
+    assign image_max = 2600
+    assign image_widths = image_widths | append: ', 2000, 2600'
+  endif
+  assign heading_tag = heading_tag | default: 'h2'
+  assign loading = loading | default: 'lazy'
+  assign fetchpriority = fetchpriority | default: 'auto'
+  if show_image == nil
+    assign show_image = true
+  endif
+  if show_date == nil
+    assign show_date = true
+  endif
+  if show_author == nil
+    assign show_author = true
+  endif
+  if show_excerpt == nil
+    assign show_excerpt = true
+  endif
+
+  case ratio
+    when 'square'
+      assign ratio_class = 'aspect-square'
+    when 'portrait'
+      assign ratio_class = 'aspect-4/5'
+    else
+      assign ratio_class = 'aspect-video'
+  endcase
+
+  assign excerpt = article.excerpt | default: article.content | strip_html | strip_newlines
+  if featured
+    assign excerpt = excerpt | truncatewords: 40
+  else
+    assign excerpt = excerpt | truncatewords: 24
+  endif
+-%}
+
+<article class="group/card relative flex h-full flex-col gap-4{% if featured %} lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-12{% endif %}">
+  {%- if show_image -%}
+    <div class="media-loading relative overflow-hidden rounded-lg bg-surface {{ ratio_class }}">
+      {%- if article.image -%}
+        {{
+          article.image
+          | image_url: width: image_max
+          | image_tag:
+            loading: loading,
+            fetchpriority: fetchpriority,
+            sizes: sizes,
+            widths: image_widths,
+            alt: '',
+            class: 'absolute inset-0 size-full object-cover transition-[scale] duration-700 ease-theme motion-safe:group-hover/card:scale-105'
+        }}
+      {%- else -%}
+        <div class="absolute inset-0 flex items-center justify-center text-subtle" aria-hidden="true">
+          {% render 'icon', name: 'newspaper', class: 'size-12' %}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="flex grow flex-col gap-3">
+    {%- if show_date or show_author -%}
+      <p class="flex flex-wrap items-center gap-x-2 text-body-sm text-foreground/80">
+        {%- if show_date -%}
+          <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'date' }}</time>
+        {%- endif -%}
+        {%- if show_date and show_author and article.author != blank -%}
+          <span aria-hidden="true">·</span>
+        {%- endif -%}
+        {%- if show_author and article.author != blank -%}
+          <span>{{ article.author | escape }}</span>
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+
+    <{{ heading_tag }} class="text-balance text-foreground {% if featured %}text-heading md:text-title-page{% else %}text-heading{% endif %}">
+      <a
+        href="{{ article.url }}"
+        class="decoration-1 underline-offset-4 after:absolute after:inset-0 after:z-[1] after:rounded-lg group-hover/card:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-primary"
+      >
+        {{- article.title | escape -}}
+      </a>
+    </{{ heading_tag }}>
+
+    {%- if show_excerpt and excerpt != blank -%}
+      <p class="text-body text-pretty text-foreground/80{% unless featured %} line-clamp-3{% endunless %}">{{ excerpt }}</p>
+    {%- endif -%}
+
+    {%- if featured -%}
+      <span class="mt-2 inline-flex items-center gap-1 text-body font-semibold text-foreground" aria-hidden="true">
+        {{- 'blogs.article.read_more' | t -}}
+        {% render 'icon', name: 'arrow-right', class: 'size-5 transition-transform duration-200 ease-theme motion-safe:group-hover/card:translate-x-1' %}
+      </span>
+    {%- endif -%}
+  </div>
+</article>

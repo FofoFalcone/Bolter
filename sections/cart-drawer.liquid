@@ -1,0 +1,93 @@
+{%- comment -%}
+  Carrello a cassetto: section statica resa nel layout quando Impostazioni tema → Carrello = "Cassetto".
+  <dialog> nativo aperto con showModal(): focus intrappolato, Esc, sfondo inerte e ritorno del focus
+  sono gestiti dal browser; closedby="any" chiude anche cliccando sullo sfondo.
+  Senza JS il cassetto non si apre: il link al carrello dell'header porta alla pagina carrello.
+  JS: frontend/entrypoints/cart.js (<cart-drawer>, <cart-items>) — CSS: frontend/entrypoints/cart.css
+{%- endcomment -%}
+{% render 'vite-tag', entry: 'cart.css' %}
+
+<cart-drawer>
+  <dialog
+    id="CartDrawer"
+    class="cart-drawer m-0 ms-auto h-dvh max-h-dvh w-full max-w-md bg-background p-0 text-foreground shadow-600 backdrop:bg-overlay"
+    aria-labelledby="CartDrawerTitle"
+    closedby="any"
+    data-scroll-lock
+  >
+    <p class="sr-only" aria-live="polite" data-cart-status data-updated="{{ 'sections.cart.updated' | t | escape }}"></p>
+
+    <cart-items class="flex h-full flex-col" data-section-id="{{ section.id }}">
+      {%- comment -%}
+        Standard event shopify:cart:view (Shopify) all'apertura del cassetto (trigger "dialog").
+        È dentro <cart-items>, così il payload è sempre quello del carrello aggiornato.
+      {%- endcomment -%}
+      <s-view-event
+        view-event-trigger="dialog"
+        view-event-payload='{{ cart | standard_event_data: "view", context: "dialog" | escape }}'
+        hidden
+      ></s-view-event>
+      <div class="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
+        <h2 id="CartDrawerTitle" class="text-heading text-foreground outline-none" tabindex="-1" data-cart-focus>
+          {{- 'sections.cart.title_with_count' | t: count: cart.item_count -}}
+        </h2>
+        <button type="button" class="button button-subtle button-sm button-icon" data-cart-drawer-close>
+          {% render 'icon', name: 'x-mark', class: 'size-6' %}
+          <span class="sr-only">{{ 'sections.cart.close' | t }}</span>
+        </button>
+      </div>
+
+      {% render 'cart-free-shipping', section_id: section.id, class: 'border-b border-border px-6 py-3' %}
+
+      {%- if cart.item_count > 0 -%}
+        <form
+          action="{{ routes.cart_url }}"
+          method="post"
+          id="CartForm-{{ section.id }}"
+          class="flex-1 overflow-y-auto px-6 py-4"
+          novalidate
+        >
+          {% render 'cart-line-items', section_id: section.id, image_size: 80 %}
+        </form>
+
+        {%- comment -%} max-h: con codici sconto e attributi aperti il riepilogo scorre, le righe restano visibili {%- endcomment -%}
+        <div class="flex max-h-[70dvh] flex-col gap-3 overflow-y-auto border-t border-border bg-surface px-6 py-4">
+          {% render 'cart-summary',
+            section_id: section.id,
+            show_note: false,
+            show_dynamic_checkout: false,
+            show_discount: section.settings.show_discount,
+            discount_collapsed: true
+          %}
+          <a href="{{ routes.cart_url }}" class="button button-subtle w-full">{{ 'sections.cart.view_cart' | t }}</a>
+        </div>
+      {%- else -%}
+        <div class="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
+          <p class="text-subheading text-foreground">{{ 'sections.cart.empty' | t }}</p>
+          <a href="{{ routes.all_products_collection_url }}" class="button button-primary">
+            {{- 'sections.cart.continue_shopping' | t -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </cart-items>
+  </dialog>
+</cart-drawer>
+
+{% render 'vite-tag', entry: 'cart.js' %}
+
+{% schema %}
+{
+  "name": "t:sections.cart_drawer.name",
+  "tag": "div",
+  "class": "section-cart-drawer",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_discount",
+      "label": "t:sections.cart_drawer.settings.show_discount.label",
+      "info": "t:sections.cart_drawer.settings.show_discount.info",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

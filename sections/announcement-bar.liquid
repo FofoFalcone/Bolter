@@ -1,0 +1,157 @@
+{%- comment -%}
+  Barra annunci sopra l'header (solo nel gruppo header). Messaggi = theme blocks blocks/_announcement.liquid.
+  - Un messaggio: barra statica, nessun JS.
+  - Più messaggi: rotazione "ticker" (esce verso l'alto, il nuovo entra dal basso) con frecce e pausa
+    (WCAG 2.2.2), ferma al passaggio del mouse, con il focus dentro e con prefers-reduced-motion.
+    JS: frontend/entrypoints/announcement-bar.js (caricato solo in questo caso).
+  - Nessuna ombra né bordo: la barra si appoggia all'header, che ha già il suo bordo.
+{%- endcomment -%}
+{%- liquid
+  assign s = section.settings
+  assign count = section.blocks.size
+
+  case s.style
+    when 'light'
+      assign style_class = 'bg-surface text-foreground'
+    when 'positive'
+      assign style_class = 'bg-positive-surface text-positive-foreground'
+    else
+      assign style_class = 'bg-primary text-primary-foreground'
+  endcase
+
+  capture control_class
+    echo 'button button-subtle button-sm button-icon [--button-size:calc(var(--spacing)*7)] text-current hover:bg-current/10 focus-visible:outline-current'
+  endcapture
+-%}
+
+{%- if count > 0 -%}
+  <announcement-bar
+    class="group/bar block {{ style_class }}"
+    {% if count > 1 and s.autoplay %}
+      data-autoplay="{{ s.speed | times: 1000 }}"
+    {% endif %}
+  >
+    <aside
+      class="page-width flex min-h-10 items-center gap-2 py-1.5 text-body-sm font-semibold"
+      aria-label="{{ 'sections.announcement_bar.label' | t }}"
+    >
+      {%- if count > 1 -%}
+        <button
+          type="button"
+          data-announcement-prev
+          class="{{ control_class }} hidden js:inline-flex"
+          aria-label="{{ 'sections.announcement_bar.previous' | t }}"
+        >
+          {% render 'icon', name: 'chevron-left', class: 'size-4' %}
+        </button>
+      {%- endif -%}
+
+      <div
+        data-announcement-track
+        class="grid flex-1 overflow-hidden"
+        {% if count > 1 %}
+          aria-live="{% if s.autoplay %}off{% else %}polite{% endif %}"
+        {% endif %}
+      >
+        {% content_for 'blocks' %}
+      </div>
+
+      {%- if count > 1 -%}
+        <button
+          type="button"
+          data-announcement-next
+          class="{{ control_class }} hidden js:inline-flex"
+          aria-label="{{ 'sections.announcement_bar.next' | t }}"
+        >
+          {% render 'icon', name: 'chevron-right', class: 'size-4' %}
+        </button>
+        {%- if s.autoplay -%}
+          {%- comment -%} Pausa/riproduzione: data-paused su <announcement-bar> sceglie l'icona {%- endcomment -%}
+          <button
+            type="button"
+            data-announcement-toggle
+            data-label-play="{{ 'sections.announcement_bar.play' | t | escape }}"
+            data-label-pause="{{ 'sections.announcement_bar.pause' | t | escape }}"
+            aria-label="{{ 'sections.announcement_bar.pause' | t | escape }}"
+            class="{{ control_class }} hidden js:inline-flex"
+          >
+            {% render 'icon', name: 'pause', class: 'size-3.5 group-data-paused/bar:hidden' %}
+            {% render 'icon', name: 'play', class: 'hidden size-3.5 group-data-paused/bar:block' %}
+          </button>
+        {%- endif -%}
+      {%- endif -%}
+    </aside>
+  </announcement-bar>
+
+  {%- if count > 1 -%}
+    {% render 'vite-tag', entry: 'announcement-bar.js' %}
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.announcement_bar.name",
+  "tag": "div",
+  "class": "section-announcement-bar",
+  "enabled_on": {
+    "groups": [
+      "header"
+    ]
+  },
+  "blocks": [
+    {
+      "type": "_announcement"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:sections.announcement_bar.settings.style.label",
+      "options": [
+        {
+          "value": "dark",
+          "label": "t:sections.announcement_bar.settings.style.options.dark"
+        },
+        {
+          "value": "light",
+          "label": "t:sections.announcement_bar.settings.style.options.light"
+        },
+        {
+          "value": "positive",
+          "label": "t:sections.announcement_bar.settings.style.options.positive"
+        }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.announcement_bar.settings.autoplay.label",
+      "info": "t:sections.announcement_bar.settings.autoplay.info",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "t:sections.announcement_bar.settings.speed.label",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "t:sections.announcement_bar.settings.speed.unit",
+      "default": 5,
+      "visible_if": "{{ section.settings.autoplay }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.announcement_bar.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "_announcement"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

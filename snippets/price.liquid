@@ -1,0 +1,89 @@
+{%- comment -%}
+  Prezzo di un prodotto o di una variante (card prodotto, pagina prodotto).
+
+  Parametri:
+  - product: prodotto (obbligatorio, anche quando si passa variant)
+  - variant: variante specifica (pagina prodotto). Se assente si usa il prezzo minimo del prodotto
+    e, se le varianti hanno prezzi diversi, "A partire da".
+  - size: 'base' (default, card) o 'lg' (pagina prodotto)
+
+  Uso: {% render 'price', product: product, variant: current_variant, size: 'lg' %}
+{%- endcomment -%}
+{%- liquid
+  assign allocation = nil
+  if variant != blank
+    assign price = variant.price
+    assign compare_at_price = variant.compare_at_price
+    assign unit_source = variant
+    assign price_varies = false
+
+    # Opzione di acquisto scelta (parametro selling_plan dell'URL), o la prima se la variante ne richiede una
+    assign selected_plan_id = product.selected_selling_plan.id
+    for candidate in variant.selling_plan_allocations
+      if candidate.selling_plan.id == selected_plan_id
+        assign allocation = candidate
+      endif
+    endfor
+    if allocation == nil and variant.requires_selling_plan
+      assign allocation = variant.selling_plan_allocations.first
+    endif
+    if allocation
+      assign price = allocation.price
+      assign compare_at_price = allocation.compare_at_price
+    endif
+  elsif product != blank
+    assign price = product.price
+    assign compare_at_price = product.compare_at_price
+    assign unit_source = product.selected_or_first_available_variant
+    assign price_varies = product.price_varies
+  else
+    assign price = 1999
+    assign compare_at_price = nil
+    assign price_varies = false
+  endif
+
+  assign on_sale = false
+  if compare_at_price > price
+    assign on_sale = true
+  endif
+
+  if size == 'lg'
+    assign price_class = 'text-heading'
+  else
+    assign price_class = 'text-body font-semibold'
+  endif
+-%}
+
+<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+  {%- if on_sale -%}
+    <span class="sr-only">{{ 'products.product.price.sale' | t }}</span>
+  {%- endif -%}
+  <span class="{{ price_class }} text-foreground">
+    {%- if price_varies -%}
+      {%- comment -%} Prezzo formattato prima: in "t: price: price | money" money si applicherebbe al testo tradotto {%- endcomment -%}
+      {%- assign formatted_price = price | money -%}
+      {{ 'products.product.price.from_price' | t: price: formatted_price }}
+    {%- else -%}
+      {{ price | money }}
+    {%- endif -%}
+  </span>
+
+  {%- if on_sale -%}
+    <span class="sr-only">{{ 'products.product.price.regular' | t }}</span>
+    <s class="text-body-sm text-muted">{{ compare_at_price | money }}</s>
+  {%- endif -%}
+
+  {%- comment -%} Piani con più consegne: il prezzo è quello totale, qui quanto costa ogni consegna {%- endcomment -%}
+  {%- if allocation and allocation.per_delivery_price != allocation.price -%}
+    {%- assign per_delivery = allocation.per_delivery_price | money -%}
+    <span class="basis-full text-body-sm text-muted">{{ 'products.product.price.per_delivery' | t: price: per_delivery }}</span>
+  {%- endif -%}
+
+  {%- if unit_source.unit_price_measurement -%}
+    <span class="basis-full text-body-sm text-muted">
+      <span class="sr-only">{{ 'products.product.price.unit_price' | t }}</span>
+      {%- assign unit_price_value = allocation.unit_price | default: unit_source.unit_price -%}
+      {{- unit_price_value | unit_price_with_measurement: unit_source.unit_price_measurement -}}
+    </span>
+  {%- endif -%}
+</div>

@@ -1,0 +1,71 @@
+{%- comment -%}
+  Quanto manca alla spedizione gratuita (pagina carrello e cassetto), dentro <cart-items>: si aggiorna con il
+  Section Rendering; <cart-items> anima il riempimento dal valore precedente (frontend/entrypoints/cart.js).
+
+  - Soglie: Impostazioni tema → Carrello, una per riga ("EUR: 50"). Il tema non può leggere le tariffe di spedizione né
+    convertire un importo: Liquid non espone tassi di cambio e Shopify permette soglie diverse in ogni valuta. Senza una
+    soglia per la valuta corrente la barra non compare: meglio nessuna promessa che una sbagliata.
+  - Confronto con cart.total_price, cioè dopo gli sconti, come fa il checkout con le tariffe basate sul prezzo.
+  - Niente barra se nel carrello nulla va spedito (cart.requires_shipping).
+  - newline_to_br per dividere le righe: funziona qualunque sia il fine riga del campo.
+
+  Parametri:
+  - section_id: id della section (id univoci)
+  - class: classi del contenitore
+
+  Uso: {% render 'cart-free-shipping', section_id: section.id, class: 'px-6 py-3' %}
+{%- endcomment -%}
+{%- liquid
+  assign threshold = 0
+  if cart.item_count > 0 and cart.requires_shipping and settings.cart_free_shipping_thresholds != blank
+    assign threshold_lines = settings.cart_free_shipping_thresholds | newline_to_br | split: '<br />'
+    for threshold_line in threshold_lines
+      assign parts = threshold_line | split: ':'
+      assign currency_code = parts.first | strip | upcase
+      if parts.size == 2 and currency_code == cart.currency.iso_code
+        assign threshold = parts.last | strip | replace: ',', '.' | times: 100 | round
+        break
+      endif
+    endfor
+  endif
+-%}
+{%- if threshold > 0 -%}
+  {%- liquid
+    assign progress = cart.total_price | times: 100 | divided_by: threshold | at_most: 100
+    assign reached = false
+    if cart.total_price >= threshold
+      assign reached = true
+    endif
+    assign remaining = threshold | minus: cart.total_price | money
+    assign message_id = 'CartFreeShipping-' | append: section_id
+  -%}
+  <div class="flex flex-col gap-2 {{ class }}" style="--progress: {{ progress }};" data-free-shipping data-progress="{{ progress }}">
+    <p id="{{ message_id }}" class="flex items-center gap-2 text-body-sm text-pretty{% if reached %} font-semibold text-positive-foreground{% else %} text-foreground{% endif %}" data-free-shipping-text>
+      <span class="shrink-0" data-free-shipping-icon>
+        {%- if reached -%}
+          {% render 'icon', name: 'check-circle', class: 'size-5' %}
+        {%- else -%}
+          {% render 'icon', name: 'truck', class: 'size-5' %}
+        {%- endif -%}
+      </span>
+      <span>
+        {%- if reached -%}
+          {{- 'sections.cart.free_shipping_reached' | t -}}
+        {%- else -%}
+          {{- 'sections.cart.free_shipping_remaining_html' | t: amount: remaining -}}
+        {%- endif -%}
+      </span>
+    </p>
+    {%- comment -%} Sul compositor: pieno largo come la barra e spostato con translate (scaleX deformerebbe gli angoli) {%- endcomment -%}
+    <div
+      class="h-1.5 overflow-hidden rounded-full bg-neutral-surface"
+      role="progressbar"
+      aria-labelledby="{{ message_id }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="{{ progress }}"
+    >
+      <div class="size-full translate-x-[calc((var(--progress)-100)*1%)] rounded-full{% if reached %} bg-positive{% else %} bg-primary{% endif %}" data-free-shipping-fill></div>
+    </div>
+  </div>
+{%- endif -%}

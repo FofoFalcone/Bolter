@@ -1,0 +1,81 @@
+{%- comment -%}
+  Filtri attivi come chip rimovibili (link url_to_remove) + "Cancella tutto". Condiviso da collezione e ricerca.
+  Senza JS sono link normali; con JS <product-facets> li intercetta (data-facets-link) e aggiorna i risultati.
+  Non stampa nulla se non ci sono filtri attivi.
+
+  Parametri:
+  - results: collection o search
+  - clear_url: URL senza filtri (mantiene ordinamento e ricerca)
+  - show_filter_label: true per mostrare anche il nome del filtro (es. "Colore: Rosso"), utile se valori
+    uguali compaiono in filtri diversi
+
+  Uso: {% render 'facets-active', results: collection, clear_url: clear_url, show_filter_label: true %}
+{%- endcomment -%}
+{%- liquid
+  assign has_active = false
+  for filter in results.filters
+    if filter.active_values.size > 0
+      assign has_active = true
+      break
+    endif
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign has_active = true
+        break
+      endif
+    endif
+  endfor
+-%}
+{%- if has_active -%}
+  {%- capture chip_class -%}
+    inline-flex h-8 items-center gap-1.5 rounded-button border border-border bg-surface ps-3 pe-2 text-body-sm text-foreground transition-colors duration-150 hover:border-foreground hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none
+  {%- endcapture -%}
+  <ul class="flex flex-wrap items-center gap-2" role="list" aria-label="{{ 'sections.collection.active_filters' | t | escape }}">
+    {%- for filter in results.filters -%}
+      {%- if filter.type == 'price_range' -%}
+        {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+          {%- liquid
+            assign min_money = filter.min_value.value | default: 0 | money
+            assign max_money = filter.max_value.value | default: filter.range_max | money
+            assign chip_label = min_money | append: ' – ' | append: max_money
+            if show_filter_label
+              assign chip_label = filter.label | append: ': ' | append: chip_label
+            endif
+          -%}
+          <li>
+            <a href="{{ filter.url_to_remove }}" class="{{ chip_class }}" data-facets-link>
+              <span class="sr-only">{{ 'sections.collection.remove_filter' | t }}:</span>
+              {{ chip_label | escape }}
+              {% render 'icon', name: 'x-mark', class: 'size-4 text-muted' %}
+            </a>
+          </li>
+        {%- endif -%}
+      {%- else -%}
+        {%- for filter_value in filter.active_values -%}
+          {%- liquid
+            assign chip_label = filter_value.label
+            if show_filter_label
+              assign chip_label = filter.label | append: ': ' | append: chip_label
+            endif
+          -%}
+          <li>
+            <a href="{{ filter_value.url_to_remove }}" class="{{ chip_class }}" data-facets-link>
+              <span class="sr-only">{{ 'sections.collection.remove_filter' | t }}:</span>
+              {{ chip_label | escape }}
+              {% render 'icon', name: 'x-mark', class: 'size-4 text-muted' %}
+            </a>
+          </li>
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+    <li>
+      <a
+        href="{{ clear_url }}"
+        class="inline-flex h-8 items-center rounded-sm px-1 text-body-sm font-semibold text-foreground underline underline-offset-4 hover:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        data-facets-link
+      >
+        {{- 'sections.collection.clear_all' | t -}}
+      </a>
+    </li>
+  </ul>
+{%- endif -%}

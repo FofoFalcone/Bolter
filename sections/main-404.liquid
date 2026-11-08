@@ -1,0 +1,100 @@
+{%- comment -%}
+  Pagina non trovata (templates/404.json): dice chiaramente cosa è successo e offre i passi successivi, come chiede
+  la documentazione Shopify: ricerca, ritorno al catalogo e alla home, link utili scelti dal merchant.
+  Il merchant può aggiungere altre section sotto (es. collezioni in evidenza). Above the fold: niente data-animate.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{%- liquid
+  assign s = section.settings
+  assign search_id = 'NotFoundSearch-' | append: section.id
+-%}
+
+<div class="page-width py-12 md:py-24">
+  <div class="mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
+    <div class="flex flex-col items-center gap-4">
+      <p class="text-subheading font-semibold tabular-nums text-foreground/80">404</p>
+      <h1 class="text-heading text-balance text-foreground md:text-title-page">{{ 'general.404.title' | t }}</h1>
+      <p class="max-w-xl text-subheading text-pretty text-foreground/80">{{ 'general.404.subtext' | t }}</p>
+    </div>
+
+    {%- if s.show_search -%}
+      <form action="{{ routes.search_url }}" method="get" role="search" class="flex w-full max-w-lg flex-col gap-3 sm:flex-row">
+        <input type="hidden" name="options[prefix]" value="last">
+        <label for="{{ search_id }}" class="sr-only">{{ 'general.search.title' | t }}</label>
+        <div class="relative min-w-0 flex-1">
+          {% render 'icon',
+            name: 'magnifying-glass',
+            class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-foreground/80'
+          %}
+          <input
+            id="{{ search_id }}"
+            type="search"
+            name="q"
+            placeholder="{{ 'general.predictive_search.placeholder' | t | escape }}"
+            class="h-13 w-full rounded-button border border-border-strong bg-background pr-4 pl-12 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+          >
+        </div>
+        <button type="submit" class="button button-neutral button-lg shrink-0">{{ 'general.search.submit' | t }}</button>
+      </form>
+    {%- endif -%}
+
+    <div class="flex flex-wrap justify-center gap-3">
+      <a href="{{ routes.all_products_collection_url }}" class="button button-primary">{{ 'general.404.link' | t }}</a>
+      <a href="{{ routes.root_url }}" class="button button-subtle">{{ 'general.404.home' | t }}</a>
+    </div>
+
+    {%- if s.menu.links.size > 0 -%}
+      <nav class="flex w-full flex-col gap-3 border-t border-border pt-8" aria-label="{{ 'general.404.useful_links' | t | escape }}">
+        <p class="text-body-sm font-semibold text-foreground">{{ 'general.404.useful_links' | t }}</p>
+        <ul class="flex flex-wrap justify-center gap-2" role="list">
+          {%- for link in s.menu.links -%}
+            <li><a href="{{ link.url }}" class="button button-neutral button-sm">{{ link.title | escape }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_404.name",
+  "tag": "section",
+  "class": "section-main-404",
+  "enabled_on": {
+    "templates": [
+      "404"
+    ]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "t:sections.main_404.settings.show_search.label",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:sections.main_404.settings.menu.label",
+      "info": "t:sections.main_404.settings.menu.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_404.settings.header_1.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.main_404.settings.color_background.label",
+      "info": "t:sections.main_404.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.main_404.settings.color_text.label",
+      "info": "t:sections.main_404.settings.color_text.info"
+    }
+  ]
+}
+{% endschema %}

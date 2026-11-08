@@ -1,0 +1,19 @@
+{%- comment -%}
+  Card prodotto renderizzata da sola, per aggiornare una card già in pagina. Non si aggiunge dal theme
+  editor (niente preset): viene richiesta solo con la Section Rendering API sull'URL del prodotto,
+  /products/<handle>?variant=<id>&section_id=product-card, da frontend/scripts/product-card.js quando si
+  sceglie un colore. Dal risultato si prendono le parti [data-card-part], il link e i dati della variante
+  (payload di <s-view-event>) per lo standard event shopify:product:select.
+  full_width: questa richiesta non sa dove si trova la card, e frontend/scripts/product-card.js copia solo sizes. Con
+  l'elenco completo dei formati il browser sceglie comunque in base a sizes.
+{%- endcomment -%}
+{% render 'product-card', product: product, full_width: true %}
+
+{% schema %}
+{
+  "name": "t:sections.product_card.name",
+  "tag": "div",
+  "class": "section-product-card",
+  "settings": []
+}
+{% endschema %}

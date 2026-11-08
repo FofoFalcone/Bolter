@@ -1,0 +1,591 @@
+{%- comment -%}
+  Hero della homepage. Riferimento: Simple Design System (Figma) → Sections / Hero Actions
+  (Title Hero + Subtitle + gruppo di pulsanti), esteso con media di sfondo.
+
+  - Media: immagine (con ritaglio facoltativo per smartphone, <picture>) o video ospitato su Shopify.
+    Il video è trasparente finché non riproduce: l'immagine (o l'anteprima del video) resta l'elemento LCP.
+  - Above-the-fold: nessun data-animate (vedi CLAUDE.md). Unico movimento all'ingresso: il media si
+    "assesta" (scala 1.1 → 1, solo CSS con @starting-style) e non tocca l'opacità, quindi non ritarda l'LCP.
+  - JS (frontend/entrypoints/hero.js, caricato solo se serve): video con pausa/riproduzione e
+    profondità allo scorrimento con Motion.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+
+{%- liquid
+  assign s = section.settings
+  assign video = s.video
+  assign image = s.image
+  if image == blank and video != blank
+    assign image = video.preview_image
+  endif
+  assign mobile_image = s.image_mobile
+
+  assign has_media = false
+  if image != blank or video != blank
+    assign has_media = true
+  endif
+  assign on_dark = false
+  if has_media and s.text_color == 'light'
+    assign on_dark = true
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  assign preload_image = false
+  if section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+    # Preload (header Link / Early Hints) solo senza immagine mobile: con <picture> scaricherebbe anche
+    # l'immagine desktop sul telefono
+    if mobile_image == blank
+      assign preload_image = true
+    endif
+  endif
+
+  case s.height
+    when 'adapt'
+      if image != blank
+        assign height_class = 'aspect-(--hero-ratio-mobile) md:aspect-(--hero-ratio)'
+      else
+        assign height_class = 'min-h-[70svh]'
+      endif
+    when 'small'
+      assign height_class = 'min-h-[50svh]'
+    when 'large'
+      assign height_class = 'min-h-[85svh]'
+    when 'full'
+      # Sotto un header trasparente la hero occupa tutto lo schermo, header compreso
+      assign height_class = 'min-h-[calc(100svh-var(--header-height))] under-header:min-h-svh'
+    else
+      assign height_class = 'min-h-[70svh]'
+  endcase
+
+  case s.content_vertical
+    when 'top'
+      assign vertical_class = 'items-start'
+    when 'bottom'
+      assign vertical_class = 'items-end'
+    else
+      assign vertical_class = 'items-center'
+  endcase
+
+  case s.content_horizontal
+    when 'left'
+      assign horizontal_class = 'items-start text-left'
+      assign actions_class = 'justify-start'
+    when 'right'
+      assign horizontal_class = 'items-end text-right'
+      assign actions_class = 'justify-end'
+    else
+      assign horizontal_class = 'items-center text-center'
+      assign actions_class = 'justify-center'
+  endcase
+
+  comment
+    Overlay: colore opposto al testo. "Sfumato" è più scuro dal lato del contenuto (in alto/in basso,
+    oppure a sinistra/destra se il contenuto è centrato in verticale); con il contenuto al centro è uniforme.
+  endcomment
+  assign overlay_class = 'bg-black/(--hero-overlay)'
+  if s.text_color == 'dark'
+    assign overlay_class = 'bg-white/(--hero-overlay)'
+  endif
+  if s.overlay_style == 'gradient'
+    assign overlay_from = 'from-black/(--hero-overlay)'
+    if s.text_color == 'dark'
+      assign overlay_from = 'from-white/(--hero-overlay)'
+    endif
+    assign overlay_direction = ''
+    if s.content_vertical == 'bottom'
+      assign overlay_direction = 'bg-linear-to-t'
+    elsif s.content_vertical == 'top'
+      assign overlay_direction = 'bg-linear-to-b'
+    elsif s.content_horizontal == 'left'
+      assign overlay_direction = 'bg-linear-to-r'
+    elsif s.content_horizontal == 'right'
+      assign overlay_direction = 'bg-linear-to-l'
+    endif
+    if overlay_direction != ''
+      assign overlay_class = overlay_direction | append: ' to-transparent to-80% ' | append: overlay_from
+    endif
+  endif
+
+  case s.heading_size
+    when 'medium'
+      assign heading_class = 'text-heading md:text-title-page'
+    else
+      assign heading_class = 'text-title-page md:text-title-hero'
+  endcase
+
+  if on_dark
+    assign heading_color = 'text-white'
+    assign text_color = 'text-white/85'
+    assign eyebrow_color = 'text-white/80'
+    assign primary_button = 'button button-lg button-inverse focus-visible:outline-white'
+    assign secondary_button = 'button button-lg button-glass focus-visible:outline-white'
+  elsif has_media
+    # Testo scuro sopra una foto con velo bianco: colori fissi, con una palette scura foreground sarebbe chiaro
+    assign heading_color = 'text-black'
+    assign text_color = 'text-black/80'
+    assign eyebrow_color = 'text-black/70'
+    assign primary_button = 'button button-lg button-primary focus-visible:outline-black'
+    assign secondary_button = 'button button-lg button-neutral focus-visible:outline-black'
+  else
+    # Senza media il fondo può essere bg-surface ("inset"): text-muted lì scende a 4.2:1, foreground/80 resta ≥ 8:1
+    assign heading_color = 'text-foreground'
+    assign text_color = 'text-foreground/80'
+    assign eyebrow_color = 'text-foreground/70'
+    assign primary_button = 'button button-lg button-primary'
+    assign secondary_button = 'button button-lg button-neutral'
+  endif
+
+  assign frame_class = ''
+  if s.width == 'inset'
+    assign frame_class = 'md:rounded-xl'
+    unless has_media
+      assign frame_class = 'bg-surface md:rounded-xl'
+    endunless
+  endif
+
+  if s.width == 'inset'
+    assign inset_width = settings.layout_page_width | minus: 48
+    assign image_sizes = '(min-width: ' | append: settings.layout_page_width | append: 'px) ' | append: inset_width | append: 'px, (min-width: 750px) calc(100vw - 48px), 100vw'
+  else
+    assign image_sizes = '100vw'
+  endif
+
+  assign load_js = false
+  if video != blank or has_media and s.scroll_effect
+    assign load_js = true
+  endif
+-%}
+
+<hero-banner
+  class="group/hero block{% if s.width == 'inset' %} md:page-width md:pt-6{% endif %}"
+  style="--hero-overlay: {{ s.overlay_opacity }}%;{% if image != blank %} --hero-ratio: {{ image.aspect_ratio }}; --hero-ratio-mobile: {{ mobile_image.aspect_ratio | default: image.aspect_ratio }};{% endif %}"
+  {% if has_media and s.scroll_effect %}
+    data-scroll-effect
+  {% endif %}
+  {%- comment -%}
+    Header trasparente: consentito sopra una hero a tutta larghezza con media, con il colore del suo testo
+    (varianti overlay / under-header in frontend/entrypoints/theme.css; vale solo se è la prima section).
+  {%- endcomment -%}
+  {% if has_media and s.width == 'full' %}
+    data-header-overlay="{{ s.text_color }}"
+  {% endif %}
+>
+  <div class="relative isolate grid overflow-hidden {{ height_class }} {{ vertical_class }} {{ frame_class }}">
+    {%- if has_media -%}
+      {%- comment -%}
+        Contenitore del media: il JS lo trasla con lo scroll (transform), l'ingresso usa la proprietà `scale`.
+        Le due proprietà sono indipendenti, quindi non si sovrascrivono.
+      {%- endcomment -%}
+      <div
+        data-hero-media
+        class="absolute inset-0 -z-20 bg-surface motion-safe:transition-[scale] motion-safe:duration-1600 motion-safe:ease-theme motion-safe:starting:scale-110"
+      >
+        {%- if image != blank -%}
+          <picture>
+            {%- if mobile_image != blank -%}
+              {%- capture mobile_srcset -%}
+                {%- for width in (1..4) -%}
+                  {%- assign w = width | times: 375 -%}
+                  {%- if w <= mobile_image.width -%}
+                    {{- mobile_image | image_url: width: w }} {{ w }}w,
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endcapture -%}
+              {%- if mobile_srcset == blank -%}
+                {%- capture mobile_srcset -%}{{ mobile_image | image_url: width: mobile_image.width }} {{ mobile_image.width }}w{%- endcapture -%}
+              {%- endif -%}
+              <source
+                media="(max-width: 749px)"
+                srcset="{{ mobile_srcset | remove_last: ',' }}"
+                sizes="100vw"
+                width="{{ mobile_image.width }}"
+                height="{{ mobile_image.height }}"
+              >
+            {%- endif -%}
+            {{
+              image
+              | image_url: width: 3840
+              | image_tag:
+                loading: loading,
+                fetchpriority: fetchpriority,
+                preload: preload_image,
+                widths: '750, 1100, 1500, 1800, 2200, 2800, 3200, 3840',
+                sizes: image_sizes,
+                class: 'size-full object-cover'
+            }}
+          </picture>
+        {%- endif -%}
+
+        {%- if video != blank -%}
+          {%- comment -%} Invisibile finché non riproduce (data-ready dal JS): niente anteprima sgranata sopra l'immagine {%- endcomment -%}
+          {{
+            video
+            | video_tag:
+              muted: true,
+              loop: true,
+              preload: 'none',
+              class: 'absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-700 ease-theme data-ready:opacity-100 motion-reduce:transition-none'
+          }}
+        {%- endif -%}
+      </div>
+
+      <div class="pointer-events-none absolute inset-0 -z-10 {{ overlay_class }}" aria-hidden="true"></div>
+
+      {%- comment -%} Sotto un header trasparente: sfumatura in alto per la leggibilità di logo e menu {%- endcomment -%}
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 -z-10 hidden h-[calc(var(--header-height)*2)] bg-linear-to-b to-transparent under-header:block{% if s.text_color == 'dark' %} from-white/50{% else %} from-black/40{% endif %}"
+        aria-hidden="true"
+      ></div>
+    {%- endif -%}
+
+    <div
+      data-hero-content
+      class="page-width flex flex-col gap-6 py-16 under-header:pt-[calc(var(--header-height)+4rem)] md:py-24 md:under-header:pt-[calc(var(--header-height)+6rem)] {{ horizontal_class }}"
+    >
+      {%- if s.eyebrow != blank or s.heading != blank -%}
+        <div class="flex flex-col gap-3 {{ horizontal_class }}">
+          {%- if s.eyebrow != blank -%}
+            <p class="text-body-sm font-semibold {{ eyebrow_color }}">{{ s.eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if s.heading != blank -%}
+            {%- liquid
+              # Un solo h1 per pagina: la hero è il titolo principale solo come prima section della home
+              assign heading_tag = 'h2'
+              if template.name == 'index' and section.index == 1
+                assign heading_tag = 'h1'
+              endif
+            -%}
+            <{{ heading_tag }} class="max-w-4xl {{ heading_class }} {{ heading_color }}">{{ s.heading }}</{{ heading_tag }}>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if s.text != blank -%}
+        <p class="max-w-2xl text-subheading md:text-subtitle {{ text_color }}">{{ s.text | escape | newline_to_br }}</p>
+      {%- endif -%}
+
+      {%- liquid
+        # Pulsante secondario solo con un link: senza, puntava alla home stessa (link non descrittivo per Lighthouse)
+        assign show_secondary = false
+        if s.secondary_button_label != blank and s.secondary_button_link != blank
+          assign show_secondary = true
+        endif
+      -%}
+      {%- if s.button_label != blank or show_secondary -%}
+        <div class="mt-2 flex flex-wrap gap-4 {{ actions_class }}">
+          {%- if show_secondary -%}
+            <a class="{{ secondary_button }}" href="{{ s.secondary_button_link }}">
+              {{- s.secondary_button_label | escape -}}
+            </a>
+          {%- endif -%}
+          {%- if s.button_label != blank -%}
+            <a class="{{ primary_button }}" href="{{ s.button_link | default: routes.all_products_collection_url }}">
+              {{- s.button_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if video != blank -%}
+      {%- comment -%}
+        Pausa/riproduzione (WCAG 2.2.2: contenuto in movimento oltre 5 secondi). Solo con JS: senza JS il
+        video non parte e resta l'immagine. data-paused su <hero-banner> sceglie l'icona.
+      {%- endcomment -%}
+      <button
+        type="button"
+        data-hero-toggle
+        data-label-play="{{ 'sections.hero.play_video' | t | escape }}"
+        data-label-pause="{{ 'sections.hero.pause_video' | t | escape }}"
+        aria-label="{{ 'sections.hero.pause_video' | t | escape }}"
+        class="absolute right-4 bottom-4 hidden size-10 place-items-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-white js:grid md:right-6 md:bottom-6"
+      >
+        {% render 'icon', name: 'pause', class: 'size-5 group-data-paused/hero:hidden' %}
+        {% render 'icon', name: 'play', class: 'hidden size-5 translate-x-px group-data-paused/hero:block' %}
+      </button>
+    {%- endif -%}
+  </div>
+</hero-banner>
+
+{%- if load_js -%}
+  {% render 'vite-tag', entry: 'hero.js' %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.main_index.name",
+  "tag": "section",
+  "class": "section-hero",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main_index.settings.header_1.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.main_index.settings.image.label",
+      "info": "t:sections.main_index.settings.image.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:sections.main_index.settings.image_mobile.label",
+      "info": "t:sections.main_index.settings.image_mobile.info"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "t:sections.main_index.settings.video.label",
+      "info": "t:sections.main_index.settings.video.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_index.settings.header_2.content"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:sections.main_index.settings.width.label",
+      "options": [
+        {
+          "value": "full",
+          "label": "t:sections.main_index.settings.width.options.full"
+        },
+        {
+          "value": "inset",
+          "label": "t:sections.main_index.settings.width.options.inset"
+        }
+      ],
+      "default": "full",
+      "info": "t:sections.main_index.settings.width.info"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "t:sections.main_index.settings.height.label",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main_index.settings.height.options.adapt"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.main_index.settings.height.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.main_index.settings.height.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.main_index.settings.height.options.large"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.main_index.settings.height.options.full"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "content_horizontal",
+      "label": "t:sections.main_index.settings.content_horizontal.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.main_index.settings.content_horizontal.options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.main_index.settings.content_horizontal.options.center"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.main_index.settings.content_horizontal.options.right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "content_vertical",
+      "label": "t:sections.main_index.settings.content_vertical.label",
+      "options": [
+        {
+          "value": "top",
+          "label": "t:sections.main_index.settings.content_vertical.options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.main_index.settings.content_vertical.options.center"
+        },
+        {
+          "value": "bottom",
+          "label": "t:sections.main_index.settings.content_vertical.options.bottom"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_index.settings.header_3.content"
+    },
+    {
+      "type": "select",
+      "id": "text_color",
+      "label": "t:sections.main_index.settings.text_color.label",
+      "options": [
+        {
+          "value": "light",
+          "label": "t:sections.main_index.settings.text_color.options.light"
+        },
+        {
+          "value": "dark",
+          "label": "t:sections.main_index.settings.text_color.options.dark"
+        }
+      ],
+      "default": "light",
+      "visible_if": "{{ section.settings.image != blank or section.settings.video != blank }}"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.main_index.settings.overlay_opacity.label",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "t:sections.main_index.settings.overlay_opacity.unit",
+      "default": 30,
+      "info": "t:sections.main_index.settings.overlay_opacity.info",
+      "visible_if": "{{ section.settings.image != blank or section.settings.video != blank }}"
+    },
+    {
+      "type": "select",
+      "id": "overlay_style",
+      "label": "t:sections.main_index.settings.overlay_style.label",
+      "options": [
+        {
+          "value": "gradient",
+          "label": "t:sections.main_index.settings.overlay_style.options.gradient"
+        },
+        {
+          "value": "solid",
+          "label": "t:sections.main_index.settings.overlay_style.options.solid"
+        }
+      ],
+      "default": "gradient",
+      "info": "t:sections.main_index.settings.overlay_style.info",
+      "visible_if": "{{ section.settings.image != blank or section.settings.video != blank }}"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "t:sections.main_index.settings.heading_size.label",
+      "options": [
+        {
+          "value": "medium",
+          "label": "t:sections.main_index.settings.heading_size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.main_index.settings.heading_size.options.large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll_effect",
+      "label": "t:sections.main_index.settings.scroll_effect.label",
+      "info": "t:sections.main_index.settings.scroll_effect.info",
+      "default": true,
+      "visible_if": "{{ section.settings.image != blank or section.settings.video != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_index.settings.header_4.content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.main_index.settings.eyebrow.label",
+      "info": "t:sections.main_index.settings.eyebrow.info"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:sections.main_index.settings.heading.label",
+      "default": "t:sections.main_index.settings.heading.default"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "t:sections.main_index.settings.text.label",
+      "default": "t:sections.main_index.settings.text.default"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_index.settings.header_5.content"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.main_index.settings.button_label.label",
+      "default": "t:sections.main_index.settings.button_label.default"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.main_index.settings.button_link.label",
+      "info": "t:sections.main_index.settings.button_link.info"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_label",
+      "label": "t:sections.main_index.settings.secondary_button_label.label",
+      "default": "t:sections.main_index.settings.secondary_button_label.default"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "label": "t:sections.main_index.settings.secondary_button_link.label",
+      "info": "t:sections.main_index.settings.secondary_button_link.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_index.settings.header_6.content",
+      "visible_if": "{{ section.settings.image == blank and section.settings.video == blank }}"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.main_index.settings.color_background.label",
+      "info": "t:sections.main_index.settings.color_background.info",
+      "visible_if": "{{ section.settings.image == blank and section.settings.video == blank }}"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.main_index.settings.color_text.label",
+      "info": "t:sections.main_index.settings.color_text.info",
+      "visible_if": "{{ section.settings.image == blank and section.settings.video == blank }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.main_index.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

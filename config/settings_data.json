@@ -1,0 +1,32 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "current": {
+    "layout_page_width": 1920,
+    "page_transition": "clip_wipe",
+    "page_transition_duration": 800,
+    "sections": {
+      "cart-drawer": {
+        "type": "cart-drawer",
+        "settings": {
+          "show_discount": true
+        }
+      }
+    },
+    "content_for_index": [],
+    "blocks": {
+      "16514531619034609226": {
+        "type": "shopify://apps/violetta/blocks/violetta-widget/01a11fd8-73ff-7344-89eb-6db595dd332d",
+        "disabled": false,
+        "settings": {}
+      }
+    }
+  }
+}

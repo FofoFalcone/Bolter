@@ -1,0 +1,64 @@
+{%- comment -%}
+  Paginazione accessibile (collezioni, ricerca, blog): precedente/successiva + numeri di pagina (paginate.parts),
+  pagina corrente con aria-current="page". Link normali: ogni pagina ha il suo URL (condivisibile, indicizzabile).
+  Non stampa nulla se c'è una sola pagina.
+
+  Parametri:
+  - paginate: oggetto paginate del tag {% paginate %}
+  - anchor: frammento aggiunto ai link (es. '#ProductGrid-…'), facoltativo
+
+  Uso: {% render 'pagination', paginate: paginate, anchor: '#Results' %}
+{%- endcomment -%}
+{%- if paginate.pages > 1 -%}
+  {%- capture item_class -%}
+    inline-flex size-11 items-center justify-center rounded-button text-body tabular-nums text-foreground transition-colors duration-150 hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none
+  {%- endcapture -%}
+  <nav aria-label="{{ 'general.pagination.label' | t | escape }}">
+    <ul class="flex flex-wrap items-center justify-center gap-1" role="list">
+      <li>
+        {%- if paginate.previous -%}
+          <a href="{{ paginate.previous.url }}{{ anchor }}" class="{{ item_class }}" rel="prev">
+            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+            <span class="sr-only">{{ 'general.pagination.previous' | t }}</span>
+          </a>
+        {%- else -%}
+          <span class="{{ item_class }} pointer-events-none text-subtle" aria-hidden="true">
+            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+          </span>
+        {%- endif -%}
+      </li>
+
+      {%- for part in paginate.parts -%}
+        <li>
+          {%- if part.is_link -%}
+            <a href="{{ part.url }}{{ anchor }}" class="{{ item_class }}">
+              <span class="sr-only">{{ 'general.pagination.page' | t }}</span>
+              {{ part.title }}
+            </a>
+          {%- elsif part.title == '&hellip;' -%}
+            <span class="{{ item_class }} pointer-events-none text-muted" aria-hidden="true">{{ part.title }}</span>
+          {%- else -%}
+            {%- comment -%} Unica parte senza link oltre ai puntini: la pagina corrente {%- endcomment -%}
+            <span class="{{ item_class }} pointer-events-none bg-primary font-semibold text-primary-foreground" aria-current="page">
+              <span class="sr-only">{{ 'general.pagination.page' | t }}</span>
+              {{ part.title }}
+            </span>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+
+      <li>
+        {%- if paginate.next -%}
+          <a href="{{ paginate.next.url }}{{ anchor }}" class="{{ item_class }}" rel="next">
+            {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+            <span class="sr-only">{{ 'general.pagination.next' | t }}</span>
+          </a>
+        {%- else -%}
+          <span class="{{ item_class }} pointer-events-none text-subtle" aria-hidden="true">
+            {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+          </span>
+        {%- endif -%}
+      </li>
+    </ul>
+  </nav>
+{%- endif -%}

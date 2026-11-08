@@ -1,0 +1,134 @@
+{%- comment -%}
+  Frase del brand rivelata parola per parola durante lo scroll.
+  Riscrittura in JS vanilla dell'esempio Motion "Text scroll word reveal"
+  (https://motion.dev/examples/react-text-scroll-word-reveal).
+
+  - Le parole sono divise lato server; la frase completa resta leggibile per gli screen reader
+    (testo sr-only) mentre le parole animate sono aria-hidden.
+  - Con JS e movimento non ridotto: area sticky alta ~2 viewport, le parole passano da opache a piene.
+  - Senza JS o con prefers-reduced-motion: frase statica, completamente visibile.
+  Stile: utility Tailwind (nessun CSS dedicato); js-motion: = modalità animata, stessa condizione
+  di MOTION_QUERY nel JS. Le parole partono a opacity 15% (= START_OPACITY) per evitare un flash.
+  JS: frontend/entrypoints/scroll-text-reveal.js
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+
+{%- liquid
+  assign statement = section.settings.statement | strip | strip_newlines
+  if section.settings.text_size == 'large'
+    assign heading_class = 'text-subtitle font-semibold tracking-tight md:text-title-hero md:font-bold'
+  else
+    assign heading_class = 'text-heading md:text-title-page'
+  endif
+-%}
+
+{%- if statement != blank -%}
+  <scroll-text-reveal class="block overflow-x-clip js-motion:min-h-[220svh]">
+    <div class="flex items-center py-12 js-motion:sticky js-motion:top-0 js-motion:min-h-svh js-motion:py-12">
+      <div class="page-width grid gap-8{% if section.settings.show_progress %} md:js-motion:grid-cols-[1px_minmax(0,1fr)] md:js-motion:gap-12{% endif %}">
+        {%- if section.settings.show_progress -%}
+          <div class="relative hidden h-28 w-px overflow-hidden bg-border md:js-motion:block" aria-hidden="true">
+            <span class="scroll-text-reveal__progress-bar absolute inset-0 origin-top scale-y-0 bg-foreground"></span>
+          </div>
+        {%- endif -%}
+
+        <div class="max-w-4xl">
+          {%- if section.settings.kicker != blank -%}
+            <p class="mb-6 text-body-sm font-semibold text-muted">{{ section.settings.kicker | escape }}</p>
+          {%- endif -%}
+
+          <h2 class="{{ heading_class }} text-foreground">
+            <span class="sr-only">{{ statement | escape }}</span>
+            <span aria-hidden="true">
+              {%- assign words = statement | split: ' ' -%}
+              {%- for word in words -%}
+                {%- if word != blank -%}
+                  <span class="scroll-text-reveal__word js-motion:opacity-15">{{ word | escape }}</span>
+                  {%- comment -%}
+                    Spazio come output esplicito: un blocco unless che contiene solo spazi
+                    è "blank" per Liquid e non viene renderizzato (parole attaccate).
+                  {%- endcomment -%}
+                  {%- unless forloop.last -%}{{ ' ' }}{%- endunless -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </span>
+          </h2>
+        </div>
+      </div>
+    </div>
+  </scroll-text-reveal>
+
+  {% render 'vite-tag', entry: 'scroll-text-reveal.js' %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.scroll_text_reveal.name",
+  "tag": "section",
+  "class": "section-scroll-text-reveal",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "t:sections.scroll_text_reveal.settings.kicker.label",
+      "default": "t:sections.scroll_text_reveal.settings.kicker.default"
+    },
+    {
+      "type": "textarea",
+      "id": "statement",
+      "label": "t:sections.scroll_text_reveal.settings.statement.label",
+      "info": "t:sections.scroll_text_reveal.settings.statement.info",
+      "default": "t:sections.scroll_text_reveal.settings.statement.default"
+    },
+    {
+      "type": "select",
+      "id": "text_size",
+      "label": "t:sections.scroll_text_reveal.settings.text_size.label",
+      "options": [
+        {
+          "value": "medium",
+          "label": "t:sections.scroll_text_reveal.settings.text_size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.scroll_text_reveal.settings.text_size.options.large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress",
+      "label": "t:sections.scroll_text_reveal.settings.show_progress.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.scroll_text_reveal.settings.header_1.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.scroll_text_reveal.settings.color_background.label",
+      "info": "t:sections.scroll_text_reveal.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.scroll_text_reveal.settings.color_text.label",
+      "info": "t:sections.scroll_text_reveal.settings.color_text.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.scroll_text_reveal.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

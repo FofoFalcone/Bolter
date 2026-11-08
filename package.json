@@ -1,0 +1,42 @@
+{
+  "name": "bolt-theme",
+  "version": "1.0.0",
+  "description": "Shopify theme powered by Vite",
+  "scripts": {
+    "watch": "node tools/watch.mjs",
+    "build": "vite build",
+    "build:check": "vite build --outDir .build-check --emptyOutDir",
+    "icons": "node tools/build-icons.mjs",
+    "schema:i18n": "node tools/schema-i18n.mjs",
+    "prelint": "node tools/ensure-build.mjs",
+    "lint": "shopify theme check",
+    "lint:fix": "shopify theme check --auto-correct",
+    "preshopify:push:dev": "npm run build",
+    "preshopify:push:prod": "npm run build",
+    "shopify:pull": "shopify theme pull --environment development",
+    "shopify:push:dev": "shopify theme push --environment development",
+    "shopify:push:prod": "shopify theme push --environment production",
+    "start:watch": "node tools/dev.mjs",
+    "start:events": "node tools/dev.mjs --events",
+    "start:sync": "node tools/dev.mjs --sync",
+    "start:measure": "node tools/dev.mjs --measure"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "heroicons": "^2.2.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.5",
+    "vite-plugin-shopify": "^5.0.0"
+  },
+  "dependencies": {
+    "lenis": "1.3.27",
+    "motion": "^14.9.0"
+  }
+}

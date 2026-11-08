@@ -1,0 +1,239 @@
+{%- comment -%}
+  Footer del negozio (section group "footer-group").
+  Riferimento: Simple Design System (Figma) → Sections / Footer (colonna brand + liste di link "Text Link List").
+
+  - Colonna brand: logo (o nome del negozio) e link ai social (Impostazioni tema → Social media).
+  - Colonne: blocchi "Menu" (link_list Shopify) o "Testo".
+  - Riga finale: copyright e icone dei metodi di pagamento attivi.
+  Stile: solo utility Tailwind, nessun JS.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  # Social: id usato nelle impostazioni tema (social_<id>_link) e nome del brand da mostrare
+  assign social_ids = 'instagram,facebook,tiktok,youtube,x,linkedin' | split: ','
+  assign social_names = 'Instagram,Facebook,TikTok,YouTube,X,LinkedIn' | split: ','
+  assign has_social = false
+  for id in social_ids
+    assign setting_key = 'social_' | append: id | append: '_link'
+    if settings[setting_key] != blank
+      assign has_social = true
+    endif
+  endfor
+-%}
+
+<footer class="border-t border-border bg-background">
+  {%- comment -%} Sotto i 750px i menu stanno affiancati su due colonne, brand e testi occupano la riga intera {%- endcomment -%}
+  <div class="page-width grid grid-cols-2 gap-x-6 gap-y-10 pt-8 pb-12 md:gap-12 md:pb-16 lg:grid-cols-4 lg:gap-4">
+    {%- comment -%} Colonna brand {%- endcomment -%}
+    <div class="col-span-2 flex flex-col gap-6 md:col-span-1">
+      <a href="{{ routes.root_url }}" class="w-fit rounded-sm text-foreground">
+        {%- if section.settings.logo != blank -%}
+          {{
+            section.settings.logo
+            | image_url: width: 240
+            | image_tag: loading: 'lazy', widths: '120, 240', sizes: '120px', alt: shop.name, class: 'h-auto w-30'
+          }}
+        {%- else -%}
+          <span class="text-heading">{{ shop.name | escape }}</span>
+        {%- endif -%}
+      </a>
+
+      {%- if section.settings.show_social and has_social -%}
+        <ul class="flex flex-wrap gap-x-4 gap-y-2" role="list" aria-label="{{ 'sections.footer.social' | t }}">
+          {%- for id in social_ids -%}
+            {%- assign setting_key = 'social_' | append: id | append: '_link' -%}
+            {%- if settings[setting_key] != blank -%}
+              <li>
+                <a
+                  href="{{ settings[setting_key] }}"
+                  class="text-body-sm text-muted underline-offset-4 hover:text-foreground hover:underline"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {{- social_names[forloop.index0] -}}
+                  <span class="sr-only"> ({{ 'accessibility.new_window' | t }})</span>
+                </a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- comment -%} Segui su Shop: i colori del pulsante li decide Shopify e non vanno modificati {%- endcomment -%}
+      {%- if section.settings.enable_follow_on_shop and shop.features.follow_on_shop? -%}
+        <div>{{ shop | login_button: action: 'follow' }}</div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Colonne (SDS Text Link List) {%- endcomment -%}
+    {%- for block in section.blocks -%}
+      <div class="flex flex-col gap-3{% if block.type == 'text' %} col-span-2 md:col-span-1{% endif %}" {{ block.shopify_attributes }}>
+        {%- if block.settings.heading != blank -%}
+          <h2 class="pb-4 text-body font-semibold text-foreground">{{ block.settings.heading | escape }}</h2>
+        {%- endif -%}
+
+        {%- case block.type -%}
+          {%- when 'link_list' -%}
+            {%- assign links = block.settings.menu.links -%}
+            {%- if links.size > 0 -%}
+              <ul class="flex flex-col gap-3" role="list">
+                {%- for link in links -%}
+                  <li>
+                    <a
+                      href="{{ link.url }}"
+                      class="text-body text-foreground underline-offset-4 hover:underline"
+                      {% if link.current %}
+                        aria-current="page"
+                      {% endif %}
+                    >
+                      {{- link.title | escape -}}
+                      {%- comment -%} Link "Your Privacy Choices" aggiunto da Shopify: l'icona ufficiale è un obbligo di legge negli USA {%- endcomment -%}
+                      {%- if link.data_sharing_opt_out_icon -%}
+                        {{ ' ' }}{{ link.data_sharing_opt_out_icon }}
+                      {%- endif -%}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          {%- when 'text' -%}
+            <div class="prose prose-theme max-w-none text-body">{{ block.settings.text }}</div>
+        {%- endcase -%}
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} Riga finale {%- endcomment -%}
+  <div class="border-t border-border">
+    <div class="page-width flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
+      <p class="text-body-sm text-muted">
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}
+      </p>
+
+      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
+          <span class="sr-only">{{ 'sections.footer.payment_methods' | t }}</span>
+          <ul class="flex flex-wrap gap-2" role="list">
+            {%- for type in shop.enabled_payment_types -%}
+              <li>{{ type | payment_type_svg_tag: class: 'h-6 w-auto' }}</li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "tag": "div",
+  "class": "section-footer",
+  "enabled_on": {
+    "groups": [
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.footer.settings.section_width.label",
+      "info": "t:sections.footer.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.footer.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.footer.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:sections.footer.settings.logo.label",
+      "info": "t:sections.footer.settings.logo.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "label": "t:sections.footer.settings.show_social.label",
+      "info": "t:sections.footer.settings.show_social.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "t:sections.footer.settings.show_payment_icons.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "label": "t:sections.footer.settings.enable_follow_on_shop.label",
+      "info": "t:sections.footer.settings.enable_follow_on_shop.info",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_1.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.footer.settings.color_background.label",
+      "info": "t:sections.footer.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.footer.settings.color_text.label",
+      "info": "t:sections.footer.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link_list",
+      "name": "t:sections.footer.blocks.link_list.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.footer.blocks.link_list.settings.heading.label",
+          "default": "t:sections.footer.blocks.link_list.settings.heading.default"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "t:sections.footer.blocks.link_list.settings.menu.label",
+          "default": "footer"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.footer.blocks.text.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.footer.blocks.text.settings.heading.label",
+          "default": "t:sections.footer.blocks.text.settings.heading.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.footer.blocks.text.settings.text.label",
+          "default": "t:sections.footer.blocks.text.settings.text.default"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 3
+}
+{% endschema %}

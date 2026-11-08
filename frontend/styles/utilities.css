@@ -1,0 +1,12 @@
+/*
+ * Utility custom del tema (Tailwind v4 @utility: supportano le varianti, es. md:page-width).
+ * Per nascondere visivamente un testo usa l'utility di Tailwind `sr-only` (e `focus:not-sr-only`).
+ */
+
+/* Contenitore centrato con larghezza massima del tema e padding laterale */
+@utility page-width {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}

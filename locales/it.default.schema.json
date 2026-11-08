@@ -1,0 +1,3117 @@
+{
+  "sections": {
+    "collection_tabs": {
+      "name": "Collezioni in tab",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "I nostri prodotti"
+        },
+        "products_to_show": {
+          "label": "Prodotti per tab"
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "show_view_all": {
+          "label": "Mostra il link \"Vedi tutti\""
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "blocks": {
+        "collection": {
+          "name": "Collezione",
+          "settings": {
+            "collection": {
+              "label": "Collezione"
+            },
+            "label": {
+              "label": "Etichetta della tab",
+              "info": "Se vuota viene usato il nome della collezione."
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Collezioni in tab",
+          "blocks": {
+            "block_1": {
+              "label": "Novità"
+            },
+            "block_2": {
+              "label": "Più venduti"
+            },
+            "block_3": {
+              "label": "Offerte"
+            }
+          }
+        }
+      }
+    },
+    "faq_accordion": {
+      "name": "FAQ",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Domande frequenti"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "header_1": {
+          "content": "Comportamento"
+        },
+        "open_first": {
+          "label": "Apri la prima domanda"
+        },
+        "allow_multiple": {
+          "label": "Consenti più risposte aperte contemporaneamente"
+        },
+        "animate_on_scroll": {
+          "label": "Anima le domande all'ingresso nello schermo",
+          "info": "Disattivalo se la section è nella parte alta della pagina."
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "blocks": {
+        "question": {
+          "name": "Domanda",
+          "settings": {
+            "question": {
+              "label": "Domanda",
+              "default": "Scrivi qui la domanda"
+            },
+            "answer": {
+              "label": "Risposta",
+              "default": "<p>Scrivi qui la risposta.</p>"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "FAQ",
+          "blocks": {
+            "block_1": {
+              "question": "Quali sono i tempi di spedizione?",
+              "answer": "<p>Gli ordini vengono spediti entro 1-2 giorni lavorativi. La consegna in Italia avviene di solito in 24-72 ore.</p>"
+            },
+            "block_2": {
+              "question": "Posso restituire un prodotto?",
+              "answer": "<p>Sì, hai 14 giorni dalla consegna per richiedere il reso.</p>"
+            },
+            "block_3": {
+              "question": "Quali metodi di pagamento accettate?",
+              "answer": "<p>Accettiamo le principali carte di credito, PayPal e gli altri metodi disponibili al checkout.</p>"
+            }
+          }
+        }
+      }
+    },
+    "footer": {
+      "name": "Footer",
+      "settings": {
+        "logo": {
+          "label": "Logo",
+          "info": "Se vuoto viene mostrato il nome del negozio."
+        },
+        "show_social": {
+          "label": "Mostra i link ai social",
+          "info": "I link si impostano in Impostazioni tema → Social media."
+        },
+        "show_payment_icons": {
+          "label": "Mostra le icone dei metodi di pagamento"
+        },
+        "enable_follow_on_shop": {
+          "label": "Mostra \"Segui su Shop\"",
+          "info": "Richiede Shop Pay attivo. Il pulsante invita a seguire il negozio nell'app Shop."
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "blocks": {
+        "link_list": {
+          "name": "Menu",
+          "settings": {
+            "heading": {
+              "label": "Titolo",
+              "default": "Link utili"
+            },
+            "menu": {
+              "label": "Menu"
+            }
+          }
+        },
+        "text": {
+          "name": "Testo",
+          "settings": {
+            "heading": {
+              "label": "Titolo",
+              "default": "Chi siamo"
+            },
+            "text": {
+              "label": "Testo",
+              "default": "<p>Racconta in poche righe chi sei e cosa vendi.</p>"
+            }
+          }
+        }
+      }
+    },
+    "header": {
+      "name": "Header",
+      "settings": {
+        "logo": {
+          "label": "Logo"
+        },
+        "logo_width": {
+          "label": "Larghezza del logo",
+          "unit": "px"
+        },
+        "menu": {
+          "label": "Menu",
+          "info": "Le voci con 3 livelli diventano un mega menu a colonne. Per immagini, riquadri e card promo aggiungi un blocco Mega menu e indica la voce."
+        },
+        "sticky_header": {
+          "label": "Header fisso",
+          "options": {
+            "none": "Nessuno",
+            "always": "Sempre visibile",
+            "scroll_up": "Visibile scorrendo verso l'alto"
+          }
+        },
+        "show_search": {
+          "label": "Mostra la ricerca"
+        },
+        "show_account": {
+          "label": "Mostra l'accesso clienti",
+          "info": "Visibile solo se gli account cliente sono attivi nelle impostazioni del negozio."
+        },
+        "open_on_hover": {
+          "label": "Apri i sottomenu al passaggio del mouse",
+          "info": "Sui dispositivi touch si aprono sempre con un tocco."
+        },
+        "header_1": {
+          "content": "Header trasparente"
+        },
+        "transparent_header": {
+          "label": "Trasparente sopra la hero",
+          "info": "Si attiva quando la prima section della pagina è una hero a tutta larghezza con immagine o video, e prende il colore del testo della hero. Torna pieno scorrendo oltre la hero o aprendo un menu."
+        },
+        "transparent_logo": {
+          "label": "Logo chiaro",
+          "info": "Usato sopra le hero con testo chiaro. Stesse proporzioni del logo principale."
+        },
+        "header_2": {
+          "content": "Azioni"
+        },
+        "header_3": {
+          "info": "I selettori compaiono solo se il negozio vende in più paesi o lingue (Impostazioni → Mercati e Lingue).",
+          "content": "Paese e lingua"
+        },
+        "show_country": {
+          "label": "Selettore di paese e valuta"
+        },
+        "show_language": {
+          "label": "Selettore della lingua"
+        },
+        "predictive_search": {
+          "label": "Risultati mentre si digita",
+          "info": "Prodotti, collezioni, pagine e suggerimenti già durante la digitazione (ricerca predittiva di Shopify)."
+        },
+        "search_quick_links": {
+          "label": "Link rapidi nella ricerca",
+          "info": "Mostrati all'apertura, prima di digitare (es. Novità, Più venduti)."
+        },
+        "customer_account_menu": {
+          "label": "Menu dell'account cliente",
+          "info": "Link mostrati nel foglio dell'account. Quello predefinito include Ordini e Profilo."
+        },
+        "header_4": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      }
+    },
+    "image_with_text_parallax": {
+      "name": "Immagine e testo parallax",
+      "settings": {
+        "image": {
+          "label": "Immagine"
+        },
+        "image_position": {
+          "label": "Posizione dell'immagine su desktop",
+          "options": {
+            "left": "Sinistra",
+            "right": "Destra"
+          }
+        },
+        "intensity": {
+          "label": "Intensità del parallax",
+          "options": {
+            "subtle": "Leggera",
+            "medium": "Media",
+            "strong": "Forte"
+          }
+        },
+        "header_1": {
+          "content": "Testo"
+        },
+        "label": {
+          "label": "Etichetta",
+          "default": "La nostra storia"
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Fatto a mano, pensato per durare"
+        },
+        "text": {
+          "label": "Testo",
+          "default": "<p>Racconta qui il tuo brand, i materiali o il processo di produzione.</p>"
+        },
+        "button_label": {
+          "label": "Testo del pulsante",
+          "default": "Scopri di più"
+        },
+        "button_link": {
+          "label": "Link del pulsante"
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Sotto i 990px l'immagine arriva ai bordi dello schermo. Il resto si allarga sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Immagine e testo parallax"
+        }
+      }
+    },
+    "scroll_gallery": {
+      "name": "Galleria a scorrimento",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Lookbook"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "show_progress": {
+          "label": "Mostra la barra di avanzamento",
+          "info": "Visibile su desktop, durante lo scorrimento della galleria."
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "blocks": {
+        "slide": {
+          "name": "Immagine",
+          "settings": {
+            "image": {
+              "label": "Immagine"
+            },
+            "label": {
+              "label": "Etichetta",
+              "info": "Testo breve sopra il titolo, ad esempio \"01\" o \"Nuova collezione\"."
+            },
+            "title": {
+              "label": "Titolo"
+            },
+            "link": {
+              "label": "Link"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Galleria a scorrimento",
+          "blocks": {
+            "block_1": {
+              "label": "01",
+              "title": "Primavera"
+            },
+            "block_2": {
+              "label": "02",
+              "title": "Estate"
+            },
+            "block_3": {
+              "label": "03",
+              "title": "Autunno"
+            },
+            "block_4": {
+              "label": "04",
+              "title": "Inverno"
+            }
+          }
+        }
+      }
+    },
+    "scroll_text_reveal": {
+      "name": "Frase animata allo scroll",
+      "settings": {
+        "kicker": {
+          "label": "Etichetta",
+          "default": "Il nostro manifesto"
+        },
+        "statement": {
+          "label": "Frase",
+          "info": "Consigliate 15–30 parole. Le parole si rivelano una alla volta durante lo scroll.",
+          "default": "Crediamo in prodotti fatti bene, che durano nel tempo e raccontano una storia ogni volta che li usi."
+        },
+        "text_size": {
+          "label": "Dimensione del testo",
+          "options": {
+            "medium": "Media",
+            "large": "Grande"
+          }
+        },
+        "show_progress": {
+          "label": "Mostra l'indicatore di avanzamento"
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Frase animata allo scroll"
+        }
+      }
+    },
+    "main_product": {
+      "name": "Prodotto",
+      "settings": {
+        "media_layout": {
+          "label": "Disposizione dei media",
+          "info": "Da 990px. Su schermi più piccoli è sempre un carosello.",
+          "options": {
+            "grid": "Griglia",
+            "thumbnails": "Foto grande con miniature"
+          }
+        },
+        "sticky_info": {
+          "label": "Mantieni visibili le informazioni durante lo scorrimento",
+          "info": "Su desktop le informazioni restano ferme mentre scorre la galleria."
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "blocks": {
+        "vendor": {
+          "name": "Marca"
+        },
+        "title": {
+          "name": "Titolo"
+        },
+        "price": {
+          "name": "Prezzo",
+          "settings": {
+            "show_tax_note": {
+              "label": "Mostra informazioni su imposte e spedizione"
+            },
+            "show_installments": {
+              "label": "Mostra le rate con Shop Pay",
+              "info": "Visibili solo se Shop Pay a rate è attivo e disponibile nel paese del cliente."
+            }
+          }
+        },
+        "variant_picker": {
+          "name": "Selettore varianti"
+        },
+        "quantity_selector": {
+          "name": "Quantità"
+        },
+        "buy_buttons": {
+          "name": "Pulsanti di acquisto",
+          "settings": {
+            "show_dynamic_checkout": {
+              "label": "Mostra i pulsanti di pagamento rapido",
+              "info": "Pulsanti come Shop Pay, PayPal o Apple Pay, in base ai metodi attivi nel negozio."
+            }
+          }
+        },
+        "description": {
+          "name": "Descrizione"
+        },
+        "collapsible_tab": {
+          "name": "Pannello a fisarmonica",
+          "settings": {
+            "heading": {
+              "label": "Titolo",
+              "default": "Spedizione e resi"
+            },
+            "content": {
+              "label": "Contenuto",
+              "default": "<p>Spedizione gratuita sopra i 50 €. Resi entro 14 giorni.</p>"
+            },
+            "page": {
+              "label": "Contenuto da una pagina",
+              "info": "Il contenuto della pagina viene aggiunto dopo il testo."
+            }
+          }
+        },
+        "text": {
+          "name": "Testo",
+          "settings": {
+            "text": {
+              "label": "Testo",
+              "default": "<p>Aggiungi qui un testo per tutti i prodotti.</p>"
+            }
+          }
+        },
+        "pickup_availability": {
+          "name": "Ritiro in negozio",
+          "settings": {
+            "paragraph_1": {
+              "content": "Compare solo se almeno una sede ha il ritiro attivo in Impostazioni → Spedizione e consegna."
+            }
+          }
+        }
+      }
+    },
+    "cart_drawer": {
+      "name": "Carrello a cassetto",
+      "settings": {
+        "show_discount": {
+          "label": "Campo per i codici sconto",
+          "info": "Nel carrello a cassetto è richiudibile, per lasciare spazio agli articoli."
+        }
+      }
+    },
+    "main_cart": {
+      "name": "Carrello",
+      "settings": {
+        "show_note": {
+          "label": "Mostra la nota per l'ordine"
+        },
+        "show_dynamic_checkout": {
+          "label": "Mostra i pulsanti di pagamento rapido"
+        },
+        "show_discount": {
+          "label": "Campo per i codici sconto",
+          "info": "Il cliente applica e rimuove i codici prima del checkout."
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      }
+    },
+    "gallery": {
+      "name": "Galleria animata",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Galleria"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "header_1": {
+          "content": "Disposizione"
+        },
+        "arrangement": {
+          "label": "Disposizione",
+          "options": {
+            "list": "Lista",
+            "grid": "Griglia",
+            "coverflow": "Coverflow",
+            "stack": "Pila di carte",
+            "barrel": "Cilindro",
+            "ring": "Anello",
+            "helix": "Spirale",
+            "sphere": "Sfera"
+          }
+        },
+        "loop": {
+          "label": "Scorrimento infinito"
+        },
+        "axis": {
+          "label": "Orientamento",
+          "options": {
+            "x": "Orizzontale",
+            "y": "Verticale"
+          }
+        },
+        "radius": {
+          "label": "Raggio",
+          "info": "0 = automatico, in base al numero di elementi.",
+          "unit": "px"
+        },
+        "camera_tilt": {
+          "label": "Inclinazione della camera",
+          "unit": "°"
+        },
+        "header_2": {
+          "content": "Elementi"
+        },
+        "item_width": {
+          "label": "Larghezza degli elementi",
+          "info": "Su mobile è limitata al 70% dello schermo.",
+          "unit": "px"
+        },
+        "item_ratio": {
+          "label": "Proporzioni",
+          "options": {
+            "1": "Quadrato (1:1)",
+            "0_8": "Verticale (4:5)",
+            "0_75": "Verticale (3:4)",
+            "0_667": "Verticale (2:3)",
+            "1_333": "Orizzontale (4:3)",
+            "1_778": "Orizzontale (16:9)"
+          }
+        },
+        "gap": {
+          "label": "Spazio tra gli elementi",
+          "info": "Non usato da coverflow e pila, che hanno impostazioni proprie.",
+          "unit": "px"
+        },
+        "stage_height": {
+          "label": "Altezza dell'area",
+          "info": "Su mobile è limitata all'80% dello schermo.",
+          "unit": "px"
+        },
+        "header_3": {
+          "content": "Lista"
+        },
+        "list_angle": {
+          "label": "Direzione del percorso",
+          "info": "Inclina il percorso degli elementi.",
+          "unit": "°"
+        },
+        "list_curl": {
+          "label": "Curvatura",
+          "info": "Rotazione di ogni elemento per ogni posizione di distanza da quello in primo piano.",
+          "unit": "°"
+        },
+        "list_depth": {
+          "label": "Profondità",
+          "info": "Quanto arretrano gli elementi per ogni posizione di distanza da quello in primo piano.",
+          "unit": "px"
+        },
+        "list_recede": {
+          "label": "Fuga prospettica",
+          "info": "Arretramento progressivo lungo il percorso: con valori negativi gli elementi precedenti si allontanano.",
+          "unit": "px"
+        },
+        "list_turn": {
+          "label": "Rotazione",
+          "info": "Rotazione uguale per tutti gli elementi.",
+          "unit": "°"
+        },
+        "list_wave": {
+          "label": "Onda",
+          "info": "Ampiezza dell'ondulazione del percorso.",
+          "unit": "px"
+        },
+        "header_4": {
+          "content": "Griglia"
+        },
+        "grid_columns": {
+          "label": "Colonne",
+          "info": "0 = automatico."
+        },
+        "grid_fill": {
+          "label": "Riempimento",
+          "info": "Con la ripetizione la griglia diventa un piano infinito da trascinare in ogni direzione.",
+          "options": {
+            "sequence": "Ripeti in sequenza",
+            "offset": "Ripeti sfalsato",
+            "none": "Nessuna ripetizione"
+          }
+        },
+        "grid_rotate_x": {
+          "label": "Inclinazione all'indietro",
+          "unit": "°"
+        },
+        "grid_rotate_y": {
+          "label": "Rotazione laterale",
+          "unit": "°"
+        },
+        "grid_rotate_z": {
+          "label": "Rotazione sul piano",
+          "unit": "°"
+        },
+        "grid_bulge": {
+          "label": "Rigonfiamento",
+          "info": "Quanto si avvicinano gli elementi al centro dell'area.",
+          "unit": "px"
+        },
+        "header_5": {
+          "content": "Coverflow"
+        },
+        "coverflow_turn": {
+          "label": "Rotazione degli elementi laterali",
+          "unit": "°"
+        },
+        "coverflow_spread": {
+          "label": "Distanza tra gli elementi laterali",
+          "info": "In percentuale della larghezza di un elemento.",
+          "unit": "%"
+        },
+        "coverflow_depth": {
+          "label": "Profondità degli elementi laterali",
+          "info": "In percentuale della larghezza di un elemento.",
+          "unit": "%"
+        },
+        "coverflow_center": {
+          "label": "Distanza dall'elemento centrale",
+          "info": "In percentuale della larghezza di un elemento. Oltre il 100% gli elementi non si sovrappongono.",
+          "unit": "%"
+        },
+        "header_6": {
+          "content": "Pila di carte"
+        },
+        "stack_peek": {
+          "label": "Sporgenza",
+          "info": "Quanto spunta ogni carta sopra quella davanti.",
+          "unit": "px"
+        },
+        "stack_depth": {
+          "label": "Profondità",
+          "info": "Quanto arretra ogni carta rispetto a quella davanti.",
+          "unit": "px"
+        },
+        "stack_visible": {
+          "label": "Carte visibili dietro"
+        },
+        "header_7": {
+          "content": "Anello"
+        },
+        "ring_arc": {
+          "label": "Arco",
+          "info": "Con 360° l'anello è chiuso e lo scorrimento è infinito.",
+          "unit": "°"
+        },
+        "ring_upright": {
+          "label": "Mantieni gli elementi dritti"
+        },
+        "ring_flip": {
+          "label": "Inverti la curvatura"
+        },
+        "header_8": {
+          "content": "Spirale"
+        },
+        "helix_axis": {
+          "label": "Orientamento della spirale",
+          "options": {
+            "y": "Verticale",
+            "x": "Orizzontale (cavatappi)"
+          }
+        },
+        "helix_per_turn": {
+          "label": "Elementi per giro"
+        },
+        "helix_pitch": {
+          "label": "Passo",
+          "info": "Avanzamento lungo l'asse per ogni elemento. 0 = automatico.",
+          "unit": "px"
+        },
+        "header_9": {
+          "content": "Sfera"
+        },
+        "sphere_face": {
+          "label": "Orientamento degli elementi",
+          "options": {
+            "camera": "Verso chi guarda",
+            "outward": "Verso l'esterno della sfera"
+          }
+        },
+        "header_10": {
+          "content": "Interazione"
+        },
+        "enable_open": {
+          "label": "Apri gli elementi al clic",
+          "info": "L'elemento in primo piano si ingrandisce dentro la galleria. Il link del blocco compare sotto la galleria."
+        },
+        "open_room": {
+          "label": "Margine dell'elemento aperto",
+          "unit": "px"
+        },
+        "show_controls": {
+          "label": "Mostra frecce e contatore",
+          "info": "Se disattivato, restano disponibili per la navigazione da tastiera."
+        },
+        "header_11": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "blocks": {
+        "image": {
+          "name": "Immagine",
+          "settings": {
+            "image": {
+              "label": "Immagine"
+            },
+            "caption": {
+              "label": "Didascalia"
+            },
+            "link": {
+              "label": "Link"
+            },
+            "link_label": {
+              "label": "Testo del link",
+              "default": "Scopri"
+            }
+          }
+        },
+        "video": {
+          "name": "Video",
+          "settings": {
+            "video": {
+              "label": "Video",
+              "info": "Video caricato su Shopify. Parte senza audio quando è in primo piano."
+            },
+            "caption": {
+              "label": "Didascalia"
+            },
+            "link": {
+              "label": "Link"
+            },
+            "link_label": {
+              "label": "Testo del link",
+              "default": "Scopri"
+            }
+          }
+        },
+        "product": {
+          "name": "Prodotto",
+          "settings": {
+            "product": {
+              "label": "Prodotto"
+            },
+            "quick_view": {
+              "label": "Anteprima rapida al clic",
+              "info": "Apre una finestra con varianti e aggiunta al carrello. Se disattivata, il clic porta alla pagina del prodotto."
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Galleria animata"
+        }
+      }
+    },
+    "quick_view": {
+      "name": "Anteprima rapida"
+    },
+    "product_card": {
+      "name": "Card prodotto"
+    },
+    "main_index": {
+      "name": "Hero",
+      "settings": {
+        "header_1": {
+          "content": "Media"
+        },
+        "image": {
+          "label": "Immagine",
+          "info": "Consigliata almeno 2400 px di larghezza."
+        },
+        "image_mobile": {
+          "label": "Immagine per smartphone",
+          "info": "Facoltativa: un ritaglio verticale mostrato sugli schermi stretti."
+        },
+        "video": {
+          "label": "Video",
+          "info": "Facoltativo: parte da solo, senza audio, e sostituisce l'immagine quando è pronto. Chi ha ridotto le animazioni vede l'immagine e può avviarlo con il pulsante."
+        },
+        "header_2": {
+          "content": "Layout"
+        },
+        "width": {
+          "label": "Larghezza",
+          "info": "Su smartphone la hero occupa sempre tutta la larghezza.",
+          "options": {
+            "full": "Tutta la pagina",
+            "inset": "Riquadro con margini"
+          }
+        },
+        "height": {
+          "label": "Altezza",
+          "options": {
+            "adapt": "Adatta all'immagine",
+            "small": "Bassa",
+            "medium": "Media",
+            "large": "Alta",
+            "full": "Tutto lo schermo"
+          }
+        },
+        "content_horizontal": {
+          "label": "Posizione orizzontale del contenuto",
+          "options": {
+            "left": "Sinistra",
+            "center": "Centro",
+            "right": "Destra"
+          }
+        },
+        "content_vertical": {
+          "label": "Posizione verticale del contenuto",
+          "options": {
+            "top": "In alto",
+            "center": "Al centro",
+            "bottom": "In basso"
+          }
+        },
+        "header_3": {
+          "content": "Aspetto"
+        },
+        "text_color": {
+          "label": "Colore del testo sul media",
+          "options": {
+            "light": "Chiaro (per immagini scure)",
+            "dark": "Scuro (per immagini chiare)"
+          }
+        },
+        "overlay_opacity": {
+          "label": "Intensità dell'overlay",
+          "info": "Rende leggibile il testo sopra il media.",
+          "unit": "%"
+        },
+        "overlay_style": {
+          "label": "Tipo di overlay",
+          "info": "Sfumato: più intenso dietro al testo, lascia il resto del media luminoso. Con il contenuto al centro l'overlay è sempre uniforme.",
+          "options": {
+            "gradient": "Sfumato verso il testo",
+            "solid": "Uniforme"
+          }
+        },
+        "heading_size": {
+          "label": "Dimensione del titolo",
+          "options": {
+            "medium": "Media",
+            "large": "Grande"
+          }
+        },
+        "scroll_effect": {
+          "label": "Profondità durante lo scorrimento",
+          "info": "Il media scorre più lentamente della pagina e il testo sfuma. Disattivato per chi ha ridotto le animazioni."
+        },
+        "header_4": {
+          "content": "Contenuto"
+        },
+        "eyebrow": {
+          "label": "Testo sopra il titolo",
+          "info": "Breve etichetta, ad esempio il nome di una collezione."
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Benvenuto nel negozio"
+        },
+        "text": {
+          "label": "Testo",
+          "default": "Prodotti pensati per durare, spediti in tutta Italia."
+        },
+        "header_5": {
+          "content": "Pulsanti"
+        },
+        "button_label": {
+          "label": "Testo del pulsante principale",
+          "default": "Acquista ora"
+        },
+        "button_link": {
+          "label": "Link del pulsante principale",
+          "info": "Se vuoto porta a tutti i prodotti."
+        },
+        "secondary_button_label": {
+          "label": "Testo del pulsante secondario",
+          "default": "Scopri di più"
+        },
+        "secondary_button_link": {
+          "label": "Link del pulsante secondario",
+          "info": "Il pulsante secondario compare solo se ha un link."
+        },
+        "header_6": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Hero"
+        }
+      }
+    },
+    "announcement_bar": {
+      "name": "Barra annunci",
+      "settings": {
+        "style": {
+          "label": "Colori",
+          "options": {
+            "dark": "Scuri",
+            "light": "Chiari",
+            "positive": "Verde (promozioni, spedizioni)"
+          }
+        },
+        "autoplay": {
+          "label": "Cambia messaggio automaticamente",
+          "info": "Con più messaggi. Si ferma al passaggio del mouse e per chi ha ridotto le animazioni."
+        },
+        "speed": {
+          "label": "Durata di ogni messaggio",
+          "unit": "s"
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Barra annunci"
+        }
+      }
+    },
+    "predictive_search": {
+      "name": "Ricerca predittiva"
+    },
+    "main_collection": {
+      "name": "Collezione",
+      "settings": {
+        "header_1": {
+          "content": "Intestazione"
+        },
+        "show_description": {
+          "label": "Mostra la descrizione"
+        },
+        "show_image": {
+          "label": "Mostra l'immagine della collezione",
+          "info": "L'immagine si imposta nella collezione, nell'admin di Shopify."
+        },
+        "header_2": {
+          "content": "Prodotti"
+        },
+        "products_per_page": {
+          "label": "Prodotti per pagina"
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "columns_mobile": {
+          "label": "Colonne su mobile",
+          "options": {
+            "1": "1",
+            "2": "2"
+          }
+        },
+        "quick_view": {
+          "label": "Anteprima rapida",
+          "info": "Il clic sulla card apre il prodotto in una finestra, senza lasciare la collezione."
+        },
+        "header_3": {
+          "content": "Filtri e ordinamento"
+        },
+        "enable_filtering": {
+          "label": "Mostra i filtri",
+          "info": "I filtri si creano con l'app Search & Discovery. Non sono disponibili nelle collezioni con più di 5.000 prodotti."
+        },
+        "filter_layout": {
+          "label": "Disposizione dei filtri su desktop",
+          "info": "Barra laterale: consigliata con più di 5 filtri. Barra orizzontale: più compatta, per pochi filtri. Su mobile i filtri sono sempre in un pannello.",
+          "options": {
+            "sidebar": "Barra laterale",
+            "toolbar": "Barra orizzontale"
+          }
+        },
+        "show_filter_label": {
+          "label": "Mostra il nome del filtro nei filtri attivi",
+          "info": "Es. \"Colore: Rosso\" invece di \"Rosso\". Utile se valori uguali compaiono in filtri diversi."
+        },
+        "enable_sorting": {
+          "label": "Mostra l'ordinamento"
+        },
+        "header_4": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      }
+    },
+    "contact_form": {
+      "name": "Modulo di contatto",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Scrivici"
+        },
+        "intro": {
+          "label": "Testo introduttivo",
+          "default": "<p>Hai una domanda su un prodotto o su un ordine? Ti rispondiamo il prima possibile.</p>"
+        },
+        "alignment": {
+          "label": "Allineamento del titolo",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "width": {
+          "label": "Larghezza",
+          "info": "Con la larghezza stretta i recapiti vanno sotto il modulo.",
+          "options": {
+            "narrow": "Stretta",
+            "medium": "Media",
+            "wide": "Larga"
+          }
+        },
+        "header_1": {
+          "content": "Campi"
+        },
+        "show_name": {
+          "label": "Chiedi il nome"
+        },
+        "show_phone": {
+          "label": "Chiedi il telefono"
+        },
+        "phone_required": {
+          "label": "Telefono obbligatorio"
+        },
+        "subject_options": {
+          "label": "Argomenti della richiesta",
+          "info": "Un argomento per riga: il cliente lo sceglie da un elenco. Lascia vuoto per nascondere il campo.",
+          "default": "Informazioni su un prodotto\nOrdine e spedizione\nResi e rimborsi\nAltro"
+        },
+        "button_label": {
+          "label": "Testo del pulsante",
+          "info": "Lascia vuoto per «Invia messaggio», tradotto in ogni lingua del negozio."
+        },
+        "header_2": {
+          "content": "Privacy"
+        },
+        "consent": {
+          "label": "Informativa sulla privacy",
+          "info": "Con la casella obbligatoria il cliente dà un consenso esplicito. Il link punta all’informativa in Impostazioni → Policy, se presente.",
+          "options": {
+            "none": "Non mostrare",
+            "notice": "Solo testo informativo",
+            "checkbox": "Casella obbligatoria"
+          }
+        },
+        "consent_text": {
+          "label": "Testo personalizzato",
+          "info": "Lascia vuoto per il testo predefinito con il link all'informativa."
+        },
+        "header_3": {
+          "content": "Messaggio inviato"
+        },
+        "success_text": {
+          "label": "Testo di conferma",
+          "info": "Lascia vuoto per il testo predefinito."
+        },
+        "require_terms": {
+          "label": "Chiedi di accettare i termini e condizioni",
+          "info": "Seconda casella obbligatoria, separata dal consenso privacy come richiede il GDPR. Il link punta ai Termini di servizio in Impostazioni → Policy, se presenti."
+        },
+        "terms_text": {
+          "label": "Testo personalizzato dei termini",
+          "info": "Lascia vuoto per il testo predefinito con il link ai termini e condizioni."
+        },
+        "header_4": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "blocks": {
+        "email": {
+          "name": "Email del negozio",
+          "settings": {
+            "paragraph_1": {
+              "content": "Indirizzo da Impostazioni → Dettagli del negozio."
+            },
+            "heading": {
+              "label": "Titolo",
+              "default": "Email"
+            },
+            "text": {
+              "label": "Nota",
+              "info": "Facoltativa, es. tempi di risposta."
+            }
+          }
+        },
+        "phone": {
+          "name": "Telefono del negozio",
+          "settings": {
+            "paragraph_1": {
+              "content": "Numero da Impostazioni → Dettagli del negozio."
+            },
+            "heading": {
+              "label": "Titolo",
+              "default": "Telefono"
+            },
+            "text": {
+              "label": "Nota",
+              "info": "Facoltativa, es. orari in cui rispondete."
+            }
+          }
+        },
+        "address": {
+          "name": "Indirizzo del negozio",
+          "settings": {
+            "paragraph_1": {
+              "content": "Indirizzo da Impostazioni → Dettagli del negozio."
+            },
+            "heading": {
+              "label": "Titolo",
+              "default": "Dove siamo"
+            },
+            "show_map_link": {
+              "label": "Link a Google Maps"
+            },
+            "text": {
+              "label": "Nota",
+              "info": "Facoltativa, es. orari di apertura."
+            }
+          }
+        },
+        "text": {
+          "name": "Testo",
+          "settings": {
+            "icon": {
+              "label": "Icona",
+              "options": {
+                "none": "Nessuna",
+                "clock": "Orologio",
+                "chat_bubble_left_right": "Chat",
+                "building_storefront": "Negozio",
+                "map_pin": "Posizione",
+                "envelope": "Busta",
+                "phone": "Telefono"
+              }
+            },
+            "heading": {
+              "label": "Titolo",
+              "default": "Orari"
+            },
+            "text": {
+              "label": "Testo"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Modulo di contatto"
+        }
+      }
+    },
+    "main_page": {
+      "name": "Pagina",
+      "settings": {
+        "show_title": {
+          "label": "Mostra il titolo",
+          "info": "Se nascosto, il titolo resta disponibile per lettori di schermo e motori di ricerca."
+        },
+        "title_alignment": {
+          "label": "Allineamento del titolo",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "content_width": {
+          "label": "Larghezza del contenuto",
+          "info": "Una colonna stretta rende i testi lunghi più facili da leggere.",
+          "options": {
+            "narrow": "Stretta",
+            "medium": "Media",
+            "wide": "Larga"
+          }
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      }
+    },
+    "main_search": {
+      "name": "Ricerca",
+      "settings": {
+        "header_1": {
+          "content": "Risultati"
+        },
+        "results_per_page": {
+          "label": "Risultati per pagina"
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "columns_mobile": {
+          "label": "Colonne su mobile",
+          "options": {
+            "1": "1",
+            "2": "2"
+          }
+        },
+        "quick_view": {
+          "label": "Anteprima rapida dei prodotti",
+          "info": "Il clic sulla card prodotto apre l'anteprima invece della pagina del prodotto."
+        },
+        "header_2": {
+          "content": "Filtri e ordinamento"
+        },
+        "enable_filtering": {
+          "label": "Mostra i filtri",
+          "info": "Filtri configurati nell'app Search & Discovery."
+        },
+        "filter_layout": {
+          "label": "Disposizione dei filtri su desktop",
+          "info": "Sotto i 990px i filtri sono sempre in un pannello laterale.",
+          "options": {
+            "sidebar": "Barra laterale",
+            "toolbar": "Barra orizzontale"
+          }
+        },
+        "show_filter_label": {
+          "label": "Nome del filtro nei filtri attivi",
+          "info": "Es. «Colore: Rosso» invece di «Rosso»."
+        },
+        "enable_sorting": {
+          "label": "Mostra l'ordinamento"
+        },
+        "header_3": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      }
+    },
+    "product_recommendations": {
+      "name": "Prodotti consigliati",
+      "settings": {
+        "paragraph_1": {
+          "content": "Consigli generati da Shopify. Puoi sceglierli a mano nell'app Search & Discovery: i prodotti complementari si impostano solo lì."
+        },
+        "intent": {
+          "label": "Tipo di consigli",
+          "options": {
+            "related": "Simili (Ti potrebbe piacere)",
+            "complementary": "Complementari (Abbinalo a)"
+          }
+        },
+        "heading": {
+          "label": "Titolo",
+          "info": "Lascia vuoto per il titolo predefinito del tipo scelto."
+        },
+        "limit": {
+          "label": "Numero massimo di prodotti"
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Prodotti consigliati"
+        }
+      }
+    },
+    "main_article": {
+      "name": "Articolo",
+      "settings": {
+        "show_image": {
+          "label": "Mostra l'immagine in evidenza"
+        },
+        "show_tags": {
+          "label": "Mostra i tag"
+        },
+        "show_author": {
+          "label": "Mostra l'autore",
+          "info": "Con una biografia nel profilo dello staff compare anche il riquadro dell'autore in fondo."
+        },
+        "show_reading_time": {
+          "label": "Mostra il tempo di lettura"
+        },
+        "show_share": {
+          "label": "Pulsante di condivisione"
+        },
+        "show_reading_progress": {
+          "label": "Mostra la barra di avanzamento della lettura"
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      }
+    },
+    "main_blog": {
+      "name": "Blog",
+      "settings": {
+        "articles_per_page": {
+          "label": "Articoli per pagina"
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "feature_first": {
+          "label": "Metti in evidenza l'articolo più recente",
+          "info": "Solo nella prima pagina e senza filtri per tag."
+        },
+        "show_tags": {
+          "label": "Filtro per tag"
+        },
+        "header_1": {
+          "content": "Card degli articoli"
+        },
+        "show_image": {
+          "label": "Mostra l'immagine"
+        },
+        "image_ratio": {
+          "label": "Proporzioni dell'immagine",
+          "options": {
+            "landscape": "Orizzontale (16:9)",
+            "square": "Quadrata (1:1)",
+            "portrait": "Verticale (4:5)"
+          }
+        },
+        "show_date": {
+          "label": "Mostra la data"
+        },
+        "show_author": {
+          "label": "Mostra l'autore"
+        },
+        "show_excerpt": {
+          "label": "Mostra l'estratto"
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      }
+    },
+    "main_404": {
+      "name": "Pagina non trovata",
+      "settings": {
+        "show_search": {
+          "label": "Mostra la ricerca"
+        },
+        "menu": {
+          "label": "Link utili",
+          "info": "Facoltativo: un menu con le pagine più richieste, ad esempio contatti o collezioni."
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      }
+    },
+    "main_list_collections": {
+      "name": "Elenco collezioni",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Collezioni"
+        },
+        "sort": {
+          "label": "Ordina per",
+          "options": {
+            "alphabetical": "Nome, A-Z",
+            "alphabetical_reversed": "Nome, Z-A",
+            "products_high": "Numero di prodotti, decrescente",
+            "products_low": "Numero di prodotti, crescente",
+            "date_reversed": "Data, dalla più recente",
+            "date": "Data, dalla meno recente"
+          }
+        },
+        "menu": {
+          "label": "Ordine personalizzato",
+          "info": "Facoltativo: scegli un menu di collezioni per decidere quali mostrare e in che ordine. Sostituisce l'ordinamento e la paginazione."
+        },
+        "image_ratio": {
+          "label": "Formato delle immagini",
+          "options": {
+            "square": "Quadrato",
+            "portrait": "Verticale",
+            "landscape": "Orizzontale"
+          }
+        },
+        "columns_desktop": {
+          "label": "Colonne da 990px"
+        },
+        "columns_mobile": {
+          "label": "Colonne su mobile",
+          "options": {
+            "1": "1",
+            "2": "2"
+          }
+        },
+        "show_count": {
+          "label": "Mostra il numero di prodotti"
+        },
+        "per_page": {
+          "label": "Collezioni per pagina"
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      }
+    },
+    "main_password": {
+      "name": "Pagina password",
+      "settings": {
+        "logo": {
+          "label": "Logo",
+          "info": "Se vuoto si usa il logo di Impostazioni → Brand, altrimenti il nome del negozio."
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Stiamo per aprire"
+        },
+        "background_image": {
+          "label": "Immagine di sfondo",
+          "info": "Il testo resta in un pannello pieno, leggibile con qualsiasi immagine."
+        },
+        "show_newsletter": {
+          "label": "Mostra l'iscrizione alla newsletter",
+          "info": "Chi si iscrive compare tra i clienti con i tag prospect e password page."
+        },
+        "show_powered_by": {
+          "label": "Mostra \"Powered by Shopify\""
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      }
+    },
+    "pickup_availability": {
+      "name": "Ritiro in negozio"
+    },
+    "collection_list": {
+      "name": "Elenco collezioni",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Scopri le collezioni"
+        },
+        "intro": {
+          "label": "Introduzione"
+        },
+        "align": {
+          "label": "Allineamento del titolo",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "collections": {
+          "label": "Collezioni"
+        },
+        "button_label": {
+          "label": "Pulsante verso tutte le collezioni",
+          "info": "Vuoto: nessun pulsante.",
+          "default": "Vedi tutte"
+        },
+        "header_1": {
+          "content": "Disposizione"
+        },
+        "image_ratio": {
+          "label": "Proporzioni delle immagini",
+          "options": {
+            "square": "Quadrata",
+            "portrait": "Verticale",
+            "landscape": "Orizzontale"
+          }
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "columns_mobile": {
+          "label": "Colonne su mobile",
+          "options": {
+            "1": "1 colonna",
+            "2": "2 colonne"
+          }
+        },
+        "show_count": {
+          "label": "Mostra il numero di prodotti"
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Elenco collezioni"
+        }
+      }
+    },
+    "columns": {
+      "name": "Colonne",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Perché sceglierci"
+        },
+        "intro": {
+          "label": "Introduzione"
+        },
+        "align": {
+          "label": "Allineamento",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "header_1": {
+          "content": "Disposizione"
+        },
+        "columns_desktop": {
+          "label": "Colonne su desktop"
+        },
+        "columns_mobile": {
+          "label": "Colonne su mobile",
+          "options": {
+            "1": "1 colonna",
+            "2": "2 colonne"
+          }
+        },
+        "style": {
+          "label": "Stile delle colonne",
+          "options": {
+            "plain": "Senza sfondo",
+            "surface": "Riquadro colorato",
+            "border": "Riquadro con bordo"
+          }
+        },
+        "image_ratio": {
+          "label": "Proporzioni delle immagini",
+          "options": {
+            "landscape": "Orizzontale",
+            "square": "Quadrata",
+            "portrait": "Verticale"
+          }
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "blocks": {
+        "column": {
+          "name": "Colonna",
+          "settings": {
+            "icon": {
+              "label": "Icona",
+              "options": {
+                "none": "Nessuna",
+                "truck": "Spedizione",
+                "arrow_path": "Reso",
+                "shield_check": "Garanzia",
+                "lock_closed": "Sicurezza",
+                "credit_card": "Pagamento",
+                "gift": "Regalo",
+                "tag": "Offerta",
+                "star": "Stella",
+                "heart": "Cuore",
+                "sparkles": "Novità",
+                "check_badge": "Qualità",
+                "globe_alt": "Mondo",
+                "map_pin": "Luogo",
+                "clock": "Orario",
+                "phone": "Telefono",
+                "envelope": "Email",
+                "chat_bubble_left_right": "Assistenza",
+                "building_storefront": "Negozio"
+              }
+            },
+            "image": {
+              "label": "Immagine",
+              "info": "Se scegli un'immagine, compare al posto dell'icona."
+            },
+            "title": {
+              "label": "Titolo",
+              "default": "Titolo della colonna"
+            },
+            "text": {
+              "label": "Testo",
+              "default": "<p>Spiega in una frase cosa offri ai tuoi clienti.</p>"
+            },
+            "link_label": {
+              "label": "Testo del link"
+            },
+            "link": {
+              "label": "Link",
+              "info": "Il link compare solo se ha sia il testo sia l'indirizzo."
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Colonne"
+        }
+      }
+    },
+    "content": {
+      "name": "Contenuto libero",
+      "settings": {
+        "width": {
+          "label": "Larghezza",
+          "options": {
+            "narrow": "Stretta",
+            "medium": "Media",
+            "wide": "Larga",
+            "full": "Tutta larghezza"
+          }
+        },
+        "align": {
+          "label": "Allineamento",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "spacing": {
+          "label": "Spazio sopra e sotto",
+          "options": {
+            "none": "Nessuno",
+            "medium": "Medio",
+            "large": "Grande"
+          }
+        },
+        "header_1": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Testo"
+        },
+        "preset_2": {
+          "name": "Testo con immagine"
+        }
+      }
+    },
+    "newsletter": {
+      "name": "Newsletter",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Iscriviti alla newsletter"
+        },
+        "text": {
+          "label": "Testo",
+          "default": "<p>Novità, offerte e consigli direttamente nella tua casella di posta.</p>"
+        },
+        "layout": {
+          "label": "Disposizione",
+          "options": {
+            "center": "Al centro",
+            "split": "Testo a sinistra, modulo a destra"
+          }
+        },
+        "header_1": {
+          "content": "Modulo"
+        },
+        "button_label": {
+          "label": "Testo del pulsante",
+          "default": "Iscriviti"
+        },
+        "success_message": {
+          "label": "Messaggio di conferma",
+          "default": "Grazie, l'iscrizione è andata a buon fine."
+        },
+        "consent": {
+          "label": "Consenso",
+          "info": "Scegli insieme a chi segue la privacy del negozio. Il link all'informativa si imposta in Impostazioni → Policy.",
+          "options": {
+            "checkbox": "Casella da spuntare",
+            "notice": "Solo testo informativo"
+          }
+        },
+        "tags": {
+          "label": "Tag del cliente",
+          "info": "Separati da una virgola. Servono per ritrovare gli iscritti in Clienti e nelle campagne.",
+          "default": "newsletter"
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Newsletter"
+        }
+      }
+    },
+    "shop_the_look": {
+      "name": "Punti sull'immagine",
+      "settings": {
+        "image": {
+          "label": "Immagine",
+          "info": "Viene mostrata intera, senza ritagli: i punti restano sempre sullo stesso dettaglio."
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Acquista il look"
+        },
+        "intro": {
+          "label": "Introduzione"
+        },
+        "header_1": {
+          "content": "Prodotti"
+        },
+        "show_list": {
+          "label": "Mostra l'elenco dei prodotti",
+          "info": "Consigliato: al tocco i punti sono piccoli, e l'elenco mostra subito nomi e prezzi."
+        },
+        "image_position": {
+          "label": "Posizione dell'immagine da 990px in su",
+          "options": {
+            "left": "A sinistra",
+            "right": "A destra"
+          }
+        },
+        "quick_view": {
+          "label": "Apri l'anteprima rapida",
+          "info": "Spenta: i punti portano alla pagina del prodotto."
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        },
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Sotto i 990px l'immagine arriva ai bordi dello schermo. Il resto si allarga sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta larghezza"
+          }
+        }
+      },
+      "blocks": {
+        "hotspot": {
+          "name": "Punto",
+          "settings": {
+            "product": {
+              "label": "Prodotto"
+            },
+            "x": {
+              "label": "Posizione da sinistra",
+              "unit": "%"
+            },
+            "y": {
+              "label": "Posizione dall'alto",
+              "unit": "%"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Punti sull'immagine"
+        }
+      }
+    },
+    "ticker": {
+      "name": "Ticker",
+      "settings": {
+        "heading": {
+          "label": "Titolo"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "header_1": {
+          "content": "Movimento"
+        },
+        "presentation": {
+          "label": "Presentazione",
+          "info": "L'elenco mostra solo i blocchi di testo: ogni riga diventa una striscia al passaggio del mouse.",
+          "options": {
+            "strip": "Striscia in movimento",
+            "rows": "Elenco che scorre al passaggio"
+          }
+        },
+        "axis": {
+          "label": "Asse",
+          "options": {
+            "x": "Orizzontale",
+            "y": "Verticale"
+          }
+        },
+        "drive": {
+          "label": "Cosa muove la striscia",
+          "info": "Guidata dallo scroll: la striscia avanza solo mentre si scorre la pagina.",
+          "options": {
+            "auto": "Scorre da sola",
+            "drag": "Scorre da sola e si può trascinare",
+            "scroll": "Guidata dallo scroll"
+          }
+        },
+        "speed": {
+          "label": "Velocità",
+          "info": "Pixel al secondo. Con lo scroll: pixel percorsi ogni 100 pixel di pagina."
+        },
+        "direction": {
+          "label": "Verso",
+          "info": "Il verso normale segue la direzione del testo: da destra a sinistra si inverte da solo.",
+          "options": {
+            "forward": "Normale",
+            "reverse": "Inverso"
+          }
+        },
+        "hover": {
+          "label": "Al passaggio del mouse",
+          "options": {
+            "slow": "Rallenta",
+            "pause": "Si ferma",
+            "none": "Non cambia"
+          }
+        },
+        "effect": {
+          "label": "Effetto in base alla posizione",
+          "info": "Cambia l'aspetto degli elementi mentre si allontanano dal centro.",
+          "options": {
+            "none": "Nessuno",
+            "focus": "Messa a fuoco al centro",
+            "arc": "Arco",
+            "tilt": "Rotazione 3D"
+          }
+        },
+        "show_cursor": {
+          "label": "Cursore personalizzato",
+          "info": "Sostituisce il puntatore sopra la striscia, solo con il mouse."
+        },
+        "cursor_text": {
+          "label": "Testo del cursore",
+          "info": "Senza testo il cursore è un punto."
+        },
+        "header_2": {
+          "content": "Aspetto"
+        },
+        "width": {
+          "label": "Larghezza",
+          "info": "Bordi dello schermo: il primo elemento parte allineato alla pagina, gli altri arrivano fino ai bordi.",
+          "options": {
+            "full": "Fino ai bordi dello schermo",
+            "contained": "Larghezza della pagina"
+          }
+        },
+        "fade_edges": {
+          "label": "Sfuma i bordi"
+        },
+        "height": {
+          "label": "Altezza della striscia verticale",
+          "unit": "px"
+        },
+        "gap": {
+          "label": "Spazio tra gli elementi",
+          "unit": "px"
+        },
+        "logo_height": {
+          "label": "Altezza dei loghi",
+          "unit": "px"
+        },
+        "logo_grayscale": {
+          "label": "Loghi in grigio, a colori al passaggio del mouse"
+        },
+        "text_size": {
+          "label": "Dimensione del testo",
+          "options": {
+            "small": "Piccolo",
+            "medium": "Medio",
+            "large": "Grande",
+            "hero": "Molto grande"
+          }
+        },
+        "separator": {
+          "label": "Separatore tra gli elementi",
+          "options": {
+            "none": "Nessuno",
+            "dot": "Punto",
+            "slash": "Barra",
+            "star": "Stella"
+          }
+        },
+        "spacing": {
+          "label": "Spazio sopra e sotto",
+          "options": {
+            "normal": "Normale",
+            "compact": "Ridotto"
+          }
+        },
+        "header_3": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Lascia vuoto per usare la palette del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Lascia vuoto per scegliere da solo il colore più leggibile."
+        },
+        "text_direction": {
+          "label": "Direzione del testo",
+          "info": "Da destra a sinistra serve per testi in arabo, ebraico e lingue simili: cambia anche il verso della striscia.",
+          "options": {
+            "auto": "Come la pagina",
+            "rtl": "Da destra a sinistra"
+          }
+        }
+      },
+      "blocks": {
+        "logo": {
+          "name": "Logo",
+          "settings": {
+            "image": {
+              "label": "Immagine"
+            },
+            "name": {
+              "label": "Nome del brand",
+              "info": "Lo leggono i lettori di schermo. Senza nome si usa il testo alternativo dell'immagine."
+            },
+            "link": {
+              "label": "Link"
+            }
+          }
+        },
+        "text": {
+          "name": "Testo",
+          "settings": {
+            "text": {
+              "label": "Testo",
+              "default": "Scrivi qui il tuo messaggio"
+            },
+            "link": {
+              "label": "Link"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Ticker di loghi"
+        },
+        "preset_2": {
+          "name": "Ticker di testi",
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            }
+          }
+        },
+        "preset_3": {
+          "name": "Ticker verticale",
+          "settings": {
+            "heading": "Il nostro mondo"
+          },
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            },
+            "block_4": {
+              "text": "Pensati nei dettagli"
+            }
+          }
+        },
+        "preset_4": {
+          "name": "Ticker guidato dallo scroll",
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            }
+          }
+        },
+        "preset_5": {
+          "name": "Ticker trascinabile",
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            }
+          }
+        },
+        "preset_6": {
+          "name": "Ticker con cursore",
+          "settings": {
+            "cursor_text": "Trascina"
+          },
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            }
+          }
+        },
+        "preset_7": {
+          "name": "Ticker con effetto sulla posizione",
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            },
+            "block_4": {
+              "text": "Pensati nei dettagli"
+            }
+          }
+        },
+        "preset_8": {
+          "name": "Elenco che scorre al passaggio",
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            }
+          }
+        },
+        "preset_9": {
+          "name": "Ticker da destra a sinistra",
+          "blocks": {
+            "block_1": {
+              "text": "Nuovi arrivi"
+            },
+            "block_2": {
+              "text": "Scelti per te"
+            },
+            "block_3": {
+              "text": "Fatti per durare"
+            }
+          }
+        }
+      }
+    },
+    "carousel": {
+      "name": "Carosello",
+      "settings": {
+        "heading": {
+          "label": "Titolo",
+          "default": "Scopri la selezione"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "align": {
+          "label": "Allineamento dell'intestazione",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "header_1": {
+          "content": "Layout"
+        },
+        "per_view_desktop": {
+          "label": "Slide visibili da computer",
+          "info": "Sui tablet sono al massimo 3."
+        },
+        "per_view_mobile": {
+          "label": "Slide visibili da telefono",
+          "options": {
+            "1": "Una",
+            "2": "Due",
+            "1_2": "Una, con la successiva che si intravede"
+          }
+        },
+        "gap": {
+          "label": "Spazio tra le slide",
+          "unit": "px"
+        },
+        "width": {
+          "label": "Larghezza",
+          "options": {
+            "page": "Larghezza della pagina",
+            "full": "Fino ai bordi dello schermo"
+          }
+        },
+        "slide_align": {
+          "label": "Posizione delle slide",
+          "info": "Con l'effetto Coverflow le slide sono sempre centrate.",
+          "options": {
+            "start": "All'inizio",
+            "center": "Al centro"
+          }
+        },
+        "scroll_mode": {
+          "label": "Scorrimento",
+          "options": {
+            "snap": "Si ferma su ogni slide",
+            "free": "Libero"
+          }
+        },
+        "slide_ratio": {
+          "label": "Proporzioni delle immagini con testo",
+          "info": "Accanto alle card prodotto le immagini si allungano per restare allineate.",
+          "options": {
+            "portrait": "Verticale",
+            "square": "Quadrata",
+            "landscape": "Orizzontale",
+            "wide": "Panoramica"
+          }
+        },
+        "quick_view": {
+          "label": "Anteprima rapida dalle card prodotto",
+          "info": "Senza JavaScript la card porta alla pagina del prodotto."
+        },
+        "header_2": {
+          "content": "Comandi"
+        },
+        "show_arrows": {
+          "label": "Mostra le frecce"
+        },
+        "arrows_position": {
+          "label": "Posizione delle frecce",
+          "info": "Sui telefoni restano sempre sotto le slide.",
+          "options": {
+            "bottom": "Sotto le slide",
+            "sides": "Ai lati"
+          }
+        },
+        "pagination": {
+          "label": "Indicatore di posizione",
+          "options": {
+            "none": "Nessuno",
+            "dots": "Pallini",
+            "scaling_dots": "Pallini che si rimpiccioliscono",
+            "count": "Contatore",
+            "progress": "Barra di avanzamento"
+          }
+        },
+        "header_3": {
+          "content": "Movimento"
+        },
+        "effect": {
+          "label": "Effetto allo scorrimento",
+          "info": "Il parallasse riguarda solo le immagini con testo. Il coverflow funziona meglio con 3 slide visibili.",
+          "options": {
+            "none": "Nessuno",
+            "parallax": "Parallasse",
+            "coverflow": "Coverflow"
+          }
+        },
+        "autoplay": {
+          "label": "Scorrimento automatico",
+          "info": "Si ferma al passaggio del mouse e dopo un gesto del cliente, con un pulsante di pausa. Disattivato nell'editor e per chi riduce il movimento."
+        },
+        "autoplay_interval": {
+          "label": "Intervallo",
+          "unit": "s"
+        },
+        "header_4": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema. Con il solo sfondo il testo si adatta da solo."
+        },
+        "color_text": {
+          "label": "Testo"
+        }
+      },
+      "blocks": {
+        "collection": {
+          "name": "Prodotti di una collezione",
+          "settings": {
+            "collection": {
+              "label": "Collezione"
+            },
+            "limit": {
+              "label": "Numero di prodotti"
+            },
+            "show_view_all": {
+              "label": "Slide finale con il link alla collezione"
+            }
+          }
+        },
+        "product": {
+          "name": "Prodotto",
+          "settings": {
+            "product": {
+              "label": "Prodotto"
+            }
+          }
+        },
+        "image": {
+          "name": "Immagine con testo",
+          "settings": {
+            "image": {
+              "label": "Immagine"
+            },
+            "overlay": {
+              "label": "Velo sopra l'immagine",
+              "info": "Aumentalo se il testo non si legge bene.",
+              "unit": "%"
+            },
+            "text_tone": {
+              "label": "Colore del testo sull'immagine",
+              "options": {
+                "light": "Bianco",
+                "dark": "Nero"
+              }
+            },
+            "heading": {
+              "label": "Titolo",
+              "default": "La nuova collezione"
+            },
+            "text": {
+              "label": "Testo"
+            },
+            "button_label": {
+              "label": "Testo del pulsante",
+              "info": "Senza testo tutta la slide diventa un link.",
+              "default": "Scopri"
+            },
+            "link": {
+              "label": "Link",
+              "info": "Senza link il pulsante non compare."
+            },
+            "content_position": {
+              "label": "Posizione del testo",
+              "options": {
+                "top_start": "In alto",
+                "center": "Al centro",
+                "bottom_start": "In basso a sinistra",
+                "bottom_center": "In basso al centro"
+              }
+            },
+            "wide": {
+              "label": "Larga il doppio",
+              "info": "Da tablet in su, con slide all'inizio e più di una slide visibile."
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Carosello di prodotti"
+        },
+        "preset_2": {
+          "name": "Carosello di immagini"
+        },
+        "preset_3": {
+          "name": "Carosello misto"
+        }
+      }
+    }
+  },
+  "settings_schema": {
+    "typography": {
+      "name": "Tipografia",
+      "settings": {
+        "type_body_font": {
+          "label": "Font del testo",
+          "info": "Vengono caricati anche semibold, bold e corsivo, se disponibili per il font scelto."
+        },
+        "type_heading_font": {
+          "label": "Font dei titoli"
+        }
+      }
+    },
+    "social_media": {
+      "name": "Social media",
+      "settings": {
+        "header_1": {
+          "content": "Profili social"
+        },
+        "paragraph_1": {
+          "content": "I link compaiono nel footer (se attivi nelle impostazioni della section)."
+        },
+        "social_instagram_link": {
+          "label": "Instagram",
+          "info": "https://instagram.com/shopify"
+        },
+        "social_facebook_link": {
+          "label": "Facebook",
+          "info": "https://facebook.com/shopify"
+        },
+        "social_tiktok_link": {
+          "label": "TikTok",
+          "info": "https://tiktok.com/@shopify"
+        },
+        "social_youtube_link": {
+          "label": "YouTube",
+          "info": "https://youtube.com/shopify"
+        },
+        "social_x_link": {
+          "label": "X (Twitter)",
+          "info": "https://x.com/shopify"
+        },
+        "social_linkedin_link": {
+          "label": "LinkedIn",
+          "info": "https://linkedin.com/company/shopify"
+        }
+      }
+    },
+    "cart": {
+      "name": "Carrello",
+      "settings": {
+        "cart_type": {
+          "label": "Tipo di carrello",
+          "info": "Con \"Cassetto\" il carrello si apre in un pannello laterale dopo l'aggiunta di un prodotto e dal pulsante dell'header.",
+          "options": {
+            "drawer": "Cassetto",
+            "page": "Pagina"
+          }
+        },
+        "header_1": {
+          "info": "I valori scelti dal cliente compaiono nei dettagli dell'ordine in admin. Non aggiungono costi: una confezione a pagamento richiede un prodotto dedicato.",
+          "content": "Dettagli dell'ordine"
+        },
+        "cart_gift_wrap": {
+          "label": "Confezione regalo",
+          "info": "Casella nel carrello."
+        },
+        "cart_gift_message": {
+          "label": "Messaggio regalo",
+          "info": "Con la confezione regalo attiva, il campo compare solo se il cliente la sceglie."
+        },
+        "cart_delivery_date": {
+          "label": "Data di consegna preferita",
+          "info": "Il cliente indica una preferenza: non è un impegno e non influisce sulle spedizioni."
+        },
+        "cart_delivery_lead_days": {
+          "label": "Preavviso minimo per la consegna",
+          "unit": "gg"
+        },
+        "cart_free_shipping_thresholds": {
+          "label": "Soglie per valuta",
+          "info": "Una per riga, codice valuta e importo (es. EUR: 50). Mostra nel carrello quanto manca alla spedizione gratuita, solo ai clienti che acquistano in una valuta elencata. Il tema non legge le tariffe di spedizione: tieni le soglie uguali a quelle in Impostazioni → Spedizione e consegna. Vuoto = barra nascosta."
+        },
+        "header_2": {
+          "content": "Spedizione gratuita"
+        }
+      }
+    },
+    "product": {
+      "name": "Card prodotto",
+      "settings": {
+        "paragraph_1": {
+          "content": "Aspetto comune a tutte le card prodotto del negozio (collezioni in tab, galleria animata, ricerca, raccomandazioni)."
+        },
+        "product_card_style": {
+          "label": "Stile",
+          "options": {
+            "box": "Riquadro con bordo",
+            "plain": "Senza riquadro"
+          }
+        },
+        "product_card_image_ratio": {
+          "label": "Proporzioni immagine",
+          "info": "Nella galleria animata l'immagine riempie lo spazio dell'elemento.",
+          "options": {
+            "portrait": "Verticale (4:5)",
+            "square": "Quadrata (1:1)",
+            "landscape": "Orizzontale (4:3)"
+          }
+        },
+        "product_card_hover_image": {
+          "label": "Mostra la seconda immagine al passaggio del mouse"
+        },
+        "header_1": {
+          "content": "Selettore colore"
+        },
+        "product_card_swatches": {
+          "label": "Mostra i colori disponibili",
+          "info": "Selezionando un colore la card mostra immagine, prezzo e link di quella variante."
+        },
+        "product_card_swatch_options": {
+          "label": "Nomi dell'opzione colore",
+          "info": "Separati da virgola. Valgono per le card e per il selettore della pagina prodotto e dell'anteprima rapida, se l'opzione non ha colori o immagini collegati in Shopify (metafield di categoria): in quel caso il campione è l'immagine della variante.",
+          "default": "Colore, Color"
+        },
+        "product_card_swatch_limit": {
+          "label": "Colori visibili"
+        },
+        "header_2": {
+          "content": "Anteprima rapida"
+        },
+        "quick_view_dynamic_checkout": {
+          "label": "Mostra i pulsanti di pagamento rapido",
+          "info": "Nell'anteprima rapida del prodotto, sotto ad \"Aggiungi al carrello\"."
+        }
+      }
+    },
+    "smooth": {
+      "name": "Scorrimento",
+      "settings": {
+        "smooth_scroll": {
+          "label": "Scorrimento morbido",
+          "info": "Rende più fluido lo scorrimento con rotella e trackpad. Non attivo su schermi touch e per chi ha scelto di ridurre il movimento nel sistema operativo."
+        },
+        "smooth_scroll_intensity": {
+          "label": "Intensità",
+          "options": {
+            "light": "Leggera",
+            "medium": "Media",
+            "strong": "Forte"
+          }
+        }
+      }
+    },
+    "button": {
+      "name": "Pulsanti",
+      "settings": {
+        "button_shape": {
+          "label": "Forma",
+          "info": "Vale per tutti i pulsanti del negozio, compresi quelli di pagamento rapido.",
+          "options": {
+            "pill": "Pillola",
+            "rounded": "Arrotondata",
+            "square": "Squadrata"
+          }
+        }
+      }
+    },
+    "page": {
+      "name": "Transizioni tra pagine",
+      "settings": {
+        "page_transition": {
+          "label": "Effetto",
+          "info": "Animazione nel passaggio da una pagina all'altra del negozio, con header e barra annunci che restano fermi. Funziona su Chrome, Edge e Safari; sugli altri browser e per chi ha scelto di ridurre il movimento il cambio di pagina resta normale.",
+          "options": {
+            "none": "Nessuno",
+            "fade": "Dissolvenza",
+            "wipe": "Tendina",
+            "clip_wipe": "Tendina diagonale",
+            "iris": "Iride",
+            "iris_click": "Iride dal punto cliccato",
+            "blinds": "Persiane",
+            "shutter": "Lamelle",
+            "doors": "Ante",
+            "pixels": "Pixel",
+            "stagger_wipe": "Tendina a fasce",
+            "mixed": "Mista (un effetto diverso a ogni pagina)"
+          }
+        },
+        "page_transition_duration": {
+          "label": "Durata",
+          "unit": "ms"
+        },
+        "page_transition_shared_image": {
+          "label": "Immagine della card che diventa quella del prodotto",
+          "info": "Aprendo un prodotto da una card (o dall'anteprima rapida) la sua immagine si sposta e si ingrandisce fino all'immagine principale della pagina prodotto, e torna alla card con \"Indietro\"."
+        },
+        "navigation_progress": {
+          "label": "Barra di caricamento tra le pagine",
+          "info": "Se la pagina nuova tarda ad arrivare, in alto compare una barra sottile. Con le connessioni veloci non si vede."
+        }
+      }
+    },
+    "favicon": {
+      "name": "Favicon",
+      "settings": {
+        "favicon": {
+          "label": "Immagine",
+          "info": "Icona mostrata nella scheda del browser e nei risultati di Google. Immagine quadrata, almeno 180 × 180 px."
+        }
+      }
+    },
+    "color": {
+      "name": "Colori"
+    },
+    "quantity": {
+      "name": "Disponibilità",
+      "settings": {
+        "quantity_show_available": {
+          "label": "Mostra la disponibilità massima",
+          "info": "Messaggio \"Massimo disponibile\" in pagina prodotto, anteprima rapida e carrello, per i prodotti con giacenza tracciata che non si vendono a esaurimento. Il limite del selettore di quantità resta attivo anche con il messaggio spento."
+        },
+        "quantity_available_threshold": {
+          "label": "Mostrala se il massimo è fino a",
+          "info": "Sopra questo numero il messaggio non compare.",
+          "unit": "pz"
+        }
+      }
+    },
+    "layout": {
+      "name": "Layout",
+      "settings": {
+        "layout_page_width": {
+          "label": "Larghezza massima della pagina",
+          "info": "Vale per tutte le section con larghezza \"Pagina\". Le section adatte possono andare a tutta larghezza con il proprio setting.",
+          "unit": "px"
+        }
+      }
+    }
+  },
+  "blocks": {
+    "header_mega_menu": {
+      "name": "Mega menu",
+      "settings": {
+        "title": {
+          "label": "Voce del menu",
+          "info": "Titolo della voce di primo livello, come appare nel menu (es. Viso). I link del pannello sono quelli dei suoi sottomenu."
+        },
+        "layout": {
+          "label": "Layout dei link",
+          "info": "Riquadri: ogni voce di secondo livello mostra l'immagine della collezione o del prodotto a cui porta, con i suoi sottomenu sotto.",
+          "options": {
+            "tiles": "Riquadri con immagine",
+            "columns": "Colonne di link"
+          }
+        },
+        "paragraph_1": {
+          "content": "Aggiungi fino a 3 card per mettere in evidenza prodotti, collezioni o campagne accanto ai link."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Mega menu"
+        }
+      }
+    },
+    "header_menu_card": {
+      "name": "Card",
+      "settings": {
+        "paragraph_1": {
+          "content": "Scegli un prodotto o una collezione per riempire la card in automatico, oppure compila i campi a mano."
+        },
+        "product": {
+          "label": "Prodotto"
+        },
+        "show_price": {
+          "label": "Mostra il prezzo"
+        },
+        "collection": {
+          "label": "Collezione"
+        },
+        "image": {
+          "label": "Immagine",
+          "info": "Sostituisce quella del prodotto o della collezione. Formato verticale 4:5."
+        },
+        "badge": {
+          "label": "Etichetta sull'immagine",
+          "info": "Ad esempio Novità o -20%."
+        },
+        "heading": {
+          "label": "Titolo"
+        },
+        "text": {
+          "label": "Testo"
+        },
+        "link": {
+          "label": "Link"
+        },
+        "link_label": {
+          "label": "Testo del link",
+          "default": "Scopri"
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Card"
+        }
+      }
+    },
+    "announcement": {
+      "name": "Annuncio",
+      "settings": {
+        "text": {
+          "label": "Testo",
+          "default": "Spedizione gratuita sopra i 50 €"
+        },
+        "link": {
+          "label": "Link",
+          "info": "Facoltativo: rende cliccabile tutto il messaggio."
+        },
+        "message": {
+          "label": "Messaggio",
+          "info": "I testi già pronti seguono la lingua del negozio. Si cambiano da Modifica contenuti predefiniti del tema.",
+          "options": {
+            "custom": "Testo personalizzato",
+            "free_shipping": "Spedizione gratuita",
+            "returns": "Resi"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Annuncio"
+        }
+      }
+    },
+    "button": {
+      "name": "Pulsante",
+      "settings": {
+        "text": {
+          "label": "Testo",
+          "default": "Scopri di più"
+        },
+        "link": {
+          "label": "Link",
+          "info": "Senza link il pulsante non compare nel negozio."
+        },
+        "variant": {
+          "label": "Stile",
+          "options": {
+            "primary": "Principale",
+            "neutral": "Neutro",
+            "subtle": "Discreto"
+          }
+        },
+        "size": {
+          "label": "Dimensione",
+          "options": {
+            "small": "Piccola",
+            "medium": "Media",
+            "large": "Grande"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Pulsante"
+        }
+      }
+    },
+    "group": {
+      "name": "Gruppo",
+      "settings": {
+        "layout": {
+          "label": "Disposizione",
+          "options": {
+            "stack": "Uno sotto l'altro",
+            "inline": "In riga",
+            "columns": "Colonne"
+          }
+        },
+        "columns": {
+          "label": "Colonne da 750px in su"
+        },
+        "align_y": {
+          "label": "Allineamento verticale",
+          "options": {
+            "start": "In alto",
+            "center": "Al centro",
+            "end": "In basso"
+          }
+        },
+        "align": {
+          "label": "Allineamento del contenuto",
+          "options": {
+            "inherit": "Come la section",
+            "start": "A sinistra",
+            "center": "Al centro",
+            "end": "A destra"
+          }
+        },
+        "gap": {
+          "label": "Spazio tra i blocchi",
+          "options": {
+            "small": "Piccolo",
+            "medium": "Medio",
+            "large": "Grande"
+          }
+        },
+        "style": {
+          "label": "Stile",
+          "options": {
+            "plain": "Senza sfondo",
+            "surface": "Riquadro colorato",
+            "border": "Riquadro con bordo"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Gruppo"
+        },
+        "preset_2": {
+          "name": "Colonne"
+        },
+        "preset_3": {
+          "name": "Pulsanti in riga"
+        }
+      }
+    },
+    "heading": {
+      "name": "Titolo",
+      "settings": {
+        "heading": {
+          "label": "Testo",
+          "default": "Scrivi qui il titolo"
+        },
+        "size": {
+          "label": "Dimensione",
+          "options": {
+            "small": "Piccola",
+            "medium": "Media",
+            "large": "Grande",
+            "hero": "Molto grande"
+          }
+        },
+        "tag": {
+          "label": "Livello nella struttura della pagina",
+          "info": "Non cambia l'aspetto: serve a motori di ricerca e lettori di schermo. Non saltare livelli: dopo H2 viene H3.",
+          "options": {
+            "h2": "H2",
+            "h3": "H3",
+            "h4": "H4"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Titolo"
+        }
+      }
+    },
+    "image": {
+      "name": "Immagine",
+      "settings": {
+        "image": {
+          "label": "Immagine"
+        },
+        "ratio": {
+          "label": "Proporzioni",
+          "options": {
+            "natural": "Originali",
+            "square": "Quadrata",
+            "portrait": "Verticale",
+            "landscape": "Orizzontale"
+          }
+        },
+        "link": {
+          "label": "Link"
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Immagine"
+        }
+      }
+    },
+    "text": {
+      "name": "Testo",
+      "settings": {
+        "text": {
+          "label": "Testo",
+          "default": "<p>Racconta qualcosa ai tuoi clienti: la tua storia, un prodotto, una promessa.</p>"
+        },
+        "size": {
+          "label": "Dimensione",
+          "options": {
+            "small": "Piccola",
+            "medium": "Media",
+            "large": "Grande"
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Testo"
+        }
+      }
+    }
+  }
+}

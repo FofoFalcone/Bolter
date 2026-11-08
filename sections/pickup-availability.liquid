@@ -1,0 +1,107 @@
+{%- comment -%}
+  Ritiro in negozio. Non si aggiunge dal theme editor (niente preset): viene renderizzata con la Section Rendering API
+  all'URL della variante, /variants/<id>/?section_id=pickup-availability (frontend/scripts/pickup-availability.js).
+  In questo contesto esiste product_variant, non product: il titolo del prodotto lo inserisce il JS.
+
+  Riepilogo con la sede più vicina (la prima dell'elenco) e <dialog> nativo con tutte le sedi.
+  store_availability.available e pick_up_time comprendono già i trasferimenti tra sedi.
+{%- endcomment -%}
+{%- assign pick_up_availabilities = product_variant.store_availabilities | where: 'pick_up_enabled', true -%}
+
+{%- if pick_up_availabilities.size > 0 -%}
+  {%- assign closest = pick_up_availabilities.first -%}
+  <div class="flex items-start gap-3 rounded-md bg-surface p-4" data-pickup-content>
+    {%- if closest.available -%}
+      {% render 'icon', name: 'check-circle', class: 'mt-0.5 size-5 shrink-0 text-positive-foreground' %}
+    {%- else -%}
+      {% render 'icon', name: 'exclamation-circle', class: 'mt-0.5 size-5 shrink-0 text-foreground/80' %}
+    {%- endif -%}
+
+    <div class="flex min-w-0 flex-col items-start gap-1">
+      <p class="text-body-sm text-foreground">
+        {%- if closest.available -%}
+          {{- 'products.pickup.available_at_html' | t: location: closest.location.name -}}
+        {%- else -%}
+          {{- 'products.pickup.unavailable_at_html' | t: location: closest.location.name -}}
+        {%- endif -%}
+      </p>
+      {%- if closest.available and closest.pick_up_time != blank -%}
+        <p class="text-body-sm text-foreground/80">{{ closest.pick_up_time | escape }}</p>
+      {%- endif -%}
+      {%- if closest.available or pick_up_availabilities.size > 1 -%}
+        <button
+          type="button"
+          class="mt-1 rounded-sm text-body-sm font-semibold text-foreground underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          aria-haspopup="dialog"
+          data-pickup-open
+        >
+          {%- if pick_up_availabilities.size == 1 -%}
+            {{- 'products.pickup.view_store' | t -}}
+          {%- else -%}
+            {{- 'products.pickup.check_other_stores' | t -}}
+          {%- endif -%}
+        </button>
+      {%- endif -%}
+    </div>
+
+    <dialog
+      closedby="any"
+      aria-labelledby="PickupTitle"
+      data-lenis-prevent
+      data-scroll-lock
+      class="m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg translate-y-2 overflow-y-auto overscroll-contain rounded-xl bg-background p-0 text-foreground opacity-0 shadow-600 transition-[opacity,translate,overlay,display] transition-discrete duration-200 ease-theme backdrop:bg-overlay open:translate-y-0 open:opacity-100 motion-reduce:transition-none starting:open:translate-y-2 starting:open:opacity-0"
+    >
+      <div class="sticky top-0 flex items-start justify-between gap-4 border-b border-border bg-background p-6">
+        <div class="flex min-w-0 flex-col gap-1">
+          <h2 id="PickupTitle" class="text-subheading font-semibold text-balance text-foreground" data-pickup-title></h2>
+          {%- unless product_variant.title == 'Default Title' -%}
+            <p class="text-body-sm text-foreground/80">{{ product_variant.title | escape }}</p>
+          {%- endunless -%}
+        </div>
+        <button type="button" class="button button-subtle button-sm button-icon shrink-0" data-pickup-close>
+          {% render 'icon', name: 'x-mark', class: 'size-5' %}
+          <span class="sr-only">{{ 'accessibility.close' | t }}</span>
+        </button>
+      </div>
+
+      <ul class="flex flex-col divide-y divide-border px-6" role="list">
+        {%- for availability in pick_up_availabilities -%}
+          <li class="flex flex-col gap-2 py-5">
+            <h3 class="text-body font-semibold text-foreground">{{ availability.location.name | escape }}</h3>
+            <p class="flex items-start gap-2 text-body-sm text-foreground">
+              {%- if availability.available -%}
+                {% render 'icon', name: 'check-circle', class: 'size-5 shrink-0 text-positive-foreground' %}
+                <span>
+                  {{- 'products.pickup.available' | t -}}
+                  {%- if availability.pick_up_time != blank -%}
+                    , {{ availability.pick_up_time | downcase | escape -}}
+                  {%- endif -%}
+                </span>
+              {%- else -%}
+                {% render 'icon', name: 'exclamation-circle', class: 'size-5 shrink-0 text-foreground/80' %}
+                <span>{{ 'products.pickup.unavailable' | t }}</span>
+              {%- endif -%}
+            </p>
+            <address class="text-body-sm text-foreground/80 not-italic">
+              {{- availability.location.address | format_address -}}
+            </address>
+            {%- if availability.location.address.phone != blank -%}
+              <a href="tel:{{ availability.location.address.phone | escape }}" class="w-fit text-body-sm text-foreground underline underline-offset-4 hover:no-underline">
+                {{- availability.location.address.phone | escape -}}
+              </a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </dialog>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.pickup_availability.name",
+  "tag": "div",
+  "class": "section-pickup-availability",
+  "settings": []
+}
+{% endschema %}

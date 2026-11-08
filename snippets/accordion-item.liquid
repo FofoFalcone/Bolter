@@ -1,0 +1,36 @@
+{%- comment -%}
+  Elemento accordion: da usare dentro <accordion-group> (frontend/entrypoints/accordion.js).
+  Riga con filetto, come i filtri (facets-panel) e il menu mobile: testo allineato al resto della colonna, senza
+  riquadro. Non segue la card del SDS "Accordion Item" (scelta del 2026-11-06, stile del tema).
+  Elementi consecutivi = un unico elenco: filetto condiviso e, se il contenitore ha un gap, il contenitore lo dichiara
+  in --accordion-gap (es. gap-6 [--accordion-gap:--spacing(6)]) perché l'elemento lo annulli.
+  Il padding in basso sta dentro il contenuto: durante l'animazione ha overflow: hidden e non può avere margini
+  negativi, che taglierebbero la prima riga.
+
+  Parametri:
+  - title: testo del titolo
+  - content: HTML del contenuto (richtext)
+  - heading_tag: tag del titolo (default 'h3')
+  - open: true per aprirlo al caricamento
+  - attributes: attributi extra sul <details> (es. block.shopify_attributes)
+
+  Uso: {% render 'accordion-item', title: block.settings.question, content: block.settings.answer, attributes: block.shopify_attributes %}
+{%- endcomment -%}
+{%- assign heading_tag = heading_tag | default: 'h3' -%}
+<details
+  class="accordion__item border-y border-border [details+&]:-mt-(--accordion-gap) [details+&]:border-t-0"
+  {% if open %}
+    open data-state="open"
+  {% endif %}
+  {{ attributes }}
+>
+  <summary class="group/summary flex list-none items-center justify-between gap-3 rounded-sm py-4 [&::-webkit-details-marker]:hidden">
+    <{{ heading_tag }} class="font-sans text-body font-semibold text-balance text-foreground">{{ title | escape }}</{{ heading_tag }}>
+    {% render 'icon', name: 'chevron-down', class: 'accordion__icon size-5 shrink-0 text-muted group-hover/summary:text-foreground' %}
+  </summary>
+  <div class="accordion__content">
+    <div class="prose prose-theme max-w-none pb-4 text-body">
+      {{ content }}
+    </div>
+  </div>
+</details>

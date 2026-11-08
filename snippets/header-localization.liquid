@@ -1,0 +1,199 @@
+{%- comment -%}
+  Selettore di paese/valuta o di lingua dell'header (Impostazioni della section header → Paese e lingua).
+  Mostrato dalla section solo se c'è più di un'opzione (localization.available_countries / available_languages).
+
+  Ogni opzione è un pulsante submit del form 'localization' (name="country_code" | "language_code"):
+  il cambio funziona anche senza JS. L'elenco è un popover con la stessa base dei pannelli del menu
+  (utility header-popover): da 990px tendina sotto il pulsante, sotto 990px secondo livello del cassetto.
+  Bandiere: country | image_url (SVG ufficiali Shopify, 4:3).
+
+  Parametri:
+  - type: 'country' | 'language'
+  - part: 'trigger' (pulsante nell'header, da 990px) | 'row' (riga nel cassetto mobile) | 'popover' (elenco, una volta)
+
+  Uso: {% render 'header-localization', type: 'country', part: 'trigger' %}
+{%- endcomment -%}
+{%- liquid
+  assign popover_id = 'HeaderLocalization-' | append: type
+  assign form_id = 'HeaderLocalizationForm-' | append: type
+  if type == 'country'
+    assign heading = 'general.localization.country_label' | t
+    assign current_name = localization.country.name | escape
+    # Valuta: codice + simbolo, ma una volta sola se coincidono (es. CHF)
+    assign current_short = localization.country.currency.iso_code
+    if localization.country.currency.symbol != localization.country.currency.iso_code
+      assign current_short = current_short | append: ' ' | append: localization.country.currency.symbol
+    endif
+  else
+    assign heading = 'general.localization.language_label' | t
+    assign current_name = localization.language.endonym_name | capitalize | escape
+    assign current_short = localization.language.iso_code | upcase
+  endif
+-%}
+
+{%- capture flag_class -%}
+  h-3 w-4 shrink-0 rounded-[2px] object-cover ring-1 ring-black/10
+{%- endcapture -%}
+
+{%- case part -%}
+  {%- when 'trigger' -%}
+    <button
+      type="button"
+      popovertarget="{{ popover_id }}"
+      class="button button-subtle button-sm hidden gap-1.5 lg:inline-flex overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
+      {%- comment -%} Il nome accessibile contiene il testo visibile (es. "EUR €"), WCAG 2.5.3 {%- endcomment -%}
+      aria-label="{{ heading }}: {{ current_name }} ({{ current_short }})"
+    >
+      {%- if type == 'country' -%}
+        {{ localization.country | image_url: width: 32 | image_tag: width: 16, height: 12, alt: '', class: flag_class }}
+      {%- else -%}
+        {% render 'icon', name: 'language', class: 'size-4' %}
+      {%- endif -%}
+      <span>{{ current_short }}</span>
+      {% render 'icon', name: 'chevron-down', class: 'size-4' %}
+    </button>
+
+  {%- when 'row' -%}
+    <button
+      type="button"
+      popovertarget="{{ popover_id }}"
+      class="flex w-full items-center justify-between gap-4 py-3 text-left text-body text-foreground"
+    >
+      <span class="text-muted">{{ heading }}</span>
+      <span class="flex min-w-0 items-center gap-2 font-semibold">
+        {%- if type == 'country' -%}
+          {{ localization.country | image_url: width: 32 | image_tag: width: 16, height: 12, alt: '', class: flag_class }}
+          <span class="truncate">{{ current_name }} ({{ current_short }})</span>
+        {%- else -%}
+          <span class="truncate">{{ current_name }}</span>
+        {%- endif -%}
+        {% render 'icon', name: 'chevron-right', class: 'size-5 shrink-0 text-muted' %}
+      </span>
+    </button>
+
+  {%- else -%}
+    {%- capture option_class -%}
+      flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-body text-foreground transition-colors hover:bg-surface aria-[current=true]:font-semibold lg:py-2
+    {%- endcapture -%}
+    <div
+      id="{{ popover_id }}"
+      popover
+      data-header-panel="compact"
+      data-panel-width="304"
+      data-lenis-prevent
+      class="header-popover lg:left-(--panel-left) lg:right-auto lg:mt-2 lg:w-76 lg:overflow-hidden lg:rounded-lg lg:border lg:border-border lg:shadow-400"
+    >
+      <div class="flex flex-col gap-4 px-6 py-6 lg:gap-2 lg:p-2">
+        {%- comment -%} Sotto 990px: ritorno al cassetto e titolo {%- endcomment -%}
+        <div class="flex flex-col items-start gap-4 lg:hidden">
+          <button
+            type="button"
+            popovertarget="{{ popover_id }}"
+            popovertargetaction="hide"
+            class="button button-subtle button-sm -ms-3.5"
+          >
+            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+            {{- 'general.header.back' | t -}}
+          </button>
+          <h2 class="text-title-page text-foreground">{{ heading }}</h2>
+        </div>
+        <p class="hidden px-3 pt-1 text-body-sm font-semibold text-muted lg:block">{{ heading }}</p>
+
+        {%- form 'localization', id: form_id, class: 'flex flex-col gap-2' -%}
+          {%- if type == 'country' -%}
+            {%- comment -%} Molti paesi: filtro (frontend/scripts/header.js), solo con JS {%- endcomment -%}
+            {%- if localization.available_countries.size > 10 -%}
+              <label class="relative hidden js:block">
+                <span class="sr-only">{{ 'general.localization.search' | t }}</span>
+                {% render 'icon', name: 'magnifying-glass', class: 'pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted' %}
+                <input
+                  type="search"
+                  data-localization-filter
+                  placeholder="{{ 'general.localization.search' | t }}"
+                  autocomplete="off"
+                  class="w-full rounded-button border border-border-strong bg-background py-2 pr-3 pl-9 text-body placeholder:text-muted"
+                >
+              </label>
+            {%- endif -%}
+
+            <ul class="flex flex-col gap-0.5 lg:max-h-[min(60vh,22rem)] lg:overflow-y-auto" role="list" data-localization-list>
+              {%- comment -%} Paesi più usati dal negozio (country.popular?) in cima, poi gli altri {%- endcomment -%}
+              {%- liquid
+                assign popular_count = 0
+                for country in localization.available_countries
+                  if country.popular?
+                    assign popular_count = popular_count | plus: 1
+                  endif
+                endfor
+                assign has_separator = false
+                if popular_count > 0 and popular_count < localization.available_countries.size
+                  assign has_separator = true
+                endif
+              -%}
+              {%- for pass in (1..2) -%}
+                {%- for country in localization.available_countries -%}
+                  {%- liquid
+                    assign show = false
+                    if pass == 1 and country.popular?
+                      assign show = true
+                    elsif pass == 2 and country.popular? == false
+                      assign show = true
+                    endif
+                  -%}
+                  {%- if show -%}
+                    <li data-name="{{ country.name | downcase | escape }} {{ country.iso_code | downcase }}">
+                      <button
+                        type="submit"
+                        name="country_code"
+                        value="{{ country.iso_code }}"
+                        class="{{ option_class }}"
+                        {% if country.iso_code == localization.country.iso_code %}
+                          aria-current="true"
+                        {% endif %}
+                      >
+                        {{ country | image_url: width: 32 | image_tag: width: 16, height: 12, alt: '', loading: 'lazy', class: flag_class }}
+                        <span class="flex-1">{{ country.name | escape }}</span>
+                        <span class="text-body-sm text-muted">
+                          {{- country.currency.iso_code -}}
+                          {%- if country.currency.symbol != country.currency.iso_code %} {{ country.currency.symbol }}{% endif -%}
+                        </span>
+                        {%- if country.iso_code == localization.country.iso_code -%}
+                          {% render 'icon', name: 'check', class: 'size-4 shrink-0' %}
+                        {%- endif -%}
+                      </button>
+                    </li>
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if pass == 1 and has_separator -%}
+                  <li class="mx-3 my-1 border-t border-border" aria-hidden="true" data-localization-separator></li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+            <p class="hidden px-3 py-2 text-body-sm text-muted" data-localization-empty>{{ 'general.localization.no_results' | t }}</p>
+          {%- else -%}
+            <ul class="flex flex-col gap-0.5" role="list">
+              {%- for language in localization.available_languages -%}
+                <li>
+                  <button
+                    type="submit"
+                    name="language_code"
+                    value="{{ language.iso_code }}"
+                    class="{{ option_class }}"
+                    {% if language.iso_code == localization.language.iso_code %}
+                      aria-current="true"
+                    {% endif %}
+                  >
+                    <span class="flex-1" lang="{{ language.iso_code }}">{{ language.endonym_name | capitalize }}</span>
+                    <span class="text-body-sm text-muted">{{ language.iso_code | upcase }}</span>
+                    {%- if language.iso_code == localization.language.iso_code -%}
+                      {% render 'icon', name: 'check', class: 'size-4 shrink-0' %}
+                    {%- endif -%}
+                  </button>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    </div>
+{%- endcase -%}

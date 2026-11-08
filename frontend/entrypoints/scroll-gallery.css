@@ -1,0 +1,30 @@
+/*
+ * Galleria a scorrimento — sections/scroll-gallery.liquid
+ * Lo stile è nelle utility Tailwind del markup (la modalità "pinned" usa la variante md:js-motion:).
+ * Qui solo le misure condivise tra markup e calcolo dell'altezza dell'area di scorrimento.
+ */
+
+@layer components {
+  .scroll-gallery {
+    --card-width: min(80vw, 22rem);
+    --card-height: calc(var(--card-width) * 1.25);
+    --gap: calc(var(--spacing) * 4);
+  }
+
+  /*
+   * Modalità "pinned": deve coincidere con PINNED_QUERY in scroll-gallery.js (= md:js-motion:).
+   * Altezza = una viewport + la distanza orizzontale da percorrere, (n-1) * (card + gap):
+   * la prima card parte centrata, l'ultima arriva centrata, scroll 1:1.
+   */
+  @media (min-width: 750px) and (prefers-reduced-motion: no-preference) {
+    .js .scroll-gallery {
+      --card-width: min(40vw, 30rem);
+      --card-height: min(70svh, calc(var(--card-width) * 1.25));
+      --gap: calc(var(--spacing) * 8);
+    }
+
+    .js .scroll-gallery__pin {
+      height: calc(100svh + (var(--slides) - 1) * (var(--card-width) + var(--gap)));
+    }
+  }
+}

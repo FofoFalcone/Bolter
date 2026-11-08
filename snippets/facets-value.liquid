@@ -1,0 +1,69 @@
+{%- comment -%}
+  Un valore di un filtro list/boolean (snippets/facets-panel.liquid): casella con etichetta e numero di prodotti.
+  Aspetto da filter.presentation (impostato dal merchant in Search & Discovery):
+  - 'swatch': cerchio con il colore o l'immagine dello swatch (filter_value.swatch), casella se lo swatch manca;
+  - 'image': miniatura (filter_value.image), casella se l'immagine manca;
+  - 'text' (o nessuna): casella.
+  Disattivato se non dà risultati e non è attivo (un valore attivo deve restare deselezionabile).
+
+  Parametri:
+  - filter: filtro (filter)
+  - filter_value: valore (filter_value)
+  - input_id: id univoco e stabile della casella (ripristino del focus dopo l'aggiornamento con JS)
+
+  Uso: {% render 'facets-value', filter: filter, filter_value: filter_value, input_id: input_id %}
+{%- endcomment -%}
+{%- liquid
+  assign disabled = false
+  if filter_value.count == 0 and filter_value.active == false
+    assign disabled = true
+  endif
+
+  assign visual = nil
+  if filter.presentation == 'swatch'
+    if filter_value.swatch.image
+      assign visual = filter_value.swatch.image | image_url: width: 64 | prepend: 'url(' | append: ')'
+    elsif filter_value.swatch.color
+      assign visual = filter_value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
+    endif
+  elsif filter.presentation == 'image' and filter_value.image
+    assign visual = filter_value.image | image_url: width: 80 | prepend: 'url(' | append: ')'
+  endif
+-%}
+<label
+  for="{{ input_id }}"
+  class="group/value flex cursor-pointer items-center gap-3 py-2 text-body text-foreground has-checked:font-semibold has-disabled:cursor-not-allowed has-disabled:text-subtle"
+>
+  {%- capture input_attributes -%}
+    type="checkbox"
+    id="{{ input_id }}"
+    name="{{ filter_value.param_name }}"
+    value="{{ filter_value.value | escape }}"
+    data-filter-label="{{ filter.label | escape }}"
+    data-value-label="{{ filter_value.label | escape }}"
+    {% if filter_value.active %}checked{% endif %}
+    {% if disabled %}disabled{% endif %}
+  {%- endcapture -%}
+
+  {%- if visual -%}
+    <span class="relative flex shrink-0">
+      <input class="peer sr-only" {{ input_attributes }}>
+      <span
+        class="block size-7 border border-border-strong [background:var(--facet-visual)_center/cover_no-repeat] peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary peer-disabled:opacity-40{% if filter.presentation == 'image' %} rounded-sm{% else %} rounded-full{% endif %}"
+        style="--facet-visual: {{ visual }};"
+        aria-hidden="true"
+      ></span>
+    </span>
+  {%- else -%}
+    <span class="relative flex size-5 shrink-0">
+      <input
+        class="peer checkbox group-hover/value:border-foreground disabled:border-border disabled:bg-surface"
+        {{ input_attributes }}
+      >
+      {% render 'icon', name: 'check', class: 'check-tick pointer-events-none absolute inset-0 m-auto size-4 text-primary-foreground' %}
+    </span>
+  {%- endif -%}
+
+  <span class="min-w-0 flex-1 text-pretty">{{ filter_value.label | escape }}</span>
+  <span class="text-body-sm font-normal text-muted tabular-nums">({{ filter_value.count }})</span>
+</label>

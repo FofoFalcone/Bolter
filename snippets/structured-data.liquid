@@ -1,0 +1,122 @@
+{%- comment -%}
+  Dati strutturati JSON-LD del sito, resi nel <head> del layout (quelli del prodotto restano in main-product con il
+  filtro `structured_data` di Shopify):
+  - home: WebSite (nome del sito nei risultati di Google) e Organization (logo da Impostazioni → Brand del negozio,
+    profili social da Impostazioni tema → Social media);
+  - prodotto, collezione, elenco collezioni, pagina, blog e articolo: BreadcrumbList (Home › Collezione › Prodotto, Home › Pagina,
+    Home › Blog › Articolo nei risultati; l'Article stesso è in main-article con il filtro structured_data). Il prodotto ha la collezione nel percorso solo se è stato aperto da una collezione
+    (URL /collections/…/products/…).
+  Tutti i valori passano da `| json`: escape corretto e JSON sempre valido.
+
+  Uso: {% render 'structured-data' %}
+{%- endcomment -%}
+{%- liquid
+  assign home_url = request.origin | append: routes.root_url
+-%}
+
+{%- if request.page_type == 'index' -%}
+  {%- liquid
+    # Solo i profili compilati (split ignora il separatore finale)
+    assign social_links = ''
+    assign candidates = settings.social_instagram_link | append: '|' | append: settings.social_facebook_link | append: '|' | append: settings.social_tiktok_link | append: '|' | append: settings.social_youtube_link | append: '|' | append: settings.social_x_link | append: '|' | append: settings.social_linkedin_link | split: '|'
+    for link in candidates
+      if link != blank
+        assign social_links = social_links | append: link | append: '|'
+      endif
+    endfor
+    assign same_as = social_links | split: '|'
+  -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": {{ home_url | append: '#website' | json }},
+          "name": {{ shop.name | json }},
+          "url": {{ home_url | json }},
+          "publisher": { "@id": {{ home_url | append: '#organization' | json }} }
+        },
+        {
+          "@type": "Organization",
+          "@id": {{ home_url | append: '#organization' | json }},
+          "name": {{ shop.name | json }},
+          "url": {{ home_url | json }}
+          {%- if shop.brand.logo %},
+          "logo": {{ shop.brand.logo | image_url: width: 600 | prepend: 'https:' | json }}
+          {%- endif %}
+          {%- if same_as.size > 0 %},
+          "sameAs": {{ same_as | json }}
+          {%- endif %}
+        }
+      ]
+    }
+  </script>
+
+{%- elsif request.page_type == 'product' or request.page_type == 'collection' or request.page_type == 'list-collections' or request.page_type == 'page' or request.page_type == 'blog' or request.page_type == 'article' -%}
+  {%- liquid
+    assign home_label = 'general.breadcrumbs.home' | t
+    assign position = 1
+  -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": {{ home_label | json }},
+          "item": {{ home_url | json }}
+        }
+        {%- if collection %},
+        {%- assign position = position | plus: 1 %}
+        {
+          "@type": "ListItem",
+          "position": {{ position }},
+          "name": {{ collection.title | json }},
+          "item": {{ request.origin | append: collection.url | json }}
+        }
+        {%- endif %}
+        {%- if request.page_type == 'product' %},
+        {%- assign position = position | plus: 1 %}
+        {
+          "@type": "ListItem",
+          "position": {{ position }},
+          "name": {{ product.title | json }},
+          "item": {{ request.origin | append: product.url | json }}
+        }
+        {%- elsif request.page_type == 'list-collections' %},
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ page_title | json }},
+          "item": {{ request.origin | append: routes.collections_url | json }}
+        }
+        {%- elsif request.page_type == 'page' %},
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ page.title | json }},
+          "item": {{ request.origin | append: page.url | json }}
+        }
+        {%- elsif request.page_type == 'blog' or request.page_type == 'article' %},
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ blog.title | json }},
+          "item": {{ request.origin | append: blog.url | json }}
+        }
+        {%- if request.page_type == 'article' %},
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": {{ article.title | json }},
+          "item": {{ request.origin | append: article.url | json }}
+        }
+        {%- endif %}
+        {%- endif %}
+      ]
+    }
+  </script>
+{%- endif -%}

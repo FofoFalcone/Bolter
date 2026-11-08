@@ -1,0 +1,204 @@
+{%- comment -%}
+  Pannello di una voce del menu principale (sections/header.liquid, blocks/_header-mega-menu.liquid).
+
+  Popover nativo (attributo popover, aperto dai pulsanti con popovertarget): apertura, chiusura con Esc o
+  click esterno e un solo pannello aperto alla volta funzionano anche senza JS. frontend/scripts/header.js
+  aggiunge apertura al passaggio del mouse, posizione (--header-bottom, --panel-left) e stato dell'header.
+
+  - Desktop (da 990px): 'columns' e 'tiles' = mega menu a tutta larghezza sotto l'header; 'compact' = tendina sotto la voce.
+  - Mobile e tablet: lo stesso pannello è il secondo livello del menu: entra da destra sopra il cassetto, con "Indietro".
+  - Contenuto in entrata con un leggero ritardo progressivo (solo CSS, @starting-style).
+
+  Parametri:
+  - link: voce di 1° livello del menu (obbligatorio)
+  - layout: 'columns' (titoli di colonna + link), 'tiles' (riquadri con immagine), 'compact' (elenco)
+  - cards: HTML delle card promo (blocchi _header-menu-card), facoltativo
+  - attributes: attributi extra sul pannello (block.shopify_attributes)
+
+  Uso: {% render 'header-panel', link: link, layout: 'columns' %}
+{%- endcomment -%}
+{%- liquid
+  assign key = link.title | handleize
+  assign panel_id = 'HeaderPanel-' | append: key
+  assign cards = cards | strip
+  assign title = link.title | escape
+
+  assign has_view_all = false
+  if link.url != blank and link.url != '#'
+    assign has_view_all = true
+  endif
+
+  if layout == 'compact'
+    assign desktop_class = 'lg:left-(--panel-left) lg:right-auto lg:mt-2 lg:w-64 lg:rounded-lg lg:border lg:border-border lg:p-2 lg:shadow-400'
+  else
+    assign desktop_class = 'lg:inset-x-0 lg:border-b lg:border-border lg:shadow-400'
+  endif
+-%}
+
+{%- capture reveal_class -%}
+  motion-safe:transition-[opacity,translate] motion-safe:delay-[calc(var(--i,0)*35ms+60ms)] motion-safe:duration-500 motion-safe:ease-theme motion-safe:starting:translate-y-2 motion-safe:starting:opacity-0
+{%- endcapture -%}
+
+<div
+  id="{{ panel_id }}"
+  popover
+  data-header-panel="{{ layout }}"
+  data-lenis-prevent
+  class="group/panel header-popover {{ desktop_class }}"
+  {{ attributes }}
+>
+  <div class="flex flex-col gap-6 px-6 py-6{% if layout == 'compact' %} lg:p-0{% else %} lg:page-width lg:flex-row lg:gap-12 lg:py-10{% endif %}">
+    {%- comment -%} Mobile: ritorno al primo livello e titolo della voce {%- endcomment -%}
+    <div class="flex flex-col items-start gap-4 lg:hidden">
+      <button
+        type="button"
+        popovertarget="{{ panel_id }}"
+        popovertargetaction="hide"
+        class="button button-subtle button-sm -ms-3.5"
+      >
+        {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+        {{- 'general.header.back' | t -}}
+      </button>
+      <h2 class="text-title-page text-foreground">{{ title }}</h2>
+    </div>
+
+    <div class="flex flex-col gap-8 lg:flex-1{% if layout == 'compact' %} lg:gap-1{% endif %}">
+      {%- comment -%} Voce senza sottomenu con un blocco Mega menu: solo "Vedi tutto" e card, niente lista vuota {%- endcomment -%}
+      {%- if link.links.size > 0 -%}
+      {%- case layout -%}
+        {%- when 'tiles' -%}
+          <ul class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] lg:gap-x-6" role="list">
+            {%- for child in link.links -%}
+              {%- liquid
+                assign tile_image = nil
+                case child.type
+                  when 'collection_link'
+                    assign tile_image = child.object.featured_image
+                  when 'product_link'
+                    assign tile_image = child.object.featured_image
+                  when 'article_link'
+                    assign tile_image = child.object.image
+                endcase
+              -%}
+              <li class="flex flex-col gap-3 {{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                <a
+                  href="{{ child.url }}"
+                  class="group/tile flex flex-col gap-3 rounded-lg"
+                  {% if child.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  <span class="block aspect-square overflow-hidden rounded-lg bg-surface">
+                    {%- if tile_image != blank -%}
+                      {{
+                        tile_image
+                        | image_url: width: 600
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '200, 300, 400, 600',
+                          sizes: '(min-width: 990px) 11rem, (min-width: 640px) 33vw, 50vw',
+                          alt: '',
+                          class: 'size-full object-cover transition-transform duration-700 ease-theme group-hover/tile:scale-105 motion-reduce:transition-none'
+                      }}
+                    {%- else -%}
+                      {%- assign placeholder = forloop.index0 | modulo: 6 | plus: 1 | prepend: 'collection-' -%}
+                      {{ placeholder | placeholder_svg_tag: 'size-full fill-subtle' }}
+                    {%- endif -%}
+                  </span>
+                  <span class="text-body font-semibold text-foreground underline-offset-4 group-hover/tile:underline">
+                    {{- child.title | escape -}}
+                  </span>
+                </a>
+                {%- if child.links.size > 0 -%}
+                  <ul class="flex flex-col gap-1.5" role="list">
+                    {%- for grandchild in child.links -%}
+                      <li>
+                        <a
+                          href="{{ grandchild.url }}"
+                          class="text-body-sm text-muted transition-colors hover:text-foreground{% if grandchild.current %} text-foreground{% endif %}"
+                          {% if grandchild.current %}
+                            aria-current="page"
+                          {% endif %}
+                        >
+                          {{- grandchild.title | escape -}}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+
+        {%- when 'columns' -%}
+          <ul class="grid gap-x-10 gap-y-8 lg:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))]" role="list">
+            {%- for child in link.links -%}
+              <li class="flex flex-col gap-3 {{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                <a
+                  href="{{ child.url }}"
+                  class="w-fit text-body font-semibold text-foreground underline-offset-4 hover:underline"
+                  {% if child.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  {{- child.title | escape -}}
+                </a>
+                {%- if child.links.size > 0 -%}
+                  <ul class="flex flex-col gap-2" role="list">
+                    {%- for grandchild in child.links -%}
+                      <li>
+                        <a
+                          href="{{ grandchild.url }}"
+                          class="text-body text-muted transition-colors hover:text-foreground{% if grandchild.current %} text-foreground{% endif %}"
+                          {% if grandchild.current %}
+                            aria-current="page"
+                          {% endif %}
+                        >
+                          {{- grandchild.title | escape -}}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+
+        {%- else -%}
+          <ul class="flex flex-col lg:gap-1" role="list">
+            {%- for child in link.links -%}
+              <li class="{{ reveal_class }}" style="--i: {{ forloop.index0 }};">
+                <a
+                  href="{{ child.url }}"
+                  class="flex items-center justify-between gap-2 border-b border-border py-4 text-subheading text-foreground lg:rounded-md lg:border-0 lg:px-3 lg:py-2 lg:text-body lg:transition-colors lg:hover:bg-surface{% if child.current %} lg:bg-surface{% endif %}"
+                  {% if child.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  {{- child.title | escape -}}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+      {%- endcase -%}
+      {%- endif -%}
+
+      {%- if has_view_all -%}
+        <a
+          href="{{ link.url }}"
+          class="group/all inline-flex w-fit items-center gap-1.5 text-body font-semibold text-foreground underline-offset-4 hover:underline{% if layout == 'compact' %} lg:px-3 lg:py-2{% endif %}"
+        >
+          {{- 'general.header.view_all' | t: title: title -}}
+          {% render 'icon', name: 'arrow-right', class: 'size-4 transition-transform group-hover/all:translate-x-0.5 motion-reduce:transition-none' %}
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- if cards != blank -%}
+      {%- comment -%} Card promo: scorrono in orizzontale su mobile, affiancate a destra su desktop (tra 990 e 1280px solo la prima, per lasciare spazio ai link) {%- endcomment -%}
+      <div class="-mx-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] lg:mx-0 lg:snap-none lg:overflow-visible lg:p-0 lg:shrink-0 lg:max-xl:[&>*:nth-child(n+2)]:hidden">
+        {{ cards }}
+      </div>
+    {%- endif -%}
+  </div>
+</div>

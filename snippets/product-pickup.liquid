@@ -1,0 +1,24 @@
+{%- comment -%}
+  Contenitore della disponibilità per il ritiro in negozio: <pickup-availability> (frontend/scripts/pickup-availability.js)
+  lo riempie con sections/pickup-availability.liquid, richiesta all'URL della variante come da documentazione Shopify.
+  Vuoto se la variante non è disponibile o se nessuna sede ha il ritiro attivo. Fa parte di quanto si aggiorna al
+  cambio variante (data-product-part): reinserito, il componente richiede i dati della nuova variante.
+
+  Parametri:
+  - product: prodotto (obbligatorio)
+  - variant: variante corrente (obbligatorio)
+  - attributes: attributi extra sul contenitore (es. block.shopify_attributes)
+
+  Uso: {% render 'product-pickup', product: product, variant: current_variant %}
+{%- endcomment -%}
+{%- comment -%} Nascosto da vuoto: nella colonna con gap non deve lasciare uno spazio doppio {%- endcomment -%}
+<div class="empty:hidden has-[pickup-availability:empty]:hidden" data-product-part="pickup" {{ attributes }}>
+  {%- if variant != blank and variant.available -%}
+    <pickup-availability
+      class="block"
+      data-variant-id="{{ variant.id }}"
+      data-root-url="{{ routes.root_url }}"
+      data-product-title="{{ product.title | escape }}"
+    ></pickup-availability>
+  {%- endif -%}
+</div>

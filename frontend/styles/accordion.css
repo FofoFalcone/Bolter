@@ -1,0 +1,26 @@
+/*
+ * Accordion — snippets/accordion-item.liquid + frontend/entrypoints/accordion.js
+ * Lo stile è nelle utility Tailwind del markup; qui solo la rotazione della freccia,
+ * che segue lo stato dell'animazione JS ([data-state]) oltre all'attributo [open] (caso senza JS).
+ * La transizione del colore (hover) sta qui con quella della rotazione: una utility transition-colors sul markup
+ * sostituirebbe l'intera transition e la freccia scatterebbe.
+ * Importato in theme.css (pochi byte): un <link> nella pagina prodotto bloccava il rendering prima della galleria.
+ */
+
+@layer components {
+  .accordion__icon {
+    transition:
+      rotate var(--transition-base),
+      color var(--transition-base);
+  }
+
+  .accordion__item[open]:not([data-state='closing']) .accordion__icon {
+    rotate: 180deg;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .accordion__icon {
+      transition: none;
+    }
+  }
+}

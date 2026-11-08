@@ -1,0 +1,221 @@
+{%- comment -%}
+  Contenitore delle section componibili: impila, mette in riga o divide in colonne i blocchi che contiene, anche altri
+  gruppi. Sotto i 750px le colonne diventano una pila.
+  --content-align (start | center | end) arriva da sections/content.liquid e vale sia per align-items e justify sia per
+  text-align: le parole chiave coincidono. Un gruppo può ridefinirla per i propri figli.
+{%- endcomment -%}
+{%- liquid
+  assign s = block.settings
+
+  case s.gap
+    when 'small'
+      assign gap_class = 'gap-2'
+    when 'large'
+      assign gap_class = 'gap-8 md:gap-12'
+    else
+      assign gap_class = 'gap-4'
+  endcase
+
+  case s.layout
+    when 'inline'
+      assign layout_class = 'flex flex-wrap items-center [justify-content:var(--content-align)]'
+    when 'columns'
+      assign layout_class = 'grid grid-cols-1 [justify-items:var(--content-align)] md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]'
+      case s.align_y
+        when 'center'
+          assign layout_class = layout_class | append: ' md:items-center'
+        when 'end'
+          assign layout_class = layout_class | append: ' md:items-end'
+        else
+          assign layout_class = layout_class | append: ' md:items-start'
+      endcase
+    else
+      assign layout_class = 'flex flex-col [align-items:var(--content-align)]'
+  endcase
+
+  case s.style
+    when 'surface'
+      assign style_class = 'rounded-lg bg-surface p-6 md:p-8'
+    when 'border'
+      assign style_class = 'rounded-lg border border-border p-6 md:p-8'
+    else
+      assign style_class = ''
+  endcase
+-%}
+<div
+  class="w-full min-w-0 [text-align:var(--content-align)] {{ layout_class }} {{ gap_class }} {{ style_class }}"
+  style="--columns: {{ s.columns }};{% if s.align != 'inherit' %} --content-align: {{ s.align }};{% endif %}"
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% schema %}
+{
+  "name": "t:blocks.group.name",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:blocks.group.settings.layout.label",
+      "options": [
+        {
+          "value": "stack",
+          "label": "t:blocks.group.settings.layout.options.stack"
+        },
+        {
+          "value": "inline",
+          "label": "t:blocks.group.settings.layout.options.inline"
+        },
+        {
+          "value": "columns",
+          "label": "t:blocks.group.settings.layout.options.columns"
+        }
+      ],
+      "default": "stack"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:blocks.group.settings.columns.label",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 2,
+      "visible_if": "{{ block.settings.layout == 'columns' }}"
+    },
+    {
+      "type": "select",
+      "id": "align_y",
+      "label": "t:blocks.group.settings.align_y.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:blocks.group.settings.align_y.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:blocks.group.settings.align_y.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:blocks.group.settings.align_y.options.end"
+        }
+      ],
+      "default": "start",
+      "visible_if": "{{ block.settings.layout == 'columns' }}"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "t:blocks.group.settings.align.label",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:blocks.group.settings.align.options.inherit"
+        },
+        {
+          "value": "start",
+          "label": "t:blocks.group.settings.align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:blocks.group.settings.align.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:blocks.group.settings.align.options.end"
+        }
+      ],
+      "default": "inherit"
+    },
+    {
+      "type": "select",
+      "id": "gap",
+      "label": "t:blocks.group.settings.gap.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:blocks.group.settings.gap.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:blocks.group.settings.gap.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:blocks.group.settings.gap.options.large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:blocks.group.settings.style.label",
+      "options": [
+        {
+          "value": "plain",
+          "label": "t:blocks.group.settings.style.options.plain"
+        },
+        {
+          "value": "surface",
+          "label": "t:blocks.group.settings.style.options.surface"
+        },
+        {
+          "value": "border",
+          "label": "t:blocks.group.settings.style.options.border"
+        }
+      ],
+      "default": "plain"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.group.presets.preset_1.name"
+    },
+    {
+      "name": "t:blocks.group.presets.preset_2.name",
+      "settings": {
+        "layout": "columns",
+        "columns": 2,
+        "gap": "large"
+      },
+      "blocks": [
+        {
+          "type": "text"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "t:blocks.group.presets.preset_3.name",
+      "settings": {
+        "layout": "inline"
+      },
+      "blocks": [
+        {
+          "type": "button"
+        },
+        {
+          "type": "button",
+          "settings": {
+            "variant": "neutral"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,281 @@
+{%- comment -%}
+  Transizioni tra pagine (Impostazioni tema → Transizioni tra pagine): View Transitions tra documenti, native del
+  browser (Chrome/Edge 126+, Safari 18.2+; altrove la navigazione resta normale). Reso nel <head> del layout.
+
+  - Attivazione: @view-transition { navigation: auto } su tutte le pagine, solo senza riduzione del movimento e
+    fuori dal theme editor. Effetti e durata: frontend/entrypoints/page-transitions.css (html[data-page-transition]),
+    caricato solo qui, cioè solo con le transizioni attive.
+  - Lo script inline deve stare qui: pagereveal arriva prima del primo rendering e prima dei bundle del tema.
+    Nomi view-transition-name assegnati solo durante la transizione e poi tolti (nessun effetto collaterale
+    sul layout, es. contesti di sovrapposizione o backdrop-filter):
+    · header e barra annunci restano fermi sopra la pagina che cambia;
+    · immagine condivisa (impostazione page_transition_shared_image): card prodotto (o anteprima rapida aperta)
+      → immagine principale della pagina prodotto (#ProductMediaMain) e ritorno alla card con "Indietro";
+      non con pixel e tendina a fasce, che coprono la pagina;
+      La "foto" di partenza resta piena per tutto il volo e l'arrivo le compare sopra (page-transition-media-in): se
+      all'arrivo l'immagine non è ancora caricata, holdUntilLoaded mette in pausa quell'animazione finché non è pronta
+      (al massimo HOLD_LIMIT ms, poi si vede il riquadro con il suo riflesso di caricamento). Un'animazione in pausa
+      tiene aperta la transizione, ma la pagina sotto è già viva. Il primo rendering col ritorno alla card aspetta
+      la fine di <main> (#MainEnd nel layout, link "expect" aggiunto qui solo in quel caso: expect si sblocca appena
+      l'elemento compare, quindi #MainContent non basterebbe): senza, la card può non esistere ancora in pagereveal;
+    · uscendo da un <dialog> aperto (anteprima rapida) header e barra annunci non si nominano in nessuna delle due
+      pagine: sulla vecchia sono sotto il velo, e quelli nuovi comparirebbero da soli prima della tendina;
+    · "Indietro" verso una pagina ripristinata dal bfcache con un <dialog> ancora aperto (dialog:modal in pagereveal):
+      l'immagine atterra nell'anteprima rapida, non sulla card che sta sotto il velo (nascosta da quick-view.js: la
+      foto resterebbe ferma sopra il pannello per tutta la transizione). Header e barra annunci sono sotto il velo: non
+      si nominano, e data-page-transition-under-dialog nasconde la "foto" di quelli della pagina vecchia;
+    · "Iride dal punto cliccato": il punto del clic passa alla pagina nuova in sessionStorage;
+    · "Indietro" nella cronologia: data-page-transition-direction="back" (tendine nel verso opposto).
+  - Pixel e tendina a fasce: tessere colorate create nella pagina nuova in pagereveal (contenitore fisso, ognuna con
+    il suo view-transition-name e view-transition-class "page-tile"), animate solo come "foto" della transizione:
+    coprono la pagina vecchia in ordine casuale (pixel) o a cascata (fasce), poi si ritirano sulla nuova.
+    Ritardi per tessera in un <style> generato; tessere e stile tolti a fine transizione.
+    Animazioni su ::view-transition-new(page-tile-N), MAI sul ::view-transition-group: il gruppo nasce in alto a
+    sinistra ed è portato al suo posto dal browser con `transform`, e `scale` si applica dopo `transform`, attorno al
+    centro di quel riquadro iniziale: la tessera arrivava dall'angolo in alto a sinistra crescendo e ci tornava
+    rimpicciolendo. L'immagine dentro il gruppo è già al suo posto e scala attorno al proprio centro.
+  - Mista: l'effetto si sceglie a caso lasciando la pagina (pageswap), mai uguale al precedente, e passa alla
+    pagina nuova in sessionStorage (così anche la pagina vecchia sa se usare l'immagine condivisa).
+  - Pagina prodotto: <link rel="expect"> rimanda il primo rendering finché esiste l'immagine principale
+    (in cima alla pagina), così pagereveal la trova per l'immagine condivisa.
+
+  Lo script è stampato in ogni pagina: niente commenti JavaScript al suo interno (arriverebbero al browser),
+  la documentazione sta in questo commento Liquid.
+
+  Uso: {% render 'page-transitions' %} nel <head>, dopo il CSS del tema.
+{%- endcomment -%}
+{%- liquid
+  assign effect = settings.page_transition
+  assign uses_tiles = false
+  if effect == 'pixels' or effect == 'stagger_wipe' or effect == 'mixed'
+    assign uses_tiles = true
+  endif
+-%}
+{%- if effect != 'none' and request.design_mode == false -%}
+  {%- comment -%} Effetti: CSS a parte, solo con le transizioni attive (bloccante nel <head>: serve al primo rendering) {%- endcomment -%}
+  {% render 'vite-tag', entry: 'page-transitions.css', preload_stylesheet: true %}
+  <style>
+    @media (prefers-reduced-motion: no-preference) {
+      @view-transition {
+        navigation: auto;
+      }
+    }
+    :root {
+      --page-transition-duration: {{ settings.page_transition_duration }}ms;
+    }
+  </style>
+
+  {%- if settings.page_transition_shared_image and template.name == 'product' -%}
+    <link rel="expect" href="#ProductMediaMain" blocking="render">
+  {%- endif -%}
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var KEY = 'bolt:page-transition';
+      var SETTING = {{ effect | json }};
+      var SHARED = {{ settings.page_transition_shared_image | json }};
+      var DURATION = {{ settings.page_transition_duration | json }};
+      var TILED = { pixels: true, stagger_wipe: true };
+      var MIXED = ['fade', 'wipe', 'clip_wipe', 'iris_click', 'blinds', 'shutter', 'doors', 'pixels', 'stagger_wipe'];
+      var HOLD_LIMIT = 1500;
+      var pointer = null;
+
+      function read() {
+        try { return JSON.parse(sessionStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+      }
+      function write(state) {
+        try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      }
+      function path(url) {
+        try { return new URL(url, location.href).pathname; } catch (e) { return ''; }
+      }
+      function isProduct(url) {
+        return /\/products\/[^/]+$/.test(path(url));
+      }
+      function visible(el) {
+        if (!el) return false;
+        var r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
+      }
+      function pick(previous) {
+        var choices = MIXED.filter(function (name) { return name !== previous; });
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+      function cardMedia(url, mustBeVisible) {
+        var cards = document.querySelectorAll('product-card[data-product-url]');
+        for (var i = 0; i < cards.length; i++) {
+          if (cards[i].closest('[aria-hidden="true"]') || path(cards[i].dataset.productUrl) !== path(url)) continue;
+          var media = cards[i].querySelector('[data-card-media]');
+          if (media && (!mustBeVisible || visible(media))) return media;
+        }
+        return null;
+      }
+      function name(pairs, done) {
+        pairs = pairs.filter(function (pair) { return pair[0]; });
+        pairs.forEach(function (pair) { pair[0].style.viewTransitionName = pair[1]; });
+        function clear() {
+          pairs.forEach(function (pair) { pair[0].style.viewTransitionName = ''; });
+        }
+        done.then(clear, clear);
+      }
+      function chrome() {
+        return [
+          [document.querySelector('.section-announcement-bar'), 'announcement-bar'],
+          [document.querySelector('.section-header'), 'site-header']
+        ];
+      }
+      function holdUntilLoaded(element, transition) {
+        transition.ready.then(function () {
+          var image = element.querySelector('img');
+          if (!image || image.complete) return;
+          var arrival = document.getAnimations().filter(function (animation) {
+            return animation.effect && animation.effect.pseudoElement === '::view-transition-new(product-media)';
+          })[0];
+          if (!arrival) return;
+          var start = performance.now();
+          arrival.pause();
+          function release() {
+            if (arrival.playState !== 'paused') return;
+            arrival.currentTime = Math.min(performance.now() - start, DURATION * 0.7);
+            arrival.play();
+          }
+          image.decode().then(release, release);
+          setTimeout(release, HOLD_LIMIT);
+        }).catch(function () {});
+      }
+      (function () {
+        var state = read();
+        if (!state.backToCard || path(location.href) !== path(state.to || '')) return;
+        var link = document.createElement('link');
+        link.rel = 'expect';
+        link.href = '#MainEnd';
+        link.setAttribute('blocking', 'render');
+        document.head.appendChild(link);
+      })();
+      {%- if uses_tiles %}
+
+      function tiles(effect, back, done) {
+        var total = DURATION * 1.6;
+        var columns, rows, timing;
+        if (effect === 'pixels') {
+          columns = innerWidth >= innerHeight ? 12 : 7;
+          rows = Math.ceil(columns * innerHeight / innerWidth);
+          timing = function () {
+            return { a: Math.random() * 0.3 * total, b: (0.55 + Math.random() * 0.25) * total, d: 0.2 * total };
+          };
+        } else {
+          columns = innerWidth >= 750 ? 8 : 5;
+          rows = 1;
+          timing = function (index) {
+            var step = (back ? columns - 1 - index : index) / (columns - 1);
+            return { a: step * 0.25 * total, b: (0.55 + step * 0.2) * total, d: 0.25 * total };
+          };
+        }
+
+        var layer = document.createElement('div');
+        layer.setAttribute('aria-hidden', 'true');
+        layer.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;display:grid;' +
+          'grid-template-columns:repeat(' + columns + ',1fr);grid-template-rows:repeat(' + rows + ',1fr)';
+        var css = '';
+        for (var i = 0; i < columns * rows; i++) {
+          var tile = document.createElement('div');
+          tile.style.cssText = 'background:var(--color-primary);view-transition-name:page-tile-' + i + ';view-transition-class:page-tile';
+          layer.appendChild(tile);
+          var t = timing(i % columns);
+          css += '::view-transition-new(page-tile-' + i + '){animation:page-transition-' + effect + '-in ' + t.d + 'ms var(--ease-theme) ' + t.a +
+            'ms both,page-transition-' + effect + '-out ' + t.d + 'ms var(--ease-theme) ' + t.b + 'ms forwards}';
+        }
+        var style = document.createElement('style');
+        style.textContent = css;
+        document.head.appendChild(style);
+        (document.body || root).appendChild(layer);
+        function clear() {
+          layer.remove();
+          style.remove();
+        }
+        done.then(clear, clear);
+      }
+      {%- endif %}
+
+      addEventListener('click', function (event) {
+        pointer = event.detail ? { x: event.clientX, y: event.clientY } : null;
+      }, true);
+
+      addEventListener('pageswap', function (event) {
+        if (!event.viewTransition || !event.activation) return;
+        var to = event.activation.entry.url;
+        var state = read();
+        var effect = SETTING === 'mixed' ? pick(state.effect) : SETTING;
+        var shared = SHARED && !TILED[effect];
+        var modal = Boolean(document.querySelector('dialog:modal'));
+        var pairs = modal ? [] : chrome();
+        var next = { to: to, from: location.href, effect: effect, x: pointer && pointer.x, y: pointer && pointer.y, modal: modal };
+
+        if (shared && isProduct(to)) {
+          var quickView = document.querySelector('dialog[open] [data-quick-view-media]');
+          var source = quickView || cardMedia(to, true);
+          if (source) {
+            pairs.push([source, 'product-media']);
+            next.shared = true;
+          }
+        }
+        var main = document.getElementById('ProductMediaMain');
+        if (shared && main && state.cardPage && path(state.cardPage) === path(to) && visible(main)) {
+          pairs.push([main, 'product-media']);
+          next.shared = true;
+          next.backToCard = location.href;
+        }
+
+        write(next);
+        name(pairs, event.viewTransition.finished);
+      });
+
+      addEventListener('pagereveal', function (event) {
+        if (!event.viewTransition) return;
+        var state = read();
+        var here = path(location.href) === path(state.to || '');
+        var effect = SETTING === 'mixed' ? (here && state.effect) || pick(state.effect) : SETTING;
+        var dialog = document.querySelector('dialog:modal');
+        var pairs = dialog || (here && state.modal) ? [] : chrome();
+        var sharedElement = null;
+        if (dialog) root.dataset.pageTransitionUnderDialog = 'true';
+
+        var activation = window.navigation && navigation.activation;
+        var back = Boolean(activation && activation.navigationType === 'traverse' && activation.from && activation.entry.index < activation.from.index);
+        if (back) root.dataset.pageTransitionDirection = 'back';
+        if (SETTING === 'mixed') root.dataset.pageTransition = effect;
+        if (here && state.x != null) {
+          root.style.setProperty('--page-transition-x', state.x + 'px');
+          root.style.setProperty('--page-transition-y', state.y + 'px');
+        }
+
+        if (SHARED && here && state.shared && !TILED[effect]) {
+          if (state.backToCard) {
+            sharedElement = dialog ? dialog.querySelector('[data-quick-view-media]') : cardMedia(state.backToCard, false);
+          } else {
+            sharedElement = document.getElementById('ProductMediaMain');
+            if (sharedElement) write({ cardPage: state.from, effect: effect });
+          }
+          if (sharedElement) {
+            pairs.push([sharedElement, 'product-media']);
+            holdUntilLoaded(sharedElement, event.viewTransition);
+          }
+        }
+        {%- if uses_tiles %}
+        if (TILED[effect]) tiles(effect, back, event.viewTransition.finished);
+        {%- endif %}
+
+        name(pairs, event.viewTransition.ready);
+        function reset() {
+          delete root.dataset.pageTransitionDirection;
+          delete root.dataset.pageTransitionUnderDialog;
+          if (SETTING === 'mixed') root.dataset.pageTransition = SETTING;
+          root.style.removeProperty('--page-transition-x');
+          root.style.removeProperty('--page-transition-y');
+        }
+        event.viewTransition.finished.then(reset, reset);
+      });
+    })();
+  </script>
+{%- endif -%}

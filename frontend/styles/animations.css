@@ -1,0 +1,14 @@
+/*
+ * Stato iniziale degli elementi animati con Motion (frontend/scripts/animations.js).
+ *
+ * Gli elementi vengono nascosti solo se:
+ * - il JS è attivo (classe .js su <html>, impostata da uno script inline nel layout);
+ * - l'utente non ha richiesto movimento ridotto.
+ * In tutti gli altri casi restano visibili e statici.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-animate],
+  .js [data-animate-stagger] > * {
+    opacity: 0;
+  }
+}

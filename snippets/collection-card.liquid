@@ -1,0 +1,66 @@
+{%- comment -%}
+  Card di una collezione (pagina elenco collezioni, section collection-list): immagine (della collezione o del primo prodotto), titolo e numero
+  di prodotti. Tutta la card è un unico link.
+
+  Parametri:
+  - collection: collezione (obbligatorio)
+  - ratio_class: classe del rapporto d'aspetto (default aspect-square)
+  - full_width: true se la card sta in una section a tutta larghezza: aggiunge formati più grandi all'immagine
+  - sizes: attributo sizes dell'immagine
+  - show_count: true per il numero di prodotti
+  - loading: 'lazy' (default) o 'eager'
+  - fetchpriority: 'auto' (default) o 'high' per l'immagine LCP
+
+  Uso: {% render 'collection-card', collection: collection, sizes: sizes, show_count: true %}
+{%- endcomment -%}
+{%- liquid
+  assign image_max = 1200
+  assign image_widths = '300, 450, 600, 800, 1000, 1200'
+  if full_width
+    assign image_max = 2000
+    assign image_widths = image_widths | append: ', 1600, 2000'
+  endif
+  assign ratio_class = ratio_class | default: 'aspect-square'
+  assign loading = loading | default: 'lazy'
+  assign fetchpriority = fetchpriority | default: 'auto'
+  assign image = collection.featured_image
+  assign alt = image.alt | default: collection.title
+-%}
+<a
+  href="{{ collection.url }}"
+  class="group flex flex-col gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+>
+  <span class="media-loading relative block overflow-hidden rounded-lg bg-surface {{ ratio_class }}">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: image_max
+        | image_tag:
+          loading: loading,
+          fetchpriority: fetchpriority,
+          sizes: sizes,
+          widths: image_widths,
+          alt: alt,
+          class: 'size-full object-cover transition-transform duration-500 ease-theme motion-safe:group-hover:scale-105'
+      }}
+    {%- else -%}
+      {{ 'collection-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
+    {%- endif -%}
+  </span>
+  <span class="flex items-start justify-between gap-3">
+    <span class="flex min-w-0 flex-col gap-1">
+      <span class="text-subheading font-semibold text-balance text-foreground underline-offset-4 group-hover:underline">
+        {{- collection.title | escape -}}
+      </span>
+      {%- if show_count -%}
+        <span class="text-body-sm text-foreground/80">
+          {{- 'sections.collection.products_count' | t: count: collection.all_products_count -}}
+        </span>
+      {%- endif -%}
+    </span>
+    {% render 'icon',
+      name: 'arrow-right',
+      class: 'mt-1 size-5 shrink-0 text-foreground transition-transform duration-200 ease-theme motion-safe:group-hover:translate-x-1'
+    %}
+  </span>
+</a>

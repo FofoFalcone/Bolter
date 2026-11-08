@@ -1,0 +1,332 @@
+/*
+ * Componenti base del tema dal Simple Design System (Figma), come utility Tailwind (@utility):
+ * si usano nel Liquid come le altre classi e supportano le varianti (hover:, md:, …).
+ *
+ *   <a class="button button-primary">…</a>
+ *   <a class="button button-primary button-lg">…</a>                 azione principale (hero, carrello, checkout)
+ *   <a class="button button-neutral button-sm">…</a>
+ *   <button class="button button-subtle button-sm button-icon">…</button>   solo icona (quadrato o cerchio)
+ *   <a class="button button-inverse focus-visible:outline-white">…</a>      sopra immagini scure
+ */
+
+/*
+ * Button. Rispetto al SDS (padding 12 uniforme, radius 8, peso regolare): proporzioni orizzontali,
+ * altezza minima di 44px (area di tocco), testo semibold, forma scelta dal merchant
+ * (Impostazioni tema → Pulsanti → --radius-button), profondità leggera sul primario.
+ *
+ * Architettura: `button` legge tutto da variabili --button-*; taglie e varianti impostano solo variabili.
+ * Regola: due utility combinabili non devono mai impostare la stessa variabile (Tailwind ordina le
+ * @utility a modo suo, non in base all'ordine delle classi). Le utility Tailwind sul markup
+ * (w-full, shadow-*, rounded-*) sovrascrivono sempre le proprietà.
+ */
+@utility button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  min-height: var(--button-size, calc(var(--spacing) * 11));
+  /* L'altezza la dà min-height (contenuto centrato): il padding verticale è solo un margine di sicurezza */
+  padding-block: var(--spacing);
+  /* --button-text: 0 in button-icon. Variabile separata da --button-px (impostata dalle taglie), così
+     button-sm + button-icon non dipende dall'ordine in cui Tailwind emette le due utility. */
+  padding-inline: calc(var(--button-px, calc(var(--spacing) * 5)) * var(--button-text, 1));
+  font-size: var(--button-font-size, var(--text-body));
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--button-fg, inherit);
+  background-color: var(--button-bg, transparent);
+  border: 1px solid var(--button-border, transparent);
+  border-radius: var(--radius-button);
+  box-shadow: var(--button-shadow, none);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base),
+    scale 150ms var(--ease-theme);
+
+  /* Solo con un puntatore che supporta l'hover: sul touch lo stato non resta "appiccicato" */
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--button-bg-hover, var(--button-bg, transparent));
+      border-color: var(--button-border-hover, var(--button-border, transparent));
+    }
+  }
+
+  /* Riscontro tattile alla pressione */
+  @media (prefers-reduced-motion: no-preference) {
+    &:active {
+      scale: 0.97;
+    }
+  }
+
+  /* Le icone Heroicons non hanno dimensioni intrinseche: senza questo il flex le comprimerebbe */
+  & svg {
+    flex-shrink: 0;
+  }
+
+  /*
+   * In attesa (aggiungi al carrello, invio, codice sconto): tre puntini al posto dell'etichetta, che resta per i
+   * lettori di schermo e tiene la larghezza del pulsante. Ritmo dell'esempio Motion "Pulse dots" (1,2s, sfasamento
+   * 0,2s, scala 1 → 1,5): qui con background-size su un solo pseudo-elemento, così nessun markup in ogni pulsante.
+   */
+  &[aria-busy='true'] {
+    position: relative;
+    cursor: progress;
+    color: transparent;
+
+    &::after {
+      --button-dot: radial-gradient(circle closest-side, var(--button-fg, currentColor) 92%, transparent);
+      content: '';
+      position: absolute;
+      inset: 0;
+      width: calc(var(--spacing) * 9);
+      height: calc(var(--spacing) * 3);
+      margin: auto;
+      background:
+        var(--button-dot) 0 50% / 0.375rem 0.375rem no-repeat,
+        var(--button-dot) 50% 50% / 0.375rem 0.375rem no-repeat,
+        var(--button-dot) 100% 50% / 0.375rem 0.375rem no-repeat;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      &::after {
+        animation: button-dots 1.2s linear infinite;
+      }
+    }
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    --button-fg: var(--color-subtle);
+    --button-bg: var(--color-surface);
+    --button-border: transparent;
+    --button-shadow: none;
+    pointer-events: none;
+  }
+}
+
+/* Taglie: Small 36px (header, controlli), Large 52px (azione principale della pagina) */
+@utility button-sm {
+  --button-size: calc(var(--spacing) * 9);
+  --button-px: calc(var(--spacing) * 3.5);
+  --button-font-size: var(--text-body-sm);
+}
+
+@utility button-lg {
+  --button-size: calc(var(--spacing) * 13);
+  --button-px: calc(var(--spacing) * 7);
+}
+
+/* Solo icona: quadrato della taglia corrente (cerchio con la forma "pillola"). Testo per i lettori di schermo in sr-only o aria-label. */
+@utility button-icon {
+  --button-text: 0;
+  width: var(--button-size, calc(var(--spacing) * 11));
+  flex-shrink: 0;
+}
+
+/* Variant=Primary: pieno, con riflesso interno e ombra minima */
+@utility button-primary {
+  --button-fg: var(--color-primary-foreground);
+  --button-bg: var(--color-primary);
+  --button-bg-hover: var(--color-primary-hover);
+  --button-border: var(--color-primary);
+  --button-border-hover: var(--color-primary-hover);
+  --button-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--color-white) 14%, transparent), var(--shadow-100);
+}
+
+/* Variant=Neutral (secondario): contorno sottile su fondo pagina, si riempie all'hover */
+@utility button-neutral {
+  --button-fg: var(--color-foreground);
+  --button-bg: var(--color-background);
+  --button-bg-hover: var(--color-surface);
+  --button-border: var(--color-border);
+  --button-border-hover: var(--color-neutral-subtle);
+  --button-shadow: var(--shadow-100);
+}
+
+/* Variant=Subtle: senza fondo né bordo (azioni secondarie, icone dell'header) */
+@utility button-subtle {
+  --button-fg: var(--color-foreground);
+  --button-bg-hover: var(--color-surface);
+}
+
+/*
+ * Varianti per pulsanti sopra immagini/video scuri (hero, banner): non sono nel SDS, che non prevede
+ * sfondi fotografici. Da usare con focus-visible:outline-white, l'outline di base è scuro.
+ */
+
+/* Primario invertito: bianco pieno, testo scuro. Colori fissi: sta su una foto, non deve seguire la palette */
+@utility button-inverse {
+  --button-fg: var(--color-black);
+  --button-bg: var(--color-white);
+  --button-bg-hover: color-mix(in srgb, var(--color-white) 90%, var(--color-black));
+  --button-border: var(--color-white);
+  --button-border-hover: color-mix(in srgb, var(--color-white) 90%, var(--color-black));
+  --button-shadow: var(--shadow-200);
+}
+
+/* Secondario "vetro": trasparente con sfocatura dello sfondo, resta leggibile su qualsiasi immagine */
+@utility button-glass {
+  --button-fg: var(--color-white);
+  --button-bg: color-mix(in oklab, var(--color-white) 12%, transparent);
+  --button-bg-hover: color-mix(in oklab, var(--color-white) 24%, transparent);
+  --button-border: color-mix(in oklab, var(--color-white) 45%, transparent);
+  --button-border-hover: color-mix(in oklab, var(--color-white) 70%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+/*
+ * Casella di spunta: stile nativo tolto, riscontro alla pressione. Sul contenitore (relative, size-5) va anche la
+ * spunta, un'icona con check-tick che segue la casella: <input class="peer checkbox"> + icona `check`.
+ * Stati legati al contesto (group-hover:, user-invalid:, disabled:) restano varianti nel markup.
+ */
+@utility checkbox {
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+  appearance: none;
+  cursor: inherit;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    scale 150ms var(--ease-theme);
+
+  &:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &:active {
+      scale: 0.9;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Spunta che si scopre da sinistra a destra. Il ritaglio resta anche con movimento ridotto: cambia solo senza transizione */
+@utility check-tick {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 200ms var(--ease-theme);
+
+  .peer:checked ~ & {
+    clip-path: inset(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/*
+ * Tooltip solo CSS: <span class="tooltip" aria-hidden="true"> dentro un genitore `relative`, che ha già lo stesso testo
+ * come nome accessibile. Compare con l'hover (solo con un puntatore che lo supporta) e col focus da tastiera. WCAG 1.4.13:
+ * si può passare sopra al testo (::after copre lo spazio dal controllo) ed Esc lo nasconde (frontend/scripts/tooltips.js).
+ * Non nei contenitori con overflow nascosto o scorrevoli: verrebbe tagliato (card prodotto: resta `title`).
+ * --tooltip-x: spostamento orizzontale rispetto al centro del genitore.
+ */
+@utility tooltip {
+  position: absolute;
+  inset-block: var(--tooltip-top, auto) var(--tooltip-bottom, calc(100% + var(--spacing) * 2));
+  left: 50%;
+  z-index: 30;
+  translate: var(--tooltip-x, -50%) 0;
+  width: max-content;
+  max-width: 16rem;
+  padding: var(--spacing) calc(var(--spacing) * 2);
+  font-size: var(--text-body-sm);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: normal;
+  white-space: normal;
+  color: var(--color-background);
+  background-color: var(--color-foreground);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-200);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: var(--tooltip-bridge, 100%);
+    height: calc(var(--spacing) * 2);
+  }
+
+  @media (hover: hover) {
+    :hover > & {
+      opacity: 1;
+      pointer-events: auto;
+      transition-delay: 150ms;
+    }
+  }
+
+  :focus-visible > &,
+  :has(> :focus-visible) > & {
+    opacity: 1;
+  }
+
+  html[data-tooltips-dismissed] & {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0ms;
+  }
+}
+
+/* Sotto il controllo, per ciò che sta in cima allo schermo (header, comandi del lightbox) */
+@utility tooltip-below {
+  --tooltip-top: calc(100% + var(--spacing) * 2);
+  --tooltip-bottom: auto;
+  --tooltip-bridge: calc(var(--spacing) * -2);
+}
+
+/*
+ * Pulsanti di pagamento rapido (form | payment_button): sono in uno shadow DOM chiuso, si stilizzano solo
+ * con le variabili ufficiali. Stessa forma e altezza di button-lg, scheletro di caricamento con i colori del tema.
+ * https://shopify.dev/docs/storefronts/themes/pricing-payments/accelerated-checkout
+ */
+@layer components {
+  shopify-accelerated-checkout,
+  shopify-accelerated-checkout-cart {
+    --shopify-accelerated-checkout-button-border-radius: var(--radius-button);
+    --shopify-accelerated-checkout-button-block-size: calc(var(--spacing) * 13);
+    --shopify-accelerated-checkout-skeleton-background-color: var(--color-surface);
+  }
+}
+
+/* Colori dei contenuti richtext del merchant per la utility `prose` (frontend/styles/prose.css) */
+@utility prose-theme {
+  --tw-prose-body: var(--color-foreground);
+  --tw-prose-headings: var(--color-foreground);
+  --tw-prose-lead: var(--color-muted);
+  --tw-prose-links: var(--color-foreground);
+  --tw-prose-bold: var(--color-foreground);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-border-strong);
+  --tw-prose-hr: var(--color-border);
+  --tw-prose-quotes: var(--color-foreground);
+  --tw-prose-quote-borders: var(--color-border);
+  --tw-prose-captions: var(--color-muted);
+  --tw-prose-code: var(--color-foreground);
+  --tw-prose-pre-code: var(--color-primary-foreground);
+  --tw-prose-pre-bg: var(--color-primary);
+  --tw-prose-th-borders: var(--color-border-strong);
+  --tw-prose-td-borders: var(--color-border);
+}

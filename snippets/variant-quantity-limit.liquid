@@ -1,0 +1,30 @@
+{%- comment -%}
+  Quante unità di una variante si possono ancora aggiungere al carrello. Stampa solo il numero, oppure niente se non c'è
+  limite: si usa con {% capture %} (i render non restituiscono variabili). Unico punto di calcolo per product-quantity,
+  product-buy-buttons e cart-line-items.
+
+  Limite = il più basso tra il massimo della regola di quantità e la giacenza, meno le unità già nel carrello.
+  La giacenza conta solo se Shopify la traccia e la vendita si ferma a esaurimento (inventory_policy "deny"):
+  senza tracciamento o con "continua a vendere" inventory_quantity non è un limite.
+  Il numero finisce nell'HTML (attributo max del campo quantità): nascondere il messaggio non lo toglie dalla pagina.
+  La verifica definitiva resta del server: la giacenza può cambiare dopo il rendering.
+
+  Parametri:
+  - variant: variante (può essere vuota: combinazione inesistente, riga senza variante)
+
+  Uso: {%- capture limit -%}{% render 'variant-quantity-limit', variant: variant %}{%- endcapture -%}
+{%- endcomment -%}
+{%- liquid
+  if variant != blank
+    assign limit = variant.quantity_rule.max
+    if variant.inventory_management != blank and variant.inventory_policy == 'deny'
+      if limit == blank or variant.inventory_quantity < limit
+        assign limit = variant.inventory_quantity
+      endif
+    endif
+    if limit != blank
+      assign in_cart = cart | item_count_for_variant: variant.id
+      echo limit | minus: in_cart | at_least: 0
+    endif
+  endif
+-%}

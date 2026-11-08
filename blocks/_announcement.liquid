@@ -1,0 +1,98 @@
+{%- comment -%}
+  Messaggio della barra annunci (figlio di sections/announcement-bar.liquid).
+  Tutti i messaggi stanno nella stessa cella della griglia; frontend/entrypoints/announcement-bar.js li fa
+  ruotare cambiando data-state (active | before | after). Senza JS è visibile solo il primo.
+
+  Impostazione "Messaggio": i testi già pronti stanno nei file di lingua del negozio, quindi seguono la lingua del cliente
+  e il merchant li cambia da "Modifica contenuti predefiniti del tema". Quello personalizzato è una sola stringa nel JSON
+  del gruppo: per le altre lingue va tradotto dall'admin.
+{%- endcomment -%}
+{%- liquid
+  assign link = block.settings.link
+  assign first = false
+  if section.blocks.first.id == block.id
+    assign first = true
+  endif
+  case block.settings.message
+    when 'free_shipping'
+      assign text = 'sections.announcement_bar.messages.free_shipping' | t
+    when 'returns'
+      assign text = 'sections.announcement_bar.messages.returns' | t
+    else
+      assign text = block.settings.text
+  endcase
+-%}
+<div
+  data-announcement
+  data-state="{% if first %}active{% else %}after{% endif %}"
+  role="group"
+  aria-roledescription="{{ 'sections.announcement_bar.slide' | t }}"
+  {% unless first %}
+    aria-hidden="true"
+  {% endunless %}
+  class="col-start-1 row-start-1 flex items-center justify-center text-center transition-[opacity,translate,visibility] duration-500 ease-theme data-[state=after]:invisible data-[state=after]:translate-y-2 data-[state=after]:opacity-0 data-[state=before]:invisible data-[state=before]:-translate-y-2 data-[state=before]:opacity-0 motion-reduce:transition-none"
+  {{ block.shopify_attributes }}
+>
+  {%- if link != blank -%}
+    <a
+      href="{{ link }}"
+      class="group/announcement inline-flex items-center gap-1.5 rounded-sm underline-offset-4 hover:underline focus-visible:outline-current"
+      {% unless first %}
+        tabindex="-1"
+      {% endunless %}
+    >
+      <span>{{ text }}</span>
+      {% render 'icon', name: 'arrow-right', class: 'size-4 shrink-0 transition-transform group-hover/announcement:translate-x-0.5 motion-reduce:transition-none' %}
+    </a>
+  {%- else -%}
+    <p>{{ text }}</p>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:blocks.announcement.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "message",
+      "label": "t:blocks.announcement.settings.message.label",
+      "info": "t:blocks.announcement.settings.message.info",
+      "options": [
+        {
+          "value": "custom",
+          "label": "t:blocks.announcement.settings.message.options.custom"
+        },
+        {
+          "value": "free_shipping",
+          "label": "t:blocks.announcement.settings.message.options.free_shipping"
+        },
+        {
+          "value": "returns",
+          "label": "t:blocks.announcement.settings.message.options.returns"
+        }
+      ],
+      "default": "custom"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "t:blocks.announcement.settings.text.label",
+      "default": "t:blocks.announcement.settings.text.default",
+      "visible_if": "{{ block.settings.message == 'custom' }}"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:blocks.announcement.settings.link.label",
+      "info": "t:blocks.announcement.settings.link.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.announcement.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

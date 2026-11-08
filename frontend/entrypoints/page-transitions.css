@@ -1,0 +1,304 @@
+/*
+ * Transizioni tra pagine (View Transitions tra documenti) — effetti scelti in Impostazioni tema → Transizioni tra
+ * pagine (html[data-page-transition]). Attivazione, nomi temporanei e direzione: snippets/page-transitions.liquid.
+ *
+ * Implementazione originale del tema: riprende le idee degli esempi "Curtains" di Motion+ (wipe, clip wipe, iris,
+ * blinds, shutter, doors, pixels, stagger wipe) senza usarne il codice. Tutto avviene quando la pagina nuova è già
+ * pronta (nessuna attesa in più prima della navigazione): la pagina nuova si rivela sopra la "foto" della vecchia,
+ * che arretra appena; pixel e tendina a fasce coprono la vecchia con tessere e si ritirano sulla nuova.
+ * "Mista": lo script imposta a ogni navigazione uno degli effetti in data-page-transition.
+ *
+ * - Durata da impostazione (--page-transition-duration), easing del tema.
+ * - Header e barra annunci (gruppi site-header / announcement-bar) restano sopra la pagina che cambia.
+ * - Immagine condivisa card → pagina prodotto (gruppo product-media): ritagliata come object-fit: cover mentre
+ *   cambia proporzioni. La "foto" di partenza resta piena per tutto il volo e quella d'arrivo le compare sopra solo
+ *   quando l'immagine nuova è arrivata (lo script mette in pausa page-transition-media-in finché non lo è).
+ * - Tutte le rivelazioni con clip-path passano da --page-transition-progress, MAI con clip-path nei keyframe: con il
+ *   main thread occupato Chrome può disegnare, alla chiusura, un fotogramma con un ritaglio vecchio e la tendina
+ *   ricompare a transizione finita (misurato il 2026-11-05 su 30 navigazioni: 2-4 flash con wipe, clip_wipe, doors,
+ *   iris; 0 con la proprietà registrata o togliendo il clip-path dal compositor. Causa dedotta, non documentata).
+ * - data-page-transition-direction="back" ("Indietro" nella cronologia): tendine nel verso opposto.
+ * - Senza supporto del browser o con riduzione del movimento queste regole non si applicano mai.
+ *
+ * Entrypoint a parte (non in theme.css): caricato nel <head> da snippets/page-transitions.liquid solo se le
+ * transizioni sono attive (0,8 kB gzip in meno sul CSS globale quando sono spente). Deve restare un CSS bloccante
+ * nel <head>: pagereveal arriva prima del primo rendering e le regole devono esserci già.
+ */
+
+/* Avanzamento delle rivelazioni (proprietà registrata: animabile dentro clip-path e mask-image) */
+@property --page-transition-progress {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@layer components {
+  :root {
+    --page-transition-x: 50%;
+    --page-transition-y: 50%;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: var(--page-transition-duration, 400ms);
+    animation-timing-function: var(--ease-theme);
+  }
+
+  /* Header e barra annunci sempre sopra il resto, anche sopra l'immagine condivisa in volo */
+  ::view-transition-group(site-header),
+  ::view-transition-group(announcement-bar) {
+    z-index: 2;
+  }
+
+  /* Ritorno su una pagina con un <dialog> ancora aperto (bfcache): header e barra annunci nuovi sono sotto il velo,
+     e la "foto" di quelli della pagina vecchia non deve restare sopra il pannello mentre sfuma */
+  html[data-page-transition-under-dialog]::view-transition-group(site-header),
+  html[data-page-transition-under-dialog]::view-transition-group(announcement-bar) {
+    display: none;
+  }
+
+  /* Immagine condivisa: riempie il riquadro mentre passa dalle proporzioni della card a quelle del prodotto */
+  ::view-transition-image-pair(product-media) {
+    overflow: clip;
+  }
+
+  ::view-transition-old(product-media),
+  ::view-transition-new(product-media) {
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: normal;
+  }
+
+  /* Niente dissolvenza incrociata: l'arrivo può essere ancora vuoto, e l'immagine sparirebbe a metà del volo */
+  ::view-transition-old(product-media) {
+    animation: none;
+  }
+
+  ::view-transition-new(product-media) {
+    animation: page-transition-media-in var(--page-transition-duration, 400ms) linear both;
+  }
+
+  /* La card d'arrivo non c'è (es. non più in pagina): la foto sparisce subito, non resta sospesa sulla pagina */
+  ::view-transition-old(product-media):only-child {
+    animation: page-transition-media-out 200ms ease-out both;
+  }
+
+  /* ---------------------------------------------------------------- Rivelazioni */
+
+  /* Pagina vecchia: resta ferma sotto e arretra appena (profondità), senza dissolversi */
+  html:is(
+      [data-page-transition='wipe'],
+      [data-page-transition='clip_wipe'],
+      [data-page-transition='iris'],
+      [data-page-transition='iris_click'],
+      [data-page-transition='blinds'],
+      [data-page-transition='shutter'],
+      [data-page-transition='doors']
+    )::view-transition-old(root) {
+    animation-name: page-transition-recede;
+    animation-fill-mode: both;
+    mix-blend-mode: normal;
+  }
+
+  html:is(
+      [data-page-transition='wipe'],
+      [data-page-transition='clip_wipe'],
+      [data-page-transition='iris'],
+      [data-page-transition='iris_click'],
+      [data-page-transition='blinds'],
+      [data-page-transition='shutter'],
+      [data-page-transition='doors']
+    )::view-transition-new(root) {
+    animation-fill-mode: both;
+    mix-blend-mode: normal;
+  }
+
+  /* Tendina: da sinistra (avanti) o da destra (indietro) */
+  html[data-page-transition='wipe']::view-transition-new(root) {
+    clip-path: inset(0 calc(100% - var(--page-transition-progress)) 0 0);
+    animation-name: page-transition-progress;
+  }
+
+  html[data-page-transition='wipe'][data-page-transition-direction='back']::view-transition-new(root) {
+    clip-path: inset(0 0 0 calc(100% - var(--page-transition-progress)));
+  }
+
+  /* Tendina diagonale: bordo inclinato del 30%, parte e finisce fuori dallo schermo */
+  html[data-page-transition='clip_wipe']::view-transition-new(root) {
+    clip-path: polygon(
+      0 0,
+      calc(var(--page-transition-progress) * 1.3) 0,
+      calc(var(--page-transition-progress) * 1.3 - 30%) 100%,
+      0 100%
+    );
+    animation-name: page-transition-progress;
+  }
+
+  html[data-page-transition='clip_wipe'][data-page-transition-direction='back']::view-transition-new(root) {
+    clip-path: polygon(
+      100% 0,
+      calc(100% - var(--page-transition-progress) * 1.3) 0,
+      calc(130% - var(--page-transition-progress) * 1.3) 100%,
+      100% 100%
+    );
+  }
+
+  /* Iride: dal centro, o dal punto cliccato (--page-transition-x/y dallo script). Fino al 150%: raggio sufficiente a
+     coprire la finestra anche partendo da un angolo */
+  html:is([data-page-transition='iris'], [data-page-transition='iris_click'])::view-transition-new(root) {
+    clip-path: circle(calc(var(--page-transition-progress) * 1.5) at var(--page-transition-x) var(--page-transition-y));
+    animation-name: page-transition-progress;
+  }
+
+  html[data-page-transition='iris']::view-transition-new(root) {
+    --page-transition-x: 50%;
+    --page-transition-y: 50%;
+  }
+
+  /* Persiane: stecche verticali che si allargano nel verso della navigazione */
+  html[data-page-transition='blinds']::view-transition-new(root) {
+    mask-image: repeating-linear-gradient(90deg, #000 0 calc(var(--page-transition-progress) / 8), transparent 0 12.5%);
+    animation-name: page-transition-progress;
+  }
+
+  html[data-page-transition='blinds'][data-page-transition-direction='back']::view-transition-new(root) {
+    mask-image: repeating-linear-gradient(270deg, #000 0 calc(var(--page-transition-progress) / 8), transparent 0 12.5%);
+  }
+
+  /* Lamelle: fasce orizzontali che si aprono dal proprio centro */
+  html[data-page-transition='shutter']::view-transition-new(root) {
+    mask-image: repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(6.25% - var(--page-transition-progress) / 16),
+      #000 0 calc(6.25% + var(--page-transition-progress) / 16),
+      transparent 0 12.5%
+    );
+    animation-name: page-transition-progress;
+  }
+
+  /* Ante: la pagina nuova si apre dal centro */
+  html[data-page-transition='doors']::view-transition-new(root) {
+    clip-path: inset(0 calc(50% - var(--page-transition-progress) / 2));
+    animation-name: page-transition-progress;
+  }
+
+  /* ---------------------------------------------------------------- Coperture a tessere */
+
+  /*
+   * Pixel e tendina a fasce: le tessere (gruppi page-tile-N, create e temporizzate dallo script) coprono la pagina
+   * vecchia e poi si ritirano sulla nuova, in 1,6 volte la durata impostata. A metà, quando tutto è coperto, la
+   * pagina vecchia lascia il posto alla nuova.
+   */
+  html:is([data-page-transition='pixels'], [data-page-transition='stagger_wipe'])::view-transition-old(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html:is([data-page-transition='pixels'], [data-page-transition='stagger_wipe'])::view-transition-new(root) {
+    animation: page-transition-swap calc(var(--page-transition-duration, 400ms) * 1.6) linear both;
+    mix-blend-mode: normal;
+  }
+
+  /*
+   * Tessere: le animazioni per tessera (dallo script) sono sull'immagine ::view-transition-new, che sta già nella
+   * posizione della tessera e scala attorno al proprio centro. Il gruppo non si anima: il browser lo posiziona con
+   * `transform`, e uno `scale` sul gruppo verrebbe applicato dopo quel `transform`, attorno all'angolo in alto a
+   * sinistra della finestra (la tessera "volerebbe" da e verso quell'angolo). La tessera esiste solo nella pagina
+   * nuova: niente immagine old.
+   */
+  ::view-transition-group(*.page-tile) {
+    animation: none;
+  }
+
+  @keyframes page-transition-swap {
+    0%,
+    50% {
+      opacity: 0;
+    }
+    50.01%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Pixel: ogni tessera compare dal proprio centro e sparisce allo stesso modo (leggero eccesso: niente fessure) */
+  @keyframes page-transition-pixels-in {
+    from {
+      scale: 0;
+      opacity: 0;
+    }
+    to {
+      scale: 1.02;
+      opacity: 1;
+    }
+  }
+
+  @keyframes page-transition-pixels-out {
+    from {
+      scale: 1.02;
+      opacity: 1;
+    }
+    to {
+      scale: 0;
+      opacity: 0;
+    }
+  }
+
+  /* Tendina a fasce: ogni fascia sale dal basso e si ritira verso l'alto, una dopo l'altra (origine sull'immagine
+     della fascia, non sul gruppo: vedi sopra) */
+  @keyframes page-transition-stagger_wipe-in {
+    from {
+      transform-origin: 50% 100%;
+      scale: 1.02 0;
+    }
+    to {
+      transform-origin: 50% 100%;
+      scale: 1.02 1;
+    }
+  }
+
+  @keyframes page-transition-stagger_wipe-out {
+    from {
+      transform-origin: 50% 0;
+      scale: 1.02 1;
+    }
+    to {
+      transform-origin: 50% 0;
+      scale: 1.02 0;
+    }
+  }
+
+  @keyframes page-transition-recede {
+    to {
+      scale: 0.97;
+      filter: brightness(0.82);
+    }
+  }
+
+  /* Ultimo 30%: a volo quasi finito, così l'immagine nuova non si sovrappone a una foto ancora in movimento */
+  @keyframes page-transition-media-in {
+    0%,
+    70% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes page-transition-media-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-transition-progress {
+    from {
+      --page-transition-progress: 0%;
+    }
+    to {
+      --page-transition-progress: 100%;
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{%- comment -%}
+  Contenuto dell'anteprima rapida del prodotto. Non si aggiunge dal theme editor (niente preset):
+  viene renderizzata solo con la Section Rendering API sull'URL del prodotto,
+  /products/<handle>?section_id=quick-view (anche con &option_values=… al cambio variante),
+  e inserita nel <dialog> di snippets/quick-view.liquid da frontend/entrypoints/quick-view.js.
+
+  - <product-page> (frontend/scripts/product-page.js) gestisce varianti, quantità e aggiunta al carrello
+    come nella pagina prodotto, con gli stessi snippet; la variante non va nell'URL (data-update-url).
+  - Standard events: shopify:product:view all'inserimento nel dialog e shopify:cart:lines-update,
+    entrambi con contesto "dialog".
+  - La struttura (media | informazioni) è la stessa dello scheletro di caricamento in snippets/quick-view.liquid:
+    tenerle allineate, l'immagine in volo atterra sul riquadro [data-quick-view-media].
+  - Sotto i 750px scorre tutto <product-page>: una tessera arrotondata con l'immagine intera (il prodotto non si taglia e
+    non restano bande ai lati) e poi le informazioni. Da 750px scorre solo la colonna delle informazioni. In entrambi i
+    casi il pulsante del carrello resta in vista (sticky_actions di product-buy-buttons). Le classi dell'immagine sono
+    le stesse di PANEL_IMAGE_CLASS in quick-view.js: tenerle allineate.
+{%- endcomment -%}
+{%- if product != blank -%}
+  {%- liquid
+    assign current_variant = product.selected_or_first_available_variant
+    assign featured_media = current_variant.featured_media | default: product.featured_media
+    assign product_form_id = 'ProductForm-' | append: section.id
+    assign media_alt = featured_media.alt | default: product.title
+  -%}
+
+  <s-view-event
+    class="contents"
+    data-quick-view-root
+    view-event-payload='{{ product | standard_event_data: "view", context: "dialog" | escape }}'
+  >
+    <product-page
+      class="block size-full overflow-y-auto overscroll-contain md:grid md:grid-cols-2 md:overflow-hidden"
+      data-section-id="{{ section.id }}"
+      data-product-url="{{ product.url }}"
+      data-variant-id="{{ current_variant.id }}"
+      data-product-gid="gid://shopify/Product/{{ product.id }}"
+      data-product-title="{{ product.title | escape }}"
+      data-product-handle="{{ product.handle }}"
+      data-update-url="false"
+      data-cart-context="dialog"
+    >
+      <script type="application/json" data-product-part="event-data" data-product-event-data>
+        {{ product | standard_event_data: "view", context: "dialog" }}
+      </script>
+      {%- comment -%} Regione live stabile: prezzo e disponibilità dopo il cambio variante (product-page.js) {%- endcomment -%}
+      <p class="sr-only" aria-live="polite" data-product-status></p>
+
+      <div
+        class="media-loading relative h-[clamp(10rem,30dvh,20rem)] overflow-hidden bg-background md:h-auto md:bg-surface"
+        data-product-part="media"
+        data-quick-view-media
+        data-featured-media-id="{{ featured_media.id }}"
+      >
+        {%- if featured_media -%}
+          {{
+            featured_media
+            | image_url: width: 1200
+            | image_tag:
+              loading: 'eager',
+              sizes: '(min-width: 750px) min(512px, 50vw), 100vw',
+              widths: '400, 600, 800, 1000, 1200',
+              alt: media_alt,
+              class: 'absolute inset-x-0 top-4 mx-auto h-[calc(100%-1rem)] w-auto max-w-full rounded-lg object-contain md:inset-0 md:size-full md:rounded-none md:object-cover'
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'absolute inset-0 size-full fill-subtle' }}
+        {%- endif -%}
+      </div>
+
+      <div class="flex flex-col gap-6 p-6 md:min-h-0 md:overflow-y-auto md:p-10">
+        <div class="flex flex-col gap-2 md:pe-10">
+          {%- if product.vendor != blank -%}
+            <p class="text-body-sm font-semibold text-muted">{{ product.vendor | escape }}</p>
+          {%- endif -%}
+          <h2 class="text-heading text-foreground md:text-subtitle" data-quick-view-title>
+            {{- product.title | escape -}}
+          </h2>
+          <div data-product-part="price">
+            {% render 'price', product: product, variant: current_variant, size: 'lg' %}
+          </div>
+        </div>
+
+        {% render 'product-variant-picker', product: product, section_id: section.id %}
+        {% render 'product-quantity', product: product, variant: current_variant, section_id: section.id, form_id: product_form_id, inline: true %}
+        {%- comment -%} Pagamento rapido: si inizializza da solo anche inserito con la Section Rendering API (documentazione Shopify) {%- endcomment -%}
+        {% render 'product-buy-buttons',
+          product: product,
+          variant: current_variant,
+          section_id: section.id,
+          form_id: product_form_id,
+          show_dynamic_checkout: settings.quick_view_dynamic_checkout,
+          sticky_actions: true
+        %}
+
+        {%- if product.description != blank -%}
+          <p class="text-body text-muted">{{ product.description | strip_html | truncatewords: 40 }}</p>
+        {%- endif -%}
+
+        {%- comment -%} Pagina completa del prodotto, con la variante scelta {%- endcomment -%}
+        <div data-product-part="details-link">
+          <a
+            href="{{ current_variant.url | default: product.url }}"
+            class="inline-flex items-center gap-1 text-body font-semibold text-foreground underline underline-offset-4"
+          >
+            {{- 'products.quick_view.view_details' | t -}}
+            {% render 'icon', name: 'arrow-right', class: 'size-5' %}
+          </a>
+          {%- comment -%}
+            Immagine principale della pagina prodotto: scaricata quando il cliente sta per aprirla (quick-view.js), così
+            all'arrivo è già in cache. Stessi widths e sizes di main-product: tenerli allineati, o sarebbe un altro file.
+          {%- endcomment -%}
+          {%- if featured_media.media_type == 'image' -%}
+            <template data-quick-view-preload>
+              {{-
+                featured_media
+                | image_url: width: 1600
+                | image_tag: sizes: '(min-width: 990px) 55vw, 85vw', widths: '400, 600, 800, 1000, 1200, 1600', alt: '', hidden: true
+              -}}
+            </template>
+          {%- endif -%}
+        </div>
+      </div>
+    </product-page>
+  </s-view-event>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.quick_view.name",
+  "tag": "div",
+  "class": "section-quick-view",
+  "settings": []
+}
+{% endschema %}

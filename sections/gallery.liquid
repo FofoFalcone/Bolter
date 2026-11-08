@@ -1,0 +1,1064 @@
+{%- comment -%}
+  Galleria animata con otto disposizioni 3D: lista, griglia, coverflow, pila, cilindro, anello,
+  spirale e sfera. Ogni disposizione ha le sue opzioni nello schema (mostrate con visible_if).
+  Ispirata al componente Gallery di Motion+ (https://motion.dev/examples/react-gallery-playground),
+  reimplementata da zero con le API gratuite di Motion: nessun codice Motion+.
+
+  - JS attivo: scena 3D con trascinamento, inerzia, frecce, tastiera e apertura dell'elemento.
+  - Senza JS: carosello nativo con scroll-snap, didascalie e link sotto ogni elemento.
+  - Gli elementi sono posizionati dal JS con transform: niente data-animate.
+  - Blocchi prodotto: la card prodotto del tema (snippets/product-card.liquid, layout 'fill'), uguale a
+    quella delle altre section. Con JS il clic sulla card in primo piano apre l'anteprima rapida
+    (snippets/quick-view.liquid) al posto dell'apertura nella galleria; senza JS, o con l'anteprima
+    disattivata nel blocco, è un link alla pagina prodotto.
+  JS: frontend/entrypoints/gallery.js + la sola disposizione scelta (frontend/entrypoints/gallery-<arrangement>.js,
+  base comune in frontend/scripts/gallery-arrangements.js)
+  CSS: frontend/entrypoints/gallery.css
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'vite-tag', entry: 'gallery.css' %}
+
+{%- liquid
+  assign s = section.settings
+  assign region_label = 'sections.gallery.label' | t
+  if s.heading != blank
+    assign region_label = s.heading
+  endif
+  assign instructions_id = 'GalleryInstructions-' | append: section.id
+  assign quick_view_id = 'QuickView-' | append: section.id
+  # Larghezza reale dell'elemento: min(item_width, 70vw), cioè item_width da item_width / 0.7 px in su (arrotondato per
+  # eccesso) e 70vw sotto. Scritto senza min() perché vale in ogni browser; prima 70vw anche dove l'elemento è già al
+  # massimo (412px: 288 invece di 280 → con DPR 1,75 scaricava 600 invece di 500)
+  assign sizes_breakpoint = s.item_width | times: 10 | plus: 6 | divided_by: 7
+  assign image_sizes = '(min-width: ' | append: sizes_breakpoint | append: 'px) ' | append: s.item_width | append: 'px, 70vw'
+  assign default_link_label = 'sections.gallery.link' | t
+  assign placeholder_title = 'products.product.placeholder_title' | t
+
+  # Altezza della scena sotto i 750px: coverflow e pila stanno su un piano, l'elemento più un margine basta (l'altezza
+  # scelta nell'editor lascerebbe un vuoto attorno alla card). Le disposizioni 3D hanno bisogno di tutta la scena.
+  assign stage_height = 'max(min(' | append: s.stage_height | append: 'px, 80svh), calc(var(--gallery-item-height) + 4rem))'
+  assign stage_height_mobile = stage_height
+  if s.arrangement == 'coverflow' or s.arrangement == 'stack'
+    assign stage_height_mobile = 'calc(var(--gallery-item-height) + 4rem)'
+  endif
+
+  assign has_quick_view = false
+  for block in section.blocks
+    if block.type == 'product' and block.settings.product != blank and block.settings.quick_view
+      assign has_quick_view = true
+      break
+    endif
+  endfor
+
+  assign has_video = false
+  for block in section.blocks
+    if block.type == 'video' and block.settings.video != blank
+      assign has_video = true
+      break
+    endif
+  endfor
+-%}
+
+<div class="py-8 md:py-16">
+  <div class="page-width">
+    {% render 'section-header',
+      heading: s.heading,
+      intro: s.intro,
+      class: 'mb-8 md:mb-12'
+    %}
+  </div>
+
+  {%- if section.blocks.size > 0 -%}
+    {%- comment -%}
+      --gallery-item-*: misure degli elementi (anche nel carosello senza JS); --gallery-stage-height:
+      altezza della scena 3D, limitata su mobile; --gallery-perspective: distanza della camera.
+    {%- endcomment -%}
+    <animated-gallery
+      class="group/gallery block"
+      role="region"
+      aria-label="{{ region_label | escape }}"
+      aria-describedby="{{ instructions_id }}"
+      data-position-template="{{ 'sections.gallery.position' | t: current: '[current]', total: '[total]' | escape }}"
+      {% if has_quick_view %}
+        data-quick-view="{{ quick_view_id }}"
+      {% endif %}
+      style="--gallery-item-width: min({{ s.item_width }}px, 70vw); --gallery-item-height: calc(var(--gallery-item-width) / {{ s.item_ratio }}); --gallery-stage-height: {{ stage_height }}; --gallery-stage-height-mobile: {{ stage_height_mobile }}; --gallery-perspective: max(1000px, calc(var(--gallery-item-width) * 5));"
+    >
+      <script type="application/json" data-gallery-config>
+        {
+          "arrangement": {{ s.arrangement | json }},
+          "gap": {{ s.gap | json }},
+          "loop": {{ s.loop | json }},
+          "open": {{ s.enable_open | json }},
+          "room": {{ s.open_room | json }},
+          "options": {
+            "list": {
+              "axis": {{ s.axis | json }},
+              "angle": {{ s.list_angle | json }},
+              "curl": {{ s.list_curl | json }},
+              "depth": {{ s.list_depth | json }},
+              "recede": {{ s.list_recede | json }},
+              "turn": {{ s.list_turn | json }},
+              "wave": {{ s.list_wave | json }}
+            },
+            "grid": {
+              "columns": {{ s.grid_columns | json }},
+              "fill": {{ s.grid_fill | json }},
+              "rotateX": {{ s.grid_rotate_x | json }},
+              "rotateY": {{ s.grid_rotate_y | json }},
+              "rotateZ": {{ s.grid_rotate_z | json }},
+              "bulge": {{ s.grid_bulge | json }}
+            },
+            "coverflow": {
+              "turn": {{ s.coverflow_turn | json }},
+              "spread": {{ s.coverflow_spread | divided_by: 100.0 | json }},
+              "depth": {{ s.coverflow_depth | divided_by: 100.0 | json }},
+              "center": {{ s.coverflow_center | divided_by: 100.0 | json }}
+            },
+            "stack": {
+              "peek": {{ s.stack_peek | json }},
+              "depth": {{ s.stack_depth | json }},
+              "visible": {{ s.stack_visible | json }}
+            },
+            "barrel": {
+              "axis": {{ s.axis | json }},
+              "radius": {{ s.radius | json }},
+              "tilt": {{ s.camera_tilt | json }}
+            },
+            "ring": {
+              "radius": {{ s.radius | json }},
+              "arc": {{ s.ring_arc | json }},
+              "upright": {{ s.ring_upright | json }},
+              "flip": {{ s.ring_flip | json }},
+              "tilt": {{ s.camera_tilt | json }}
+            },
+            "helix": {
+              "axis": {{ s.helix_axis | json }},
+              "radius": {{ s.radius | json }},
+              "perTurn": {{ s.helix_per_turn | json }},
+              "pitch": {{ s.helix_pitch | json }}
+            },
+            "sphere": {
+              "radius": {{ s.radius | json }},
+              "gap": {{ s.gap | json }},
+              "face": {{ s.sphere_face | json }}
+            }
+          }
+        }
+      </script>
+
+      <p id="{{ instructions_id }}" class="sr-only">
+        {%- if s.enable_open -%}
+          {{ 'sections.gallery.instructions_open' | t }}
+        {%- else -%}
+          {{ 'sections.gallery.instructions' | t }}
+        {%- endif -%}
+      </p>
+
+      {%- comment -%} Scena: con JS (js:) diventa un'area 3D a altezza fissa; senza JS è un carosello scorrevole {%- endcomment -%}
+      <div
+        data-gallery-stage
+        class="relative js:h-(--gallery-stage-height-mobile) md:js:h-(--gallery-stage-height) js:cursor-grab js:overflow-clip js:perspective-(--gallery-perspective) js:select-none group-data-dragging/gallery:cursor-grabbing group-data-open/gallery:cursor-auto"
+      >
+        <ul
+          data-gallery-plane
+          class="flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto overscroll-x-contain px-6 pb-4 js:absolute js:top-1/2 js:left-1/2 js:block js:size-0 js:overflow-visible js:p-0 js:transform-3d"
+          role="list"
+        >
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign block_product = nil
+              assign media = block.settings.image
+              if block.type == 'video'
+                assign media = block.settings.video
+              elsif block.type == 'product'
+                assign block_product = block.settings.product
+              endif
+              assign caption = block.settings.caption
+              assign link = block.settings.link
+              assign link_label = block.settings.link_label | default: default_link_label
+              assign item_name = caption | default: media.alt
+              if block.type == 'product'
+                assign item_name = block_product.title | default: placeholder_title
+              endif
+              assign placeholder = forloop.index0 | modulo: 6 | plus: 1 | prepend: 'collection-'
+
+              assign loading = 'lazy'
+              assign fetchpriority = 'auto'
+              if forloop.first and section.index == 1
+                assign loading = 'eager'
+                assign fetchpriority = 'high'
+              endif
+            -%}
+            <li
+              data-gallery-item
+              class="group/item flex w-(--gallery-item-width) shrink-0 snap-center flex-col gap-3 js:absolute js:top-[calc(var(--gallery-item-height)/-2)] js:left-[calc(var(--gallery-item-width)/-2)] js:backface-hidden js:will-change-transform"
+              data-caption="{{ caption | escape }}"
+              data-label="{{ item_name | escape }}"
+              {% if link != blank %}
+                data-link="{{ link }}" data-link-label="{{ link_label | escape }}"
+              {% endif %}
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.type == 'product' -%}
+                {%- comment -%}
+                  Card prodotto del tema (impostazioni del tema → Card prodotto), alta quanto l'elemento della
+                  galleria; il suo controllo principale (anteprima rapida o link) è il data-gallery-control.
+                {%- endcomment -%}
+                <div class="h-(--gallery-item-height){% if settings.product_card_style == 'box' %} rounded-lg shadow-300{% endif %}">
+                  {% render 'product-card',
+                    product: block_product,
+                    card_id: block.id,
+                    layout: 'fill',
+                    loading: loading,
+                    fetchpriority: fetchpriority,
+                    sizes: image_sizes,
+                    quick_view: block.settings.quick_view,
+                    control_attributes: 'data-gallery-control tabindex="-1"'
+                  %}
+                </div>
+              {%- else -%}
+              <div
+                data-gallery-media
+                class="media-loading relative h-(--gallery-item-height) overflow-hidden rounded-lg bg-surface shadow-300"
+              >
+                {%- if media != blank -%}
+                  {%- if block.type == 'video' -%}
+                    {{
+                      media
+                      | video_tag:
+                        muted: true,
+                        loop: true,
+                        controls: true,
+                        image_size: '1200x',
+                        class: 'size-full object-cover'
+                    }}
+                  {%- else -%}
+                    {{
+                      media
+                      | image_url: width: 1800
+                      | image_tag:
+                        loading: loading,
+                        fetchpriority: fetchpriority,
+                        widths: '300, 450, 600, 800, 1000, 1200, 1500, 1800',
+                        sizes: image_sizes,
+                        class: 'size-full object-cover'
+                    }}
+                  {%- endif -%}
+                {%- else -%}
+                  {{ placeholder | placeholder_svg_tag: 'size-full fill-subtle' }}
+                {%- endif -%}
+
+                {%- capture control_class -%}
+                  absolute inset-0 rounded-lg focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-primary
+                {%- endcapture -%}
+                {%- if s.enable_open -%}
+                  {%- comment -%} Pulsante sopra il media (non attorno: i controlli del video aperto restano usabili) {%- endcomment -%}
+                  <button
+                    type="button"
+                    data-gallery-control
+                    class="{{ control_class }} hidden cursor-[inherit] js:block group-data-opened/item:hidden"
+                    tabindex="-1"
+                    {% if item_name != blank %}
+                      aria-label="{{ 'sections.gallery.open' | t: name: item_name | escape }}"
+                    {% else %}
+                      aria-label="{{ 'sections.gallery.open_position' | t: position: forloop.index | escape }}"
+                    {% endif %}
+                  ></button>
+                {%- elsif link != blank -%}
+                  <a
+                    data-gallery-control
+                    href="{{ link }}"
+                    class="{{ control_class }} cursor-[inherit]"
+                    aria-label="{{ item_name | default: link_label | escape }}"
+                  ></a>
+                {%- endif -%}
+              </div>
+              {%- endif -%}
+
+              {%- comment -%} Solo senza JS: con JS didascalia e link sono sotto la scena, per l'elemento in primo piano {%- endcomment -%}
+              {%- if caption != blank or s.enable_open and link != blank -%}
+                <div class="flex flex-col items-start gap-1 js:hidden">
+                  {%- if caption != blank -%}
+                    <p class="text-body text-foreground">{{ caption | escape }}</p>
+                  {%- endif -%}
+                  {%- if s.enable_open and link != blank -%}
+                    <a class="text-body-sm text-foreground underline underline-offset-4" href="{{ link }}">
+                      {{- link_label | escape -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if s.enable_open -%}
+          <button
+            type="button"
+            data-gallery-close
+            class="button button-neutral button-sm button-icon absolute end-4 top-4 z-10 shadow-300"
+            aria-label="{{ 'sections.gallery.close' | t }}"
+            hidden
+          >
+            {% render 'icon', name: 'x-mark', class: 'size-5' %}
+          </button>
+        {%- endif -%}
+      </div>
+
+      <div class="page-width mt-6 hidden flex-col items-center gap-3 text-center js:flex">
+        {%- if section.blocks.size > 1 -%}
+          <div class="flex items-center gap-4{% unless s.show_controls %} sr-only focus-within:not-sr-only{% endunless %}">
+            <button
+              type="button"
+              data-gallery-prev
+              class="button button-neutral button-sm button-icon"
+              aria-label="{{ 'sections.gallery.previous' | t }}"
+            >
+              {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+            </button>
+            <p data-gallery-counter class="min-w-16 text-body-sm text-muted tabular-nums" aria-hidden="true"></p>
+            <button
+              type="button"
+              data-gallery-next
+              class="button button-neutral button-sm button-icon"
+              aria-label="{{ 'sections.gallery.next' | t }}"
+            >
+              {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+            </button>
+          </div>
+        {%- endif -%}
+        {%- if has_video -%}
+          {%- comment -%}
+            Pausa/riproduzione dei video (WCAG 2.2.2: contenuto in movimento oltre 5 secondi), visibile quando l'elemento in
+            primo piano è un video. La scelta vale per tutti i video della galleria; con movimento ridotto parte in pausa.
+          {%- endcomment -%}
+          <button
+            type="button"
+            data-gallery-video-toggle
+            data-label-play="{{ 'sections.hero.play_video' | t | escape }}"
+            data-label-pause="{{ 'sections.hero.pause_video' | t | escape }}"
+            aria-label="{{ 'sections.hero.pause_video' | t | escape }}"
+            class="button button-neutral button-sm gap-2"
+            hidden
+          >
+            {% render 'icon', name: 'pause', class: 'size-4 group-data-videos-paused/gallery:hidden' %}
+            {% render 'icon', name: 'play', class: 'hidden size-4 group-data-videos-paused/gallery:block' %}
+            <span aria-hidden="true" class="group-data-videos-paused/gallery:hidden">{{ 'sections.hero.pause_video' | t }}</span>
+            <span aria-hidden="true" class="hidden group-data-videos-paused/gallery:inline">{{ 'sections.hero.play_video' | t }}</span>
+          </button>
+        {%- endif -%}
+        <p data-gallery-caption class="text-body text-foreground" hidden></p>
+        {%- if s.enable_open -%}
+          <a
+            data-gallery-link
+            class="button button-neutral button-sm"
+            data-default-label="{{ default_link_label | escape }}"
+            hidden
+          ></a>
+        {%- endif -%}
+        <p data-gallery-status class="sr-only" aria-live="polite"></p>
+      </div>
+    </animated-gallery>
+
+    {%- comment -%} Fuori da <animated-gallery>: frecce ed Esc nel dialog non devono muovere la galleria {%- endcomment -%}
+    {%- if has_quick_view -%}
+      {% render 'quick-view', id: quick_view_id %}
+    {%- endif -%}
+
+    {%- comment -%}
+      Solo la disposizione scelta (gallery-list.js, gallery-grid.js, …): si scarica insieme a gallery.js, che poi
+      la importa senza nuove richieste. I valori di "arrangement" nello schema coincidono con i nomi dei file.
+    {%- endcomment -%}
+    {%- assign arrangement_entry = 'gallery-' | append: s.arrangement | append: '.js' -%}
+    {% render 'vite-tag', entry: arrangement_entry %}
+    {% render 'vite-tag', entry: 'gallery.js' %}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.gallery.name",
+  "tag": "section",
+  "class": "section-gallery",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.gallery.settings.heading.label",
+      "default": "t:sections.gallery.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.gallery.settings.intro.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_1.content"
+    },
+    {
+      "type": "select",
+      "id": "arrangement",
+      "label": "t:sections.gallery.settings.arrangement.label",
+      "options": [
+        {
+          "value": "list",
+          "label": "t:sections.gallery.settings.arrangement.options.list"
+        },
+        {
+          "value": "grid",
+          "label": "t:sections.gallery.settings.arrangement.options.grid"
+        },
+        {
+          "value": "coverflow",
+          "label": "t:sections.gallery.settings.arrangement.options.coverflow"
+        },
+        {
+          "value": "stack",
+          "label": "t:sections.gallery.settings.arrangement.options.stack"
+        },
+        {
+          "value": "barrel",
+          "label": "t:sections.gallery.settings.arrangement.options.barrel"
+        },
+        {
+          "value": "ring",
+          "label": "t:sections.gallery.settings.arrangement.options.ring"
+        },
+        {
+          "value": "helix",
+          "label": "t:sections.gallery.settings.arrangement.options.helix"
+        },
+        {
+          "value": "sphere",
+          "label": "t:sections.gallery.settings.arrangement.options.sphere"
+        }
+      ],
+      "default": "coverflow"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "t:sections.gallery.settings.loop.label",
+      "default": true,
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement == 'coverflow' or section.settings.arrangement == 'stack' }}"
+    },
+    {
+      "type": "select",
+      "id": "axis",
+      "label": "t:sections.gallery.settings.axis.label",
+      "options": [
+        {
+          "value": "x",
+          "label": "t:sections.gallery.settings.axis.options.x"
+        },
+        {
+          "value": "y",
+          "label": "t:sections.gallery.settings.axis.options.y"
+        }
+      ],
+      "default": "x",
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement == 'barrel' }}"
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "t:sections.gallery.settings.radius.label",
+      "info": "t:sections.gallery.settings.radius.info",
+      "min": 0,
+      "max": 2000,
+      "step": 20,
+      "unit": "t:sections.gallery.settings.radius.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'barrel' or section.settings.arrangement == 'ring' or section.settings.arrangement == 'helix' or section.settings.arrangement == 'sphere' }}"
+    },
+    {
+      "type": "range",
+      "id": "camera_tilt",
+      "label": "t:sections.gallery.settings.camera_tilt.label",
+      "min": -60,
+      "max": 60,
+      "step": 2,
+      "unit": "t:sections.gallery.settings.camera_tilt.unit",
+      "default": -8,
+      "visible_if": "{{ section.settings.arrangement == 'barrel' or section.settings.arrangement == 'ring' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_2.content"
+    },
+    {
+      "type": "range",
+      "id": "item_width",
+      "label": "t:sections.gallery.settings.item_width.label",
+      "info": "t:sections.gallery.settings.item_width.info",
+      "min": 120,
+      "max": 480,
+      "step": 10,
+      "unit": "t:sections.gallery.settings.item_width.unit",
+      "default": 280
+    },
+    {
+      "type": "select",
+      "id": "item_ratio",
+      "label": "t:sections.gallery.settings.item_ratio.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.gallery.settings.item_ratio.options.1"
+        },
+        {
+          "value": "0.8",
+          "label": "t:sections.gallery.settings.item_ratio.options.0_8"
+        },
+        {
+          "value": "0.75",
+          "label": "t:sections.gallery.settings.item_ratio.options.0_75"
+        },
+        {
+          "value": "0.667",
+          "label": "t:sections.gallery.settings.item_ratio.options.0_667"
+        },
+        {
+          "value": "1.333",
+          "label": "t:sections.gallery.settings.item_ratio.options.1_333"
+        },
+        {
+          "value": "1.778",
+          "label": "t:sections.gallery.settings.item_ratio.options.1_778"
+        }
+      ],
+      "default": "0.75"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:sections.gallery.settings.gap.label",
+      "info": "t:sections.gallery.settings.gap.info",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "t:sections.gallery.settings.gap.unit",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "stage_height",
+      "label": "t:sections.gallery.settings.stage_height.label",
+      "info": "t:sections.gallery.settings.stage_height.info",
+      "min": 320,
+      "max": 900,
+      "step": 20,
+      "unit": "t:sections.gallery.settings.stage_height.unit",
+      "default": 560
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_3.content",
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "range",
+      "id": "list_angle",
+      "label": "t:sections.gallery.settings.list_angle.label",
+      "info": "t:sections.gallery.settings.list_angle.info",
+      "min": -90,
+      "max": 90,
+      "step": 5,
+      "unit": "t:sections.gallery.settings.list_angle.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "range",
+      "id": "list_curl",
+      "label": "t:sections.gallery.settings.list_curl.label",
+      "info": "t:sections.gallery.settings.list_curl.info",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "t:sections.gallery.settings.list_curl.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "range",
+      "id": "list_depth",
+      "label": "t:sections.gallery.settings.list_depth.label",
+      "info": "t:sections.gallery.settings.list_depth.info",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "t:sections.gallery.settings.list_depth.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "range",
+      "id": "list_recede",
+      "label": "t:sections.gallery.settings.list_recede.label",
+      "info": "t:sections.gallery.settings.list_recede.info",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "unit": "t:sections.gallery.settings.list_recede.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "range",
+      "id": "list_turn",
+      "label": "t:sections.gallery.settings.list_turn.label",
+      "info": "t:sections.gallery.settings.list_turn.info",
+      "min": -60,
+      "max": 60,
+      "step": 2,
+      "unit": "t:sections.gallery.settings.list_turn.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "range",
+      "id": "list_wave",
+      "label": "t:sections.gallery.settings.list_wave.label",
+      "info": "t:sections.gallery.settings.list_wave.info",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "t:sections.gallery.settings.list_wave.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_4.content",
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "grid_columns",
+      "label": "t:sections.gallery.settings.grid_columns.label",
+      "info": "t:sections.gallery.settings.grid_columns.info",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "select",
+      "id": "grid_fill",
+      "label": "t:sections.gallery.settings.grid_fill.label",
+      "info": "t:sections.gallery.settings.grid_fill.info",
+      "options": [
+        {
+          "value": "sequence",
+          "label": "t:sections.gallery.settings.grid_fill.options.sequence"
+        },
+        {
+          "value": "offset",
+          "label": "t:sections.gallery.settings.grid_fill.options.offset"
+        },
+        {
+          "value": "none",
+          "label": "t:sections.gallery.settings.grid_fill.options.none"
+        }
+      ],
+      "default": "sequence",
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "grid_rotate_x",
+      "label": "t:sections.gallery.settings.grid_rotate_x.label",
+      "min": -60,
+      "max": 60,
+      "step": 2,
+      "unit": "t:sections.gallery.settings.grid_rotate_x.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "grid_rotate_y",
+      "label": "t:sections.gallery.settings.grid_rotate_y.label",
+      "min": -60,
+      "max": 60,
+      "step": 2,
+      "unit": "t:sections.gallery.settings.grid_rotate_y.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "grid_rotate_z",
+      "label": "t:sections.gallery.settings.grid_rotate_z.label",
+      "min": -45,
+      "max": 45,
+      "step": 1,
+      "unit": "t:sections.gallery.settings.grid_rotate_z.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "grid_bulge",
+      "label": "t:sections.gallery.settings.grid_bulge.label",
+      "info": "t:sections.gallery.settings.grid_bulge.info",
+      "min": 0,
+      "max": 400,
+      "step": 10,
+      "unit": "t:sections.gallery.settings.grid_bulge.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_5.content",
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+    },
+    {
+      "type": "range",
+      "id": "coverflow_turn",
+      "label": "t:sections.gallery.settings.coverflow_turn.label",
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "unit": "t:sections.gallery.settings.coverflow_turn.unit",
+      "default": 55,
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+    },
+    {
+      "type": "range",
+      "id": "coverflow_spread",
+      "label": "t:sections.gallery.settings.coverflow_spread.label",
+      "info": "t:sections.gallery.settings.coverflow_spread.info",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "t:sections.gallery.settings.coverflow_spread.unit",
+      "default": 30,
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+    },
+    {
+      "type": "range",
+      "id": "coverflow_depth",
+      "label": "t:sections.gallery.settings.coverflow_depth.label",
+      "info": "t:sections.gallery.settings.coverflow_depth.info",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "t:sections.gallery.settings.coverflow_depth.unit",
+      "default": 50,
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+    },
+    {
+      "type": "range",
+      "id": "coverflow_center",
+      "label": "t:sections.gallery.settings.coverflow_center.label",
+      "info": "t:sections.gallery.settings.coverflow_center.info",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "t:sections.gallery.settings.coverflow_center.unit",
+      "default": 80,
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_6.content",
+      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+    },
+    {
+      "type": "range",
+      "id": "stack_peek",
+      "label": "t:sections.gallery.settings.stack_peek.label",
+      "info": "t:sections.gallery.settings.stack_peek.info",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "t:sections.gallery.settings.stack_peek.unit",
+      "default": 14,
+      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+    },
+    {
+      "type": "range",
+      "id": "stack_depth",
+      "label": "t:sections.gallery.settings.stack_depth.label",
+      "info": "t:sections.gallery.settings.stack_depth.info",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "t:sections.gallery.settings.stack_depth.unit",
+      "default": 50,
+      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+    },
+    {
+      "type": "range",
+      "id": "stack_visible",
+      "label": "t:sections.gallery.settings.stack_visible.label",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_7.content",
+      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+    },
+    {
+      "type": "range",
+      "id": "ring_arc",
+      "label": "t:sections.gallery.settings.ring_arc.label",
+      "info": "t:sections.gallery.settings.ring_arc.info",
+      "min": 30,
+      "max": 360,
+      "step": 10,
+      "unit": "t:sections.gallery.settings.ring_arc.unit",
+      "default": 360,
+      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "ring_upright",
+      "label": "t:sections.gallery.settings.ring_upright.label",
+      "default": false,
+      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "ring_flip",
+      "label": "t:sections.gallery.settings.ring_flip.label",
+      "default": false,
+      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_8.content",
+      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+    },
+    {
+      "type": "select",
+      "id": "helix_axis",
+      "label": "t:sections.gallery.settings.helix_axis.label",
+      "options": [
+        {
+          "value": "y",
+          "label": "t:sections.gallery.settings.helix_axis.options.y"
+        },
+        {
+          "value": "x",
+          "label": "t:sections.gallery.settings.helix_axis.options.x"
+        }
+      ],
+      "default": "y",
+      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+    },
+    {
+      "type": "range",
+      "id": "helix_per_turn",
+      "label": "t:sections.gallery.settings.helix_per_turn.label",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "default": 10,
+      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+    },
+    {
+      "type": "range",
+      "id": "helix_pitch",
+      "label": "t:sections.gallery.settings.helix_pitch.label",
+      "info": "t:sections.gallery.settings.helix_pitch.info",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "t:sections.gallery.settings.helix_pitch.unit",
+      "default": 0,
+      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_9.content",
+      "visible_if": "{{ section.settings.arrangement == 'sphere' }}"
+    },
+    {
+      "type": "select",
+      "id": "sphere_face",
+      "label": "t:sections.gallery.settings.sphere_face.label",
+      "options": [
+        {
+          "value": "camera",
+          "label": "t:sections.gallery.settings.sphere_face.options.camera"
+        },
+        {
+          "value": "outward",
+          "label": "t:sections.gallery.settings.sphere_face.options.outward"
+        }
+      ],
+      "default": "camera",
+      "visible_if": "{{ section.settings.arrangement == 'sphere' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_10.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_open",
+      "label": "t:sections.gallery.settings.enable_open.label",
+      "info": "t:sections.gallery.settings.enable_open.info",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "open_room",
+      "label": "t:sections.gallery.settings.open_room.label",
+      "min": 0,
+      "max": 96,
+      "step": 4,
+      "unit": "t:sections.gallery.settings.open_room.unit",
+      "default": 24,
+      "visible_if": "{{ section.settings.enable_open }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_controls",
+      "label": "t:sections.gallery.settings.show_controls.label",
+      "info": "t:sections.gallery.settings.show_controls.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gallery.settings.header_11.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.gallery.settings.color_background.label",
+      "info": "t:sections.gallery.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.gallery.settings.color_text.label",
+      "info": "t:sections.gallery.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.gallery.blocks.image.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.gallery.blocks.image.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "t:sections.gallery.blocks.image.settings.caption.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.gallery.blocks.image.settings.link.label"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "t:sections.gallery.blocks.image.settings.link_label.label",
+          "default": "t:sections.gallery.blocks.image.settings.link_label.default"
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "t:sections.gallery.blocks.video.name",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "t:sections.gallery.blocks.video.settings.video.label",
+          "info": "t:sections.gallery.blocks.video.settings.video.info"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "t:sections.gallery.blocks.video.settings.caption.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.gallery.blocks.video.settings.link.label"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "t:sections.gallery.blocks.video.settings.link_label.label",
+          "default": "t:sections.gallery.blocks.video.settings.link_label.default"
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "t:sections.gallery.blocks.product.name",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.gallery.blocks.product.settings.product.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "quick_view",
+          "label": "t:sections.gallery.blocks.product.settings.quick_view.label",
+          "info": "t:sections.gallery.blocks.product.settings.quick_view.info",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "max_blocks": 30,
+  "presets": [
+    {
+      "name": "t:sections.gallery.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

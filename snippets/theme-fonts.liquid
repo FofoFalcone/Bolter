@@ -1,0 +1,42 @@
+{%- comment -%}
+  Font del tema dalla libreria Shopify (Impostazioni tema → Tipografia, default Inter come nel Simple Design System).
+  Espone --font-body-family e --font-heading-family, usate dai token Tailwind (--font-sans, --font-heading).
+  Pesi caricati per il testo: 400, 600 (Body Strong / Heading), 700 (Title), corsivo 400.
+  Uso: {% render 'theme-fonts' %} nel <head> del layout.
+{%- endcomment -%}
+{%- liquid
+  assign body_font = settings.type_body_font
+  assign heading_font = settings.type_heading_font
+
+  assign body_font_semibold = body_font | font_modify: 'weight', '600'
+  assign body_font_bold = body_font | font_modify: 'weight', 'bold'
+  assign body_font_italic = body_font | font_modify: 'style', 'italic'
+-%}
+
+{%- unless body_font.system? -%}
+  {{ body_font | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{%- endunless -%}
+{%- unless heading_font.system? or heading_font == body_font -%}
+  {{ heading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{%- endunless -%}
+
+{% style %}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {{ body_font_semibold | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+  {{ body_font_italic | font_face: font_display: 'swap' }}
+  {{ heading_font | font_face: font_display: 'swap' }}
+
+  :root {
+    {%- if body_font.system? -%}
+      --font-body-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    {%- else -%}
+      --font-body-family: {{ body_font.family }}, {{ body_font.fallback_families }};
+    {%- endif -%}
+    {%- if heading_font.system? -%}
+      --font-heading-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    {%- else -%}
+      --font-heading-family: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    {%- endif -%}
+  }
+{% endstyle %}

@@ -1,0 +1,30 @@
+/*
+ * Blocco dello scroll della pagina mentre un pannello è aperto (anche lo scorrimento morbido si ferma).
+ * Un <dialog> o <details> che blocca la pagina prende l'attributo data-scroll-lock; non serve altro.
+ *
+ * Il blocco toglie la barra di scorrimento: il padding della stessa larghezza (--scrollbar-width, misurata da
+ * frontend/scripts/scrollbar-width.js) tiene ferma la pagina sotto.
+ *
+ * Con lo scorrimento morbido attivo, autoToggle di Lenis mette su <html> una transizione di 1ms su overflow, e la
+ * barra sparisce (o torna) solo due o più fotogrammi dopo: il padding deve passare dalla stessa transizione, o la
+ * pagina scatta di mezza barra a ogni apertura e chiusura. Lenis ascolta solo il transitionend di overflow.
+ */
+
+@layer components {
+  html:has([data-scroll-lock][open]) {
+    overflow: hidden;
+    padding-right: var(--scrollbar-width, 0px);
+  }
+
+  /* Da 990px il pannello dei filtri sta nella pagina e non blocca nulla (snippets/facets-panel.liquid) */
+  @media (width < 61.875rem) {
+    html:has(.facets-drawer:popover-open) {
+      overflow: hidden;
+      padding-right: var(--scrollbar-width, 0px);
+    }
+  }
+
+  html.lenis.lenis-autoToggle {
+    transition-property: overflow, padding-right;
+  }
+}

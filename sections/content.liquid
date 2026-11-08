@@ -1,0 +1,194 @@
+{%- comment -%}
+  Contenuto libero: la section si compone con i theme blocks di blocks/ (titolo, testo, pulsante, immagine, gruppo) e
+  con gli app block. Una section accetta theme blocks oppure blocchi locali, mai entrambi (documentazione Shopify).
+  --content-align: vedi blocks/group.liquid. I figli diretti entrano in sequenza, tranne nella prima section della
+  pagina, che può essere above the fold, e nell'anteprima dei preset: qui l'animazione nasconderebbe tutto il contenuto
+  e il selettore mostrerebbe "No preview available".
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.width %}
+{%- liquid
+  assign s = section.settings
+
+  case s.width
+    when 'narrow'
+      assign width_class = 'max-w-2xl'
+    when 'wide', 'full'
+      assign width_class = ''
+    else
+      assign width_class = 'max-w-4xl'
+  endcase
+
+  case s.spacing
+    when 'none'
+      assign spacing_class = ''
+    when 'large'
+      assign spacing_class = 'py-12 md:py-24'
+    else
+      assign spacing_class = 'py-8 md:py-16'
+  endcase
+-%}
+<div class="page-width {{ spacing_class }}">
+  <div
+    class="mx-auto flex w-full flex-col gap-6 [align-items:var(--content-align)] [text-align:var(--content-align)] {{ width_class }}"
+    style="--content-align: {{ s.align }};"
+    {% unless section.index == 1 or request.visual_preview_mode %}
+      data-animate-stagger="fade-up"
+    {% endunless %}
+  >
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.content.name",
+  "tag": "section",
+  "class": "section-content",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:sections.content.settings.width.label",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "t:sections.content.settings.width.options.narrow"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.content.settings.width.options.medium"
+        },
+        {
+          "value": "wide",
+          "label": "t:sections.content.settings.width.options.wide"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.content.settings.width.options.full"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "t:sections.content.settings.align.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.content.settings.align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.content.settings.align.options.center"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "spacing",
+      "label": "t:sections.content.settings.spacing.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.content.settings.spacing.options.none"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.content.settings.spacing.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.content.settings.spacing.options.large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.content.settings.header_1.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.content.settings.color_background.label",
+      "info": "t:sections.content.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.content.settings.color_text.label",
+      "info": "t:sections.content.settings.color_text.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.content.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    },
+    {
+      "name": "t:sections.content.presets.preset_2.name",
+      "settings": {
+        "width": "wide",
+        "align": "start"
+      },
+      "blocks": [
+        {
+          "type": "group",
+          "settings": {
+            "layout": "columns",
+            "columns": 2,
+            "gap": "large",
+            "align_y": "center"
+          },
+          "blocks": [
+            {
+              "type": "image"
+            },
+            {
+              "type": "group",
+              "blocks": [
+                {
+                  "type": "heading"
+                },
+                {
+                  "type": "text"
+                },
+                {
+                  "type": "button"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

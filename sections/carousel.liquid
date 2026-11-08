@@ -1,0 +1,1000 @@
+{%- comment -%}
+  Carosello con slide miste: i prodotti di una collezione, singoli prodotti e immagini con testo, nell'ordine dei blocchi.
+  Codice originale con API native: dagli esempi "Carousel" di Motion+ solo le idee.
+
+  - Scorrimento nativo (scroll-snap): senza JS la traccia si scorre comunque, frecce e paginazione non compaiono.
+  - Larghezze in cqw sul contenitore: stessa griglia della pagina (--carousel-content) anche con il carosello a tutta
+    larghezza, dove le slide escono dalla griglia solo verso destra.
+  - Le immagini con testo hanno un'altezza minima dalle proporzioni scelte, calcolata su una slide normale anche per
+    quelle doppie (elemento [aria-hidden]), e si allungano con la riga: accanto alle card prodotto restano allineate.
+  - shopify:product:view: lo emette product-card quando la card entra nello schermo. Contesto `collection` anche per i
+    prodotti singoli: il campo è obbligatorio e questo è il valore previsto per una card in un elenco.
+  - Blocchi senza contenuto: nel negozio spariscono; nell'editor resta un segnaposto.
+  JS: frontend/entrypoints/carousel.js; effetti e barra: frontend/entrypoints/carousel-effects.js (solo se usati).
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{%- liquid
+  # Base dei sizes: non accetta var() (snippets/section-width.liquid)
+  assign page_max = settings.layout_page_width | append: 'px'
+  assign s = section.settings
+  assign track_id = 'Carousel-' | append: section.id
+  assign quick_view_id = 'QuickView-' | append: section.id
+
+  assign has_slides = false
+  assign has_products = false
+  for block in section.blocks
+    case block.type
+      when 'collection'
+        if block.settings.collection.products_count > 0
+          assign has_slides = true
+          assign has_products = true
+        endif
+      when 'product'
+        if block.settings.product != blank
+          assign has_slides = true
+          assign has_products = true
+        endif
+      when 'image'
+        if block.settings.image != blank or block.settings.heading != blank or block.settings.text != blank
+          assign has_slides = true
+        endif
+    endcase
+  endfor
+
+  assign use_quick_view = false
+  if s.quick_view and has_products
+    assign use_quick_view = true
+  endif
+
+  assign effect = s.effect
+  assign align = s.slide_align
+  if effect == 'coverflow'
+    assign align = 'center'
+  endif
+
+  assign per_view = s.per_view_desktop
+  assign per_view_md = per_view | at_most: 3
+  assign per_view_mobile = s.per_view_mobile
+
+  capture sizes
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 3rem) / ' | append: per_view | append: '), (min-width: 750px) calc((100vw - 3rem) / ' | append: per_view_md | append: '), calc((100vw - 3rem) / ' | append: per_view_mobile | append: ')'
+  endcapture
+  comment
+    Card prodotto: larghezza esatta della slide, spazi tra le slide compresi (--carousel-slide). Senza gli spazi, 4 card
+    in una pagina da 1280px erano 308px invece di 296: con DPR 2 scaricavano 800 invece di 600. Le slide immagine
+    tengono `sizes` / `sizes_wide`: object-cover e l'effetto parallax (scale 1.15) mostrano la foto più grande della
+    slide, quindi il margine in più non è uno spreco.
+  endcomment
+  assign gaps_lg = per_view | minus: 1 | times: s.gap
+  assign gaps_md = per_view_md | minus: 1 | times: s.gap
+  assign gaps_sm = per_view_mobile | times: 10 | round | minus: 10 | times: s.gap | divided_by: 10.0
+  capture card_sizes
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 3rem - ' | append: gaps_lg | append: 'px) / ' | append: per_view | append: '), (min-width: 750px) calc((100vw - 3rem - ' | append: gaps_md | append: 'px) / ' | append: per_view_md | append: '), calc((100vw - 3rem - ' | append: gaps_sm | append: 'px) / ' | append: per_view_mobile | append: ')'
+  endcapture
+  capture sizes_wide
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 3rem) * 2 / ' | append: per_view | append: '), (min-width: 750px) calc((100vw - 3rem) * 2 / ' | append: per_view_md | append: '), calc((100vw - 3rem) / ' | append: per_view_mobile | append: ')'
+  endcapture
+
+  assign slide_class = 'w-(--carousel-slide) shrink-0'
+  if align == 'center'
+    assign slide_class = slide_class | append: ' snap-center'
+  else
+    assign slide_class = slide_class | append: ' snap-start'
+  endif
+
+  assign width_class = 'mx-auto max-w-page'
+  if s.width == 'full'
+    assign width_class = ''
+  endif
+
+  assign snap_class = 'snap-x snap-mandatory data-dragging:snap-none'
+  if s.scroll_mode == 'free'
+    assign snap_class = ''
+  endif
+
+  assign track_padding_class = 'py-1 -my-1'
+  if effect == 'coverflow'
+    assign track_padding_class = 'py-6 -my-6'
+  endif
+
+  case s.slide_ratio
+    when 'square'
+      assign ratio_class = 'aspect-square'
+    when 'landscape'
+      assign ratio_class = 'aspect-4/3'
+    when 'wide'
+      assign ratio_class = 'aspect-square md:aspect-video'
+    else
+      assign ratio_class = 'aspect-4/5'
+  endcase
+
+  assign list_label = s.heading
+  if s.heading == blank
+    assign list_label = 'sections.carousel.label' | t
+  endif
+
+  assign show_pagination = false
+  if s.pagination != 'none'
+    assign show_pagination = true
+  endif
+
+  # Riga dei comandi. Con le frecce ai lati, da 750px sotto restano solo indicatore e pausa
+  assign side_arrows = false
+  if s.show_arrows and s.arrows_position == 'sides'
+    assign side_arrows = true
+  endif
+  assign row_class = 'justify-between'
+  unless s.show_arrows or s.autoplay
+    assign row_class = 'justify-center'
+  endunless
+  unless show_pagination
+    assign row_class = 'justify-end'
+  endunless
+  if side_arrows and s.autoplay == false
+    if show_pagination
+      assign row_class = 'justify-between md:justify-center'
+    else
+      assign row_class = 'justify-end md:hidden'
+    endif
+  endif
+
+  assign arrow_class = 'button button-neutral button-icon'
+
+  # Solo la prima schermata della prima section è caricata subito, e solo la sua prima immagine ha la priorità
+  assign slide_index = 0
+-%}
+
+{%- if has_slides or request.design_mode -%}
+  <carousel-slider
+    class="group/carousel block py-8 md:py-16"
+    data-align="{{ align }}"
+    data-scroll="{{ s.scroll_mode }}"
+    {% if effect != 'none' %}
+      data-effect="{{ effect }}"
+    {% endif %}
+    {% if s.autoplay %}
+      data-autoplay="{{ s.autoplay_interval }}"
+    {% endif %}
+    {% if use_quick_view %}
+      data-quick-view="{{ quick_view_id }}"
+    {% endif %}
+  >
+    {%- if s.heading != blank or s.intro != blank -%}
+      <div class="page-width mb-8 md:mb-12">
+        {% render 'section-header', heading: s.heading, intro: s.intro, align: s.align %}
+      </div>
+    {%- endif -%}
+
+    <div
+      class="@container {{ width_class }} [--carousel-n:var(--per-view-sm)] md:[--carousel-n:var(--per-view-md)] lg:[--carousel-n:var(--per-view-lg)]"
+      style="
+        --per-view-sm: {{ per_view_mobile }};
+        --per-view-md: {{ per_view_md }};
+        --per-view-lg: {{ per_view }};
+        --carousel-gap: {{ s.gap }}px;
+        --carousel-content: calc(min(100cqw, var(--container-page)) - 3rem);
+        --carousel-slide: calc((var(--carousel-content) - (var(--carousel-n) - 1) * var(--carousel-gap)) / var(--carousel-n));
+        --carousel-inset: calc((100cqw - {% if align == 'center' %}var(--carousel-slide){% else %}var(--carousel-content){% endif %}) / 2);
+      "
+    >
+      <div class="relative">
+        <ul
+          id="{{ track_id }}"
+          class="relative flex gap-(--carousel-gap) overflow-x-auto overscroll-x-contain px-(--carousel-inset) scroll-px-(--carousel-inset) [scrollbar-width:thin] js:[scrollbar-width:none] js:cursor-grab group-data-static/carousel:cursor-auto! data-dragging:cursor-grabbing! data-dragging:select-none {{ snap_class }} {{ track_padding_class }}"
+          role="list"
+          data-carousel-track
+          data-scroll-region
+          aria-label="{{ list_label | escape }}"
+          {% unless section.index == 1 or effect == 'coverflow' %}
+            data-animate-stagger="fade-up"
+            data-animate-interval="0.05"
+          {% endunless %}
+        >
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'collection' -%}
+                {%- assign collection_block = block.settings.collection -%}
+                {%- if collection_block.products_count > 0 -%}
+                  {%- for product in collection_block.products limit: block.settings.limit -%}
+                    {%- liquid
+                      assign slide_index = slide_index | plus: 1
+                      assign card_id = block.id | append: '-' | append: product.id
+                      assign card_loading = 'lazy'
+                      assign card_priority = 'auto'
+                      if section.index == 1 and slide_index <= per_view
+                        assign card_loading = 'eager'
+                        if slide_index == 1
+                          assign card_priority = 'high'
+                        endif
+                      endif
+                    -%}
+                    <li
+                      class="{{ slide_class }}"
+                      {% if forloop.first %}
+                        {{ block.shopify_attributes }}
+                      {% endif %}
+                    >
+                      {% render 'product-card',
+                        product: product,
+                        card_id: card_id,
+                        sizes: card_sizes,
+                        loading: card_loading,
+                        fetchpriority: card_priority,
+                        quick_view: use_quick_view
+                      %}
+                    </li>
+                  {%- endfor -%}
+                  {%- if block.settings.show_view_all -%}
+                    {%- assign slide_index = slide_index | plus: 1 -%}
+                    <li class="{{ slide_class }}">
+                      <a
+                        href="{{ collection_block.url }}"
+                        class="group/all flex h-full min-h-48 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface p-6 text-center text-foreground transition-colors duration-200 ease-theme hover:bg-surface-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+                      >
+                        <span class="text-subheading font-semibold text-balance">
+                          {{- 'sections.carousel.view_all' | t: name: collection_block.title | escape -}}
+                        </span>
+                        {% render 'icon',
+                          name: 'arrow-right',
+                          class: 'size-5 transition-transform duration-200 ease-theme motion-safe:group-hover/all:translate-x-1'
+                        %}
+                      </a>
+                    </li>
+                  {%- endif -%}
+                {%- elsif request.design_mode -%}
+                  {%- for i in (1..4) -%}
+                    {%- assign slide_index = slide_index | plus: 1 -%}
+                    <li
+                      class="{{ slide_class }}"
+                      {% if forloop.first %}
+                        {{ block.shopify_attributes }}
+                      {% endif %}
+                    >
+                      {% render 'product-card', sizes: card_sizes %}
+                    </li>
+                  {%- endfor -%}
+                {%- endif -%}
+
+              {%- when 'product' -%}
+                {%- if block.settings.product != blank or request.design_mode -%}
+                  {%- liquid
+                    assign slide_index = slide_index | plus: 1
+                    assign card_loading = 'lazy'
+                    assign card_priority = 'auto'
+                    if section.index == 1 and slide_index <= per_view
+                      assign card_loading = 'eager'
+                      if slide_index == 1
+                        assign card_priority = 'high'
+                      endif
+                    endif
+                  -%}
+                  <li class="{{ slide_class }}" {{ block.shopify_attributes }}>
+                    {% render 'product-card',
+                      product: block.settings.product,
+                      card_id: block.id,
+                      sizes: card_sizes,
+                      loading: card_loading,
+                      fetchpriority: card_priority,
+                      quick_view: use_quick_view
+                    %}
+                  </li>
+                {%- endif -%}
+
+              {%- when 'image' -%}
+                {%- assign b = block.settings -%}
+                {%- if b.image != blank or b.heading != blank or b.text != blank or request.design_mode -%}
+                  {%- liquid
+                    assign slide_index = slide_index | plus: 1
+                    assign image_loading = 'lazy'
+                    assign image_priority = 'auto'
+                    if section.index == 1 and slide_index <= per_view
+                      assign image_loading = 'eager'
+                      if slide_index == 1
+                        assign image_priority = 'high'
+                      endif
+                    endif
+
+                    # Larga il doppio solo dove c'è spazio: con slide centrate non resterebbe più in mezzo
+                    assign is_wide = false
+                    if b.wide and align == 'start' and per_view > 1
+                      assign is_wide = true
+                    endif
+                    assign image_sizes = sizes
+                    if is_wide
+                      assign image_sizes = sizes_wide
+                    endif
+
+                    # Sopra la foto i colori sono fissi; senza foto la slide segue la palette
+                    assign has_image = false
+                    if b.image != blank
+                      assign has_image = true
+                    endif
+                    if has_image and b.text_tone == 'dark'
+                      assign tone_class = 'text-black'
+                      assign veil_class = 'bg-white'
+                      assign button_class = 'button-primary'
+                      assign outline_class = 'focus-visible:outline-black'
+                    elsif has_image
+                      assign tone_class = 'text-white'
+                      assign veil_class = 'bg-black'
+                      assign button_class = 'button-inverse focus-visible:outline-white'
+                      assign outline_class = 'focus-visible:outline-white'
+                    else
+                      assign tone_class = 'text-foreground'
+                      assign veil_class = ''
+                      assign button_class = 'button-primary'
+                      assign outline_class = 'focus-visible:outline-primary'
+                    endif
+
+                    case b.content_position
+                      when 'top_start'
+                        assign position_class = 'items-start justify-start text-start'
+                      when 'center'
+                        assign position_class = 'items-center justify-center text-center'
+                      when 'bottom_center'
+                        assign position_class = 'items-center justify-end text-center'
+                      else
+                        assign position_class = 'items-start justify-end text-start'
+                    endcase
+
+                    assign has_link = false
+                    if b.link != blank
+                      assign has_link = true
+                    endif
+                    assign has_button = false
+                    if has_link and b.button_label != blank
+                      assign has_button = true
+                    endif
+
+                    assign image_class = 'absolute inset-0 size-full object-cover'
+                    if effect == 'parallax'
+                      assign image_class = image_class | append: ' js-motion:scale-115'
+                    elsif has_link
+                      assign image_class = image_class | append: ' transition-[scale] duration-500 ease-theme motion-safe:group-hover/slide:scale-105'
+                    endif
+
+                    # Senza testo alternativo la foto è decorativa (titolo e link della slide la descrivono): alt=""
+                    # esplicito, perché con un valore nil image_tag non scrive l'attributo (segnalato da Lighthouse)
+                    assign slide_alt = b.image.alt | default: ''
+                    assign link_label = b.heading | default: b.image.alt
+                    if link_label == blank
+                      assign link_label = 'sections.carousel.open_link' | t
+                    endif
+                  -%}
+                  <li
+                    class="{{ slide_class }}{% if is_wide %} md:w-[calc(2_*_var(--carousel-slide)_+_var(--carousel-gap))]{% endif %}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <div class="group/slide{% if has_image %} media-loading{% endif %} relative grid h-full grid-cols-1 overflow-hidden rounded-lg bg-surface" data-carousel-image>
+                      <span class="col-start-1 row-start-1 block w-(--carousel-slide) {{ ratio_class }}" aria-hidden="true"></span>
+                      {%- if has_image -%}
+                        {{
+                          b.image
+                          | image_url: width: 2400
+                          | image_tag:
+                            loading: image_loading,
+                            fetchpriority: image_priority,
+                            sizes: image_sizes,
+                            widths: '300, 400, 600, 800, 1000, 1200, 1600, 2000, 2400',
+                            alt: slide_alt,
+                            class: image_class
+                        }}
+                        {%- if b.overlay > 0 -%}
+                          <span class="absolute inset-0 {{ veil_class }} opacity-(--slide-veil)" style="--slide-veil: {{ b.overlay | divided_by: 100.0 }};" aria-hidden="true"></span>
+                        {%- endif -%}
+                      {%- elsif request.design_mode -%}
+                        {{ 'lifestyle-1' | placeholder_svg_tag: 'absolute inset-0 size-full fill-subtle' }}
+                      {%- endif -%}
+
+                      {%- if b.heading != blank or b.text != blank or has_button -%}
+                        <div class="@container/slide z-10 col-start-1 row-start-1 grid">
+                          <div class="flex min-w-0 flex-col gap-3 p-6 @md/slide:p-8 {{ position_class }} {{ tone_class }}">
+                          {%- if b.heading != blank -%}
+                            <h3 class="max-w-2xl text-heading text-balance @md/slide:text-title-page">{{ b.heading | escape }}</h3>
+                          {%- endif -%}
+                          {%- if b.text != blank -%}
+                            <p class="max-w-2xl text-body text-pretty">{{ b.text }}</p>
+                          {%- endif -%}
+                          {%- if has_button -%}
+                            <a href="{{ b.link }}" class="button {{ button_class }} mt-2 after:absolute after:inset-0">
+                              {{- b.button_label | escape -}}
+                            </a>
+                          {%- endif -%}
+                          </div>
+                        </div>
+                      {%- endif -%}
+
+                      {%- if has_link and has_button == false -%}
+                        <a
+                          href="{{ b.link }}"
+                          class="absolute inset-0 z-10 rounded-lg focus-visible:outline-2 focus-visible:-outline-offset-4 {{ outline_class }}"
+                          aria-label="{{ link_label | escape }}"
+                        ></a>
+                      {%- endif -%}
+                    </div>
+                  </li>
+                {%- endif -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        </ul>
+
+        {%- if side_arrows -%}
+          <button
+            type="button"
+            class="{{ arrow_class }} absolute top-1/2 start-[max(0.5rem,calc(var(--carousel-inset)_-_1.375rem))] z-20 hidden -translate-y-1/2 shadow-200 md:js:inline-flex group-data-static/carousel:hidden!"
+            aria-controls="{{ track_id }}"
+            aria-label="{{ 'sections.carousel.previous' | t }}"
+            aria-disabled="true"
+            data-carousel-previous
+          >
+            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+          </button>
+          <button
+            type="button"
+            class="{{ arrow_class }} absolute top-1/2 end-[max(0.5rem,calc(var(--carousel-inset)_-_1.375rem))] z-20 hidden -translate-y-1/2 shadow-200 md:js:inline-flex group-data-static/carousel:hidden!"
+            aria-controls="{{ track_id }}"
+            aria-label="{{ 'sections.carousel.next' | t }}"
+            data-carousel-next
+          >
+            {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+          </button>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Riga dei comandi: spazio riservato dall'inizio con JS, così la comparsa non sposta la pagina {%- endcomment -%}
+      {%- if s.show_arrows or show_pagination or s.autoplay -%}
+        <div class="mx-auto mt-6 hidden min-h-6 w-(--carousel-content) max-w-full items-center gap-4 js:flex group-data-static/carousel:hidden! {{ row_class }}">
+          {%- case s.pagination -%}
+            {%- when 'dots', 'scaling_dots' -%}
+              <div
+                class="flex items-center"
+                data-carousel-dots
+                {% if s.pagination == 'scaling_dots' %}
+                  data-scaling
+                {% endif %}
+              ></div>
+              <template data-carousel-dot-template>
+                <button
+                  type="button"
+                  class="group/dot flex size-6 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-controls="{{ track_id }}"
+                  aria-label="{{ 'sections.carousel.page' | t: page: '__page__', total: '__total__' | escape }}"
+                >
+                  <span class="block size-2 scale-(--dot-scale,1) rounded-full bg-foreground/50 transition-[scale,background-color] duration-200 ease-theme group-hover/dot:bg-foreground group-aria-[current=true]/dot:bg-foreground motion-reduce:transition-none"></span>
+                </button>
+              </template>
+              <p class="text-body-sm text-foreground/80 tabular-nums" aria-hidden="true" data-carousel-count hidden>
+                <span data-carousel-current>1</span> / <span data-carousel-total>{{ slide_index }}</span>
+              </p>
+            {%- when 'count' -%}
+              <p class="text-body-sm text-foreground/80 tabular-nums" aria-hidden="true" data-carousel-count>
+                <span data-carousel-current>1</span> / <span data-carousel-total>{{ slide_index }}</span>
+              </p>
+            {%- when 'progress' -%}
+              <div class="h-1 max-w-64 flex-1 overflow-hidden rounded-full bg-foreground/15" aria-hidden="true">
+                <div class="h-full origin-left rounded-full bg-foreground" data-carousel-progress></div>
+              </div>
+          {%- endcase -%}
+
+          {%- if s.autoplay or s.show_arrows -%}
+            <div class="flex shrink-0 items-center gap-2" data-carousel-actions>
+              {%- if s.autoplay -%}
+                <button
+                  type="button"
+                  class="{{ arrow_class }}"
+                  aria-label="{{ 'sections.carousel.pause' | t }}"
+                  data-label-pause="{{ 'sections.carousel.pause' | t }}"
+                  data-label-play="{{ 'sections.carousel.play' | t }}"
+                  data-carousel-toggle
+                  hidden
+                >
+                  {% render 'icon', name: 'pause', class: 'size-5 group-data-paused/carousel:hidden' %}
+                  {% render 'icon', name: 'play', class: 'hidden size-5 group-data-paused/carousel:block' %}
+                </button>
+              {%- endif -%}
+              {%- if s.show_arrows -%}
+                <button
+                  type="button"
+                  class="{{ arrow_class }}{% if side_arrows %} md:hidden{% endif %}"
+                  aria-controls="{{ track_id }}"
+                  aria-label="{{ 'sections.carousel.previous' | t }}"
+                  aria-disabled="true"
+                  data-carousel-previous
+                >
+                  {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+                </button>
+                <button
+                  type="button"
+                  class="{{ arrow_class }}{% if side_arrows %} md:hidden{% endif %}"
+                  aria-controls="{{ track_id }}"
+                  aria-label="{{ 'sections.carousel.next' | t }}"
+                  data-carousel-next
+                >
+                  {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+                </button>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      <p class="sr-only" aria-live="polite" data-carousel-status data-label="{{ 'sections.carousel.page' | t: page: '__page__', total: '__total__' | escape }}"></p>
+    </div>
+
+    {%- if has_slides == false -%}
+      <p class="page-width mt-6 text-center text-body-sm text-foreground/80">{{ 'sections.carousel.editor_empty' | t }}</p>
+    {%- endif -%}
+  </carousel-slider>
+
+  {%- if use_quick_view -%}
+    {% render 'quick-view', id: quick_view_id %}
+  {%- endif -%}
+
+  {%- if effect != 'none' or s.pagination == 'progress' -%}
+    {% render 'vite-tag', entry: 'carousel-effects.js' %}
+  {%- endif -%}
+  {% render 'vite-tag', entry: 'carousel.js' %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.carousel.name",
+  "tag": "section",
+  "class": "section-carousel",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.carousel.settings.heading.label",
+      "default": "t:sections.carousel.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.carousel.settings.intro.label"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "t:sections.carousel.settings.align.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.carousel.settings.align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.carousel.settings.align.options.center"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.carousel.settings.header_1.content"
+    },
+    {
+      "type": "range",
+      "id": "per_view_desktop",
+      "label": "t:sections.carousel.settings.per_view_desktop.label",
+      "info": "t:sections.carousel.settings.per_view_desktop.info",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "per_view_mobile",
+      "label": "t:sections.carousel.settings.per_view_mobile.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.carousel.settings.per_view_mobile.options.1"
+        },
+        {
+          "value": "1.2",
+          "label": "t:sections.carousel.settings.per_view_mobile.options.1_2"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.carousel.settings.per_view_mobile.options.2"
+        }
+      ],
+      "default": "1.2"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:sections.carousel.settings.gap.label",
+      "min": 0,
+      "max": 32,
+      "step": 4,
+      "unit": "t:sections.carousel.settings.gap.unit",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:sections.carousel.settings.width.label",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.carousel.settings.width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.carousel.settings.width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "select",
+      "id": "slide_align",
+      "label": "t:sections.carousel.settings.slide_align.label",
+      "info": "t:sections.carousel.settings.slide_align.info",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.carousel.settings.slide_align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.carousel.settings.slide_align.options.center"
+        }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "scroll_mode",
+      "label": "t:sections.carousel.settings.scroll_mode.label",
+      "options": [
+        {
+          "value": "snap",
+          "label": "t:sections.carousel.settings.scroll_mode.options.snap"
+        },
+        {
+          "value": "free",
+          "label": "t:sections.carousel.settings.scroll_mode.options.free"
+        }
+      ],
+      "default": "snap"
+    },
+    {
+      "type": "select",
+      "id": "slide_ratio",
+      "label": "t:sections.carousel.settings.slide_ratio.label",
+      "info": "t:sections.carousel.settings.slide_ratio.info",
+      "options": [
+        {
+          "value": "portrait",
+          "label": "t:sections.carousel.settings.slide_ratio.options.portrait"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.carousel.settings.slide_ratio.options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:sections.carousel.settings.slide_ratio.options.landscape"
+        },
+        {
+          "value": "wide",
+          "label": "t:sections.carousel.settings.slide_ratio.options.wide"
+        }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_view",
+      "label": "t:sections.carousel.settings.quick_view.label",
+      "info": "t:sections.carousel.settings.quick_view.info",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.carousel.settings.header_2.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "t:sections.carousel.settings.show_arrows.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "arrows_position",
+      "label": "t:sections.carousel.settings.arrows_position.label",
+      "info": "t:sections.carousel.settings.arrows_position.info",
+      "visible_if": "{{ section.settings.show_arrows }}",
+      "options": [
+        {
+          "value": "bottom",
+          "label": "t:sections.carousel.settings.arrows_position.options.bottom"
+        },
+        {
+          "value": "sides",
+          "label": "t:sections.carousel.settings.arrows_position.options.sides"
+        }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "select",
+      "id": "pagination",
+      "label": "t:sections.carousel.settings.pagination.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.carousel.settings.pagination.options.none"
+        },
+        {
+          "value": "dots",
+          "label": "t:sections.carousel.settings.pagination.options.dots"
+        },
+        {
+          "value": "scaling_dots",
+          "label": "t:sections.carousel.settings.pagination.options.scaling_dots"
+        },
+        {
+          "value": "count",
+          "label": "t:sections.carousel.settings.pagination.options.count"
+        },
+        {
+          "value": "progress",
+          "label": "t:sections.carousel.settings.pagination.options.progress"
+        }
+      ],
+      "default": "dots"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.carousel.settings.header_3.content"
+    },
+    {
+      "type": "select",
+      "id": "effect",
+      "label": "t:sections.carousel.settings.effect.label",
+      "info": "t:sections.carousel.settings.effect.info",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.carousel.settings.effect.options.none"
+        },
+        {
+          "value": "parallax",
+          "label": "t:sections.carousel.settings.effect.options.parallax"
+        },
+        {
+          "value": "coverflow",
+          "label": "t:sections.carousel.settings.effect.options.coverflow"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.carousel.settings.autoplay.label",
+      "info": "t:sections.carousel.settings.autoplay.info",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "t:sections.carousel.settings.autoplay_interval.label",
+      "visible_if": "{{ section.settings.autoplay }}",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "t:sections.carousel.settings.autoplay_interval.unit",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "t:sections.carousel.settings.header_4.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.carousel.settings.color_background.label",
+      "info": "t:sections.carousel.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.carousel.settings.color_text.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.carousel.blocks.collection.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.carousel.blocks.collection.settings.collection.label"
+        },
+        {
+          "type": "range",
+          "id": "limit",
+          "label": "t:sections.carousel.blocks.collection.settings.limit.label",
+          "min": 2,
+          "max": 24,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "checkbox",
+          "id": "show_view_all",
+          "label": "t:sections.carousel.blocks.collection.settings.show_view_all.label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "t:sections.carousel.blocks.product.name",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.carousel.blocks.product.settings.product.label"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "t:sections.carousel.blocks.image.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.carousel.blocks.image.settings.image.label"
+        },
+        {
+          "type": "range",
+          "id": "overlay",
+          "label": "t:sections.carousel.blocks.image.settings.overlay.label",
+          "info": "t:sections.carousel.blocks.image.settings.overlay.info",
+          "visible_if": "{{ block.settings.image != blank }}",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "t:sections.carousel.blocks.image.settings.overlay.unit",
+          "default": 30
+        },
+        {
+          "type": "select",
+          "id": "text_tone",
+          "label": "t:sections.carousel.blocks.image.settings.text_tone.label",
+          "visible_if": "{{ block.settings.image != blank }}",
+          "options": [
+            {
+              "value": "light",
+              "label": "t:sections.carousel.blocks.image.settings.text_tone.options.light"
+            },
+            {
+              "value": "dark",
+              "label": "t:sections.carousel.blocks.image.settings.text_tone.options.dark"
+            }
+          ],
+          "default": "light"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.carousel.blocks.image.settings.heading.label",
+          "default": "t:sections.carousel.blocks.image.settings.heading.default"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "t:sections.carousel.blocks.image.settings.text.label"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.carousel.blocks.image.settings.button_label.label",
+          "info": "t:sections.carousel.blocks.image.settings.button_label.info",
+          "default": "t:sections.carousel.blocks.image.settings.button_label.default"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.carousel.blocks.image.settings.link.label",
+          "info": "t:sections.carousel.blocks.image.settings.link.info"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "t:sections.carousel.blocks.image.settings.content_position.label",
+          "options": [
+            {
+              "value": "top_start",
+              "label": "t:sections.carousel.blocks.image.settings.content_position.options.top_start"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.carousel.blocks.image.settings.content_position.options.center"
+            },
+            {
+              "value": "bottom_start",
+              "label": "t:sections.carousel.blocks.image.settings.content_position.options.bottom_start"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:sections.carousel.blocks.image.settings.content_position.options.bottom_center"
+            }
+          ],
+          "default": "bottom_start"
+        },
+        {
+          "type": "checkbox",
+          "id": "wide",
+          "label": "t:sections.carousel.blocks.image.settings.wide.label",
+          "info": "t:sections.carousel.blocks.image.settings.wide.info",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.carousel.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "collection"
+        }
+      ]
+    },
+    {
+      "name": "t:sections.carousel.presets.preset_2.name",
+      "settings": {
+        "per_view_desktop": 1,
+        "per_view_mobile": "1",
+        "slide_ratio": "wide"
+      },
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    },
+    {
+      "name": "t:sections.carousel.presets.preset_3.name",
+      "settings": {
+        "per_view_desktop": 4,
+        "slide_ratio": "portrait"
+      },
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "wide": true
+          }
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

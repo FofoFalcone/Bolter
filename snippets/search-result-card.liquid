@@ -1,0 +1,103 @@
+{%- comment -%}
+  Risultato di ricerca che non è un prodotto: articolo del blog o pagina (sections/main-search.liquid). Stesso
+  aspetto di product-card (stile e proporzioni da Impostazioni tema → Card prodotto), così la griglia mista resta
+  allineata. Tutta la card è cliccabile (link del titolo esteso con ::after); i termini cercati nell'estratto sono
+  evidenziati con il filtro `highlight` (<strong class="highlight">).
+
+  Parametri:
+  - item: articolo o pagina (item.object_type 'article' | 'page')
+  - terms: termini di ricerca (search.terms)
+  - full_width: true se la card sta in una section a tutta larghezza: aggiunge formati più grandi all'immagine
+  - sizes: attributo sizes dell'immagine
+  - loading: 'lazy' (default) o 'eager'
+
+  Uso: {% render 'search-result-card', item: item, terms: search.terms, sizes: sizes %}
+{%- endcomment -%}
+{%- liquid
+  assign image_max = 1000
+  assign image_widths = '200, 300, 400, 600, 800, 1000'
+  if full_width
+    assign image_max = 2000
+    assign image_widths = image_widths | append: ', 1200, 1600, 2000'
+  endif
+  assign loading = loading | default: 'lazy'
+
+  if item.object_type == 'article'
+    assign type_label = 'sections.search.type_article' | t
+    assign icon = 'newspaper'
+    assign image = item.image
+    assign excerpt = item.excerpt_or_content
+  else
+    assign type_label = 'sections.search.type_page' | t
+    assign icon = 'document-text'
+    assign image = nil
+    assign excerpt = item.content
+  endif
+  assign excerpt = excerpt | strip_html | strip_newlines | truncatewords: 24 | highlight: terms
+
+  case settings.product_card_style
+    when 'plain'
+      assign card_class = ''
+      assign media_class = 'rounded-lg'
+      assign info_class = 'pt-3'
+    else
+      assign card_class = 'overflow-hidden rounded-lg border border-border bg-background'
+      assign media_class = ''
+      assign info_class = 'p-4'
+  endcase
+  case settings.product_card_image_ratio
+    when 'square'
+      assign media_class = media_class | append: ' aspect-square'
+    when 'landscape'
+      assign media_class = media_class | append: ' aspect-4/3'
+    else
+      assign media_class = media_class | append: ' aspect-4/5'
+  endcase
+-%}
+
+<article class="group/card relative flex h-full flex-col {{ card_class }}">
+  <div class="relative shrink-0 overflow-hidden bg-surface {{ media_class }}">
+    {%- if image -%}
+      {{
+        image
+        | image_url: width: image_max
+        | image_tag:
+          loading: loading,
+          sizes: sizes,
+          widths: image_widths,
+          alt: '',
+          class: 'absolute inset-0 size-full object-cover transition-[scale] duration-500 motion-safe:group-hover/card:scale-105'
+      }}
+    {%- else -%}
+      <div class="absolute inset-0 flex items-center justify-center text-subtle" aria-hidden="true">
+        {% render 'icon', name: icon, class: 'size-12 transition-transform duration-500 motion-safe:group-hover/card:scale-110' %}
+      </div>
+    {%- endif -%}
+    <span class="absolute top-2 left-2 rounded-sm bg-background/90 px-2 py-1 text-body-sm font-semibold text-foreground">
+      {{- type_label -}}
+    </span>
+  </div>
+
+  <div class="flex grow flex-col gap-2 {{ info_class }}">
+    <h3 class="text-body font-semibold text-balance text-foreground">
+      <a
+        href="{{ item.url }}"
+        class="after:absolute after:inset-0 after:z-[1] after:rounded-[inherit] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
+      >
+        <span class="sr-only">{{ type_label }}: </span>
+        {{- item.title | escape -}}
+      </a>
+    </h3>
+    {%- if item.object_type == 'article' -%}
+      <p class="text-body-sm text-foreground/80">
+        {{ item.blog.title | escape }} ·
+        <time datetime="{{ item.published_at | date: '%Y-%m-%d' }}">{{ item.published_at | date: format: 'date' }}</time>
+      </p>
+    {%- endif -%}
+    {%- if excerpt != blank -%}
+      <p class="line-clamp-3 text-body-sm text-pretty text-foreground/80 [&_.highlight]:font-semibold [&_.highlight]:text-foreground">
+        {{- excerpt -}}
+      </p>
+    {%- endif -%}
+  </div>
+</article>

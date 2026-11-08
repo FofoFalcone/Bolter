@@ -1,0 +1,87 @@
+{%- comment -%}
+  Titolo per le section componibili (sections/content.liquid, blocks/group.liquid).
+  Solo h2-h4: l'h1 appartiene al contenuto principale della pagina. Allineamento ereditato da --content-align.
+{%- endcomment -%}
+{%- liquid
+  assign tag = block.settings.tag
+  case block.settings.size
+    when 'small'
+      assign size_class = 'text-subheading'
+    when 'medium'
+      assign size_class = 'text-heading'
+    when 'hero'
+      assign size_class = 'text-title-page md:text-title-hero'
+    else
+      assign size_class = 'text-heading md:text-title-page'
+  endcase
+-%}
+{%- if block.settings.heading != blank -%}
+  <{{ tag }} class="{{ size_class }} max-w-4xl text-balance text-foreground [&_a]:underline [&_a]:underline-offset-4" {{ block.shopify_attributes }}>
+    {{- block.settings.heading -}}
+  </{{ tag }}>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.heading.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:blocks.heading.settings.heading.label",
+      "default": "t:blocks.heading.settings.heading.default"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "t:blocks.heading.settings.size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:blocks.heading.settings.size.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:blocks.heading.settings.size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:blocks.heading.settings.size.options.large"
+        },
+        {
+          "value": "hero",
+          "label": "t:blocks.heading.settings.size.options.hero"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "tag",
+      "label": "t:blocks.heading.settings.tag.label",
+      "info": "t:blocks.heading.settings.tag.info",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:blocks.heading.settings.tag.options.h2"
+        },
+        {
+          "value": "h3",
+          "label": "t:blocks.heading.settings.tag.options.h3"
+        },
+        {
+          "value": "h4",
+          "label": "t:blocks.heading.settings.tag.options.h4"
+        }
+      ],
+      "default": "h2"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.heading.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

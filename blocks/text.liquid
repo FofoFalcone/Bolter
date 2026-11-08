@@ -1,0 +1,59 @@
+{%- comment -%}
+  Testo formattato per le section componibili (sections/content.liquid, blocks/group.liquid).
+  Misura limitata a max-w-2xl per la leggibilità; allineamento ereditato da --content-align.
+{%- endcomment -%}
+{%- liquid
+  case block.settings.size
+    when 'small'
+      assign size_class = 'text-body-sm'
+    when 'large'
+      assign size_class = 'text-subheading'
+    else
+      assign size_class = 'text-body'
+  endcase
+-%}
+{%- if block.settings.text != blank -%}
+  <div class="prose prose-theme w-full max-w-2xl text-pretty text-foreground/80 {{ size_class }}" {{ block.shopify_attributes }}>
+    {{- block.settings.text -}}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.text.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:blocks.text.settings.text.label",
+      "default": "t:blocks.text.settings.text.default"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "t:blocks.text.settings.size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:blocks.text.settings.size.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:blocks.text.settings.size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:blocks.text.settings.size.options.large"
+        }
+      ],
+      "default": "medium"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.text.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}

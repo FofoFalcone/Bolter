@@ -1,0 +1,165 @@
+/*
+ * Testi richtext del merchant (descrizioni di prodotto e collezione, testi delle section, FAQ): utility `prose` del
+ * tema al posto del plugin @tailwindcss/typography. Il plugin generava stili per decine di elementi e varianti
+ * (circa 2 kB gzip nel CSS globale, caricato su ogni pagina); qui solo ciò che un richtext Shopify può contenere.
+ *
+ * Stessa interfaccia del plugin, il markup non cambia:
+ * - classi `prose prose-theme` (colori del tema in prose-theme, frontend/styles/components.css);
+ * - colori nelle variabili --tw-prose-*, sovrascrivibili dal markup (es. [--tw-prose-body:var(--color-muted)]);
+ * - varianti prose-p:, prose-ul:, prose-ol:, prose-li:, prose-headings:, prose-a: (es. prose-p:max-w-2xl).
+ * Dimensione e interlinea vengono dalle utility di testo del contenitore (text-body, text-subheading…): le
+ * spaziature sono in em e le seguono. Selettori in :where(), come nel plugin: qualsiasi utility li sovrascrive.
+ */
+
+@custom-variant prose-p (& :where(p));
+@custom-variant prose-ul (& :where(ul));
+@custom-variant prose-ol (& :where(ol));
+@custom-variant prose-li (& :where(li));
+@custom-variant prose-headings (& :where(h1, h2, h3, h4, h5, h6));
+@custom-variant prose-a (& :where(a));
+
+@utility prose {
+  max-width: 65ch;
+  color: var(--tw-prose-body);
+
+  & :where(p) {
+    margin-block: 1.25em;
+  }
+
+  & :where(a) {
+    color: var(--tw-prose-links);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  & :where(a):hover {
+    text-decoration-thickness: 2px;
+  }
+
+  & :where(strong, b) {
+    color: var(--tw-prose-bold);
+    font-weight: 600;
+  }
+
+  & :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--tw-prose-headings);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  & :where(h1) {
+    margin-block: 0 0.9em;
+    font-size: 2.25em;
+  }
+
+  & :where(h2) {
+    margin-block: 2em 1em;
+    font-size: 1.5em;
+  }
+
+  & :where(h3) {
+    margin-block: 1.6em 0.6em;
+    font-size: 1.25em;
+  }
+
+  & :where(h4, h5, h6) {
+    margin-block: 1.5em 0.5em;
+    font-size: 1em;
+  }
+
+  & :where(ul, ol) {
+    margin-block: 1.25em;
+    padding-inline-start: 1.625em;
+  }
+
+  & :where(ul) {
+    list-style-type: disc;
+  }
+
+  & :where(ol) {
+    list-style-type: decimal;
+  }
+
+  & :where(li) {
+    margin-block: 0.5em;
+    padding-inline-start: 0.375em;
+  }
+
+  & :where(ul > li)::marker {
+    color: var(--tw-prose-bullets);
+  }
+
+  & :where(ol > li)::marker {
+    color: var(--tw-prose-counters);
+  }
+
+  & :where(blockquote) {
+    margin-block: 1.6em;
+    padding-inline-start: 1em;
+    border-inline-start: 0.25rem solid var(--tw-prose-quote-borders);
+    color: var(--tw-prose-quotes);
+    font-style: italic;
+  }
+
+  & :where(hr) {
+    margin-block: 3em;
+    border-top: 1px solid var(--tw-prose-hr);
+  }
+
+  & :where(img, video, figure) {
+    margin-block: 2em;
+  }
+
+  & :where(img, video) {
+    border-radius: var(--radius-md);
+  }
+
+  & :where(figcaption) {
+    margin-top: 0.85em;
+    color: var(--tw-prose-captions);
+    font-size: 0.875em;
+  }
+
+  & :where(code) {
+    color: var(--tw-prose-code);
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+
+  & :where(table) {
+    width: 100%;
+    margin-block: 2em;
+    border-collapse: collapse;
+    font-size: 0.875em;
+    text-align: start;
+  }
+
+  & :where(th) {
+    padding: 0.57em;
+    border-bottom: 1px solid var(--tw-prose-th-borders);
+    font-weight: 600;
+    text-align: start;
+  }
+
+  & :where(td) {
+    padding: 0.57em;
+    border-bottom: 1px solid var(--tw-prose-td-borders);
+    vertical-align: top;
+  }
+
+  & :where(iframe) {
+    max-width: 100%;
+  }
+
+  /* In fondo: i selettori hanno tutti la stessa specificità, e prima di p, ul, h2… queste due regole non avrebbero effetto */
+  & > :where(:first-child) {
+    margin-top: 0;
+  }
+
+  & > :where(:last-child) {
+    margin-bottom: 0;
+  }
+}

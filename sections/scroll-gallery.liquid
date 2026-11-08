@@ -1,0 +1,225 @@
+{%- comment -%}
+  Galleria orizzontale guidata dallo scroll verticale (lookbook, storytelling, collezioni).
+  Basata sugli esempi Motion "Scroll pinning" (https://motion.dev/examples/js-scroll-pinning)
+  e "Scroll horizontal" (https://motion.dev/examples/react-scroll-horizontal).
+
+  - Desktop + JS + movimento non ridotto: la galleria resta fissa e le card scorrono di lato con lo scroll.
+    L'altezza dell'area è calcolata in CSS (nessun salto di layout all'avvio del JS).
+  - Mobile, senza JS o con prefers-reduced-motion: carosello nativo scorrevole con scroll-snap.
+  JS: frontend/entrypoints/scroll-gallery.js — CSS: frontend/entrypoints/scroll-gallery.css
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'vite-tag', entry: 'scroll-gallery.css' %}
+{%- assign scroll_region_label = 'accessibility.scroll_region' | t -%}
+
+{%- comment -%}
+  Varianti: md:js-motion: = modalità "pinned" (desktop, JS attivo, movimento non ridotto),
+  la stessa condizione di PINNED_QUERY nel JS. Le variabili --card-width/--card-height/--gap
+  e l'altezza dell'area sono in scroll-gallery.css.
+{%- endcomment -%}
+<div class="scroll-gallery py-8 md:py-16 md:js-motion:pb-0" style="--slides: {{ section.blocks.size }};">
+  <div class="page-width">
+    {% render 'section-header',
+      heading: section.settings.heading,
+      intro: section.settings.intro,
+      class: 'mb-8'
+    %}
+  </div>
+
+  {%- if section.blocks.size > 0 -%}
+    <scroll-gallery class="scroll-gallery__pin block">
+      <div class="md:js-motion:sticky md:js-motion:top-0 md:js-motion:flex md:js-motion:h-svh md:js-motion:flex-col md:js-motion:justify-center md:js-motion:overflow-clip">
+        {%- comment -%}
+          data-scroll-region: come carosello nativo (mobile, senza JS, movimento ridotto) e senza link nelle card diventa
+          focusabile per scorrere da tastiera (frontend/scripts/scroll-regions.js)
+        {%- endcomment -%}
+        <ul
+          class="scroll-gallery__track flex snap-x snap-mandatory scroll-px-6 gap-(--gap) overflow-x-auto overscroll-x-contain px-6 pb-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary md:js-motion:snap-none md:js-motion:overflow-visible md:js-motion:px-[calc((100%-var(--card-width))/2)] md:js-motion:pb-0 md:js-motion:will-change-[translate]"
+          role="list"
+          aria-label="{{ section.settings.heading | default: scroll_region_label | escape }}"
+          data-scroll-region
+        >
+          {%- for block in section.blocks -%}
+            <li class="scroll-gallery__item shrink-0 basis-(--card-width) snap-center" {{ block.shopify_attributes }}>
+              {%- capture card_class -%}
+                group relative block h-(--card-height) overflow-hidden rounded-lg bg-surface text-white focus-visible:outline-3 focus-visible:outline-offset-3
+              {%- endcapture -%}
+              {%- if block.settings.link != blank -%}
+                <a class="{{ card_class }}" href="{{ block.settings.link }}">
+              {%- else -%}
+                <div class="{{ card_class }}">
+              {%- endif -%}
+
+              {%- if block.settings.image != blank -%}
+                {%- liquid
+                  # Prima immagine della prima section della pagina: probabile LCP
+                  assign loading = 'lazy'
+                  assign fetchpriority = 'auto'
+                  if section.index == 1 and forloop.first
+                    assign loading = 'eager'
+                    assign fetchpriority = 'high'
+                  endif
+                -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 1200
+                  | image_tag:
+                    loading: loading,
+                    fetchpriority: fetchpriority,
+                    widths: '400, 600, 800, 1000, 1200',
+                    sizes: '(min-width: 750px) 40vw, 80vw',
+                    class: 'size-full object-cover transition-[scale] duration-700 motion-safe:group-hover:scale-105'
+                }}
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
+              {%- endif -%}
+
+              {%- if block.settings.label != blank or block.settings.title != blank -%}
+                <div class="absolute inset-x-0 bottom-0 flex flex-col gap-1 bg-linear-to-t from-black/75 from-50% to-transparent px-6 pt-12 pb-6">
+                  {%- if block.settings.label != blank -%}
+                    <span class="text-body-sm font-semibold">{{ block.settings.label | escape }}</span>
+                  {%- endif -%}
+                  {%- if block.settings.title != blank -%}
+                    <h3 class="text-heading">{{ block.settings.title | escape }}</h3>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.link != blank -%}
+                </a>
+              {%- else -%}
+                </div>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if section.settings.show_progress -%}
+          <div
+            class="absolute inset-x-1/4 bottom-8 hidden h-0.5 overflow-hidden rounded-full bg-border md:js-motion:block"
+            aria-hidden="true"
+          >
+            <div class="scroll-gallery__progress-bar h-full origin-left scale-x-0 bg-primary"></div>
+          </div>
+        {%- endif -%}
+      </div>
+    </scroll-gallery>
+  {%- endif -%}
+</div>
+
+{% render 'vite-tag', entry: 'scroll-gallery.js' %}
+
+{% schema %}
+{
+  "name": "t:sections.scroll_gallery.name",
+  "tag": "section",
+  "class": "section-scroll-gallery",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.scroll_gallery.settings.heading.label",
+      "default": "t:sections.scroll_gallery.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.scroll_gallery.settings.intro.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress",
+      "label": "t:sections.scroll_gallery.settings.show_progress.label",
+      "info": "t:sections.scroll_gallery.settings.show_progress.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.scroll_gallery.settings.header_1.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.scroll_gallery.settings.color_background.label",
+      "info": "t:sections.scroll_gallery.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.scroll_gallery.settings.color_text.label",
+      "info": "t:sections.scroll_gallery.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.scroll_gallery.blocks.slide.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.scroll_gallery.blocks.slide.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.scroll_gallery.blocks.slide.settings.label.label",
+          "info": "t:sections.scroll_gallery.blocks.slide.settings.label.info"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.scroll_gallery.blocks.slide.settings.title.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.scroll_gallery.blocks.slide.settings.link.label"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "t:sections.scroll_gallery.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "label": "t:sections.scroll_gallery.presets.preset_1.blocks.block_1.label",
+            "title": "t:sections.scroll_gallery.presets.preset_1.blocks.block_1.title"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "label": "t:sections.scroll_gallery.presets.preset_1.blocks.block_2.label",
+            "title": "t:sections.scroll_gallery.presets.preset_1.blocks.block_2.title"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "label": "t:sections.scroll_gallery.presets.preset_1.blocks.block_3.label",
+            "title": "t:sections.scroll_gallery.presets.preset_1.blocks.block_3.title"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "label": "t:sections.scroll_gallery.presets.preset_1.blocks.block_4.label",
+            "title": "t:sections.scroll_gallery.presets.preset_1.blocks.block_4.title"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

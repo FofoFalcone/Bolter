@@ -1,0 +1,120 @@
+{%- comment -%}
+  Selettore delle opzioni prodotto (pagina prodotto, anteprima rapida): un gruppo di radio per opzione.
+  Solo con JS: i radio non sono campi del form, <product-page> (frontend/scripts/product-page.js) richiede
+  la section con `option_values` e sostituisce le parti [data-product-part]. Senza JS resta il <select>
+  dello snippet product-buy-buttons.
+  Ogni coppia input+label è in un contenitore proprio, così peer-checked: non tocca le altre etichette.
+
+  - Swatch (campioni): per l'opzione con colori o immagini collegati in Shopify (`product_option_value.swatch`,
+    metafield di categoria) o, in mancanza, con uno dei nomi in Impostazioni tema → Card prodotto → "Nomi
+    dell'opzione colore" (immagine della variante come campione). Un valore senza campione resta un chip di testo.
+  - Combined listings: il valore che appartiene a un altro prodotto porta `data-product-url`
+    (`product_option_value.product_url`): product-page.js carica quel prodotto al posto di quello attuale.
+  - Valori non disponibili: barrati (chip) o con una diagonale (swatch), sempre selezionabili e annunciati.
+
+  Parametri:
+  - product: prodotto (obbligatorio)
+  - section_id: id della section, per id e name univoci (obbligatorio)
+  - attributes: attributi extra sul contenitore (es. block.shopify_attributes)
+
+  Uso: {% render 'product-variant-picker', product: product, section_id: section.id %}
+{%- endcomment -%}
+{%- unless product.has_only_default_variant -%}
+  {%- liquid
+    assign color_names = settings.product_card_swatch_options | downcase | split: ','
+    assign unavailable_label = 'products.product.unavailable' | t
+  -%}
+  <div class="hidden flex-col gap-5 js:flex" data-product-part="variant-picker" {{ attributes }}>
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign use_swatches = false
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        if swatch_count > 0
+          assign use_swatches = true
+        else
+          assign option_name = option.name | downcase | strip
+          for color_name in color_names
+            assign color_name = color_name | strip
+            if color_name != blank and option_name == color_name
+              assign use_swatches = true
+              break
+            endif
+          endfor
+        endif
+      -%}
+      <fieldset class="flex flex-col gap-2">
+        <legend class="mb-2 text-body-sm font-semibold text-foreground">
+          {{- option.name | escape -}}:
+          <span class="font-normal text-foreground/80">{{ option.selected_value | escape }}</span>
+        </legend>
+        <div class="flex flex-wrap {% if use_swatches %}gap-3{% else %}gap-2{% endif %}">
+          {%- for value in option.values -%}
+            {%- liquid
+              capture input_id
+                echo section_id | append: '-' | append: option.position | append: '-' | append: forloop.index0
+              endcapture
+              assign swatch_background = nil
+              if use_swatches
+                if value.swatch.image
+                  assign swatch_background = value.swatch.image | image_url: width: 120 | prepend: 'url(' | append: ')'
+                elsif value.swatch.color
+                  assign swatch_background = value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
+                elsif value.variant.featured_media
+                  assign swatch_background = value.variant.featured_media | image_url: width: 120 | prepend: 'url(' | append: ')'
+                endif
+              endif
+            -%}
+            <div class="relative">
+              <input
+                type="radio"
+                class="peer sr-only"
+                id="{{ input_id }}"
+                name="{{ option.name | handle }}-{{ section_id }}"
+                value="{{ value | escape }}"
+                data-option-value-id="{{ value.id }}"
+                data-option-name="{{ option.name | escape }}"
+                {% if value.product_url %}
+                  data-product-url="{{ value.product_url }}"
+                {% endif %}
+                {% if value.selected %}
+                  checked
+                {% endif %}
+              >
+              {%- if swatch_background -%}
+                {%- comment -%}
+                  Campione: 44px (area di tocco minima); selezionato = anello scuro staccato dal bordo, focus da
+                  tastiera = anello primary più distante. Non disponibile: diagonale (clippata dal cerchio).
+                {%- endcomment -%}
+                <label
+                  for="{{ input_id }}"
+                  class="relative block size-11 cursor-pointer overflow-hidden rounded-full border border-border-strong [background:var(--swatch)_center/cover_no-repeat] transition-[outline-color,outline-offset,scale] duration-150 hover:outline-2 hover:outline-offset-2 hover:outline-border-strong motion-safe:active:scale-90 peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-primary motion-reduce:transition-none{% unless value.available %} opacity-60 after:absolute after:top-1/2 after:left-1/2 after:h-0.5 after:w-[150%] after:-translate-x-1/2 after:-translate-y-1/2 after:-rotate-45 after:bg-foreground/80{% endunless %}"
+                  style="--swatch: {{ swatch_background }};"
+                >
+                  <span class="sr-only">
+                    {{- value | escape -}}
+                    {%- unless value.available %}, {{ unavailable_label }}{% endunless -%}
+                  </span>
+                </label>
+                {%- comment -%} Fuori dalla label, che ritaglia il campione {%- endcomment -%}
+                <span class="tooltip" aria-hidden="true">
+                  {{- value | escape -}}
+                  {%- unless value.available %}, {{ unavailable_label }}{% endunless -%}
+                </span>
+              {%- else -%}
+                <label
+                  for="{{ input_id }}"
+                  class="flex min-h-11 min-w-12 cursor-pointer items-center justify-center rounded-button border border-border-strong bg-background px-4 py-2 text-body text-foreground transition-[color,background-color,border-color,scale] duration-150 hover:border-foreground motion-safe:active:scale-95 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary motion-reduce:transition-none{% unless value.available %} text-foreground/60 line-through{% endunless %}"
+                >
+                  {{- value | escape -}}
+                  {%- unless value.available -%}
+                    <span class="sr-only">, {{ unavailable_label }}</span>
+                  {%- endunless -%}
+                </label>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </fieldset>
+    {%- endfor -%}
+  </div>
+{%- endunless -%}

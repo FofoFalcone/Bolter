@@ -1,0 +1,114 @@
+{%- comment -%}
+  Contenuto del mega menu di una voce del menu principale (solo nella section header).
+  Collega la voce per titolo: i link restano quelli del menu Shopify (Contenuti → Menu), il blocco sceglie
+  il layout del pannello e aggiunge le card promo (blocchi figli _header-menu-card).
+  L'id del setting è "title" di proposito: il theme editor usa heading/title/text come nome del blocco
+  nell'elenco, così ogni Mega menu si riconosce dalla sua voce (es. "Skincare") e non resta "Mega menu".
+  Il pannello è lo snippet header-panel; il pulsante che lo apre è nella section (stesso id).
+{%- endcomment -%}
+{%- liquid
+  assign key = block.settings.title | handleize
+  assign target = nil
+  if key != blank
+    for link in section.settings.menu.links
+      assign link_key = link.title | handleize
+      if link_key == key
+        assign target = link
+        break
+      endif
+    endfor
+  endif
+-%}
+
+{%- capture cards -%}
+  {% content_for 'blocks' %}
+{%- endcapture -%}
+
+{%- if target != nil -%}
+  {% render 'header-panel',
+    link: target,
+    layout: block.settings.layout,
+    cards: cards,
+    attributes: block.shopify_attributes
+  %}
+{%- elsif request.design_mode -%}
+  {%- comment -%}
+    Solo nell'editor: il blocco non è ancora collegato (voce vuota o inesistente). L'avviso elenca le voci
+    di primo livello da copiare; sta nel contenitore degli avvisi dell'header (sotto l'header, sopra la
+    pagina), quindi non sposta il layout. Cliccandolo si seleziona il blocco.
+  {%- endcomment -%}
+  {%- capture menu_items -%}
+    {%- for link in section.settings.menu.links -%}
+      «{{ link.title | escape }}»{% unless forloop.last %}, {% endunless %}
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- liquid
+    assign item_title = block.settings.title | escape
+    if key == blank
+      assign message = 'general.header.mega_menu_empty' | t: items: menu_items
+    else
+      assign message = 'general.header.mega_menu_missing' | t: title: item_title, items: menu_items
+    endif
+  -%}
+  <p
+    class="pointer-events-auto flex max-w-md items-start gap-2 rounded-lg border border-warning bg-warning-surface p-3 text-body-sm text-warning-foreground shadow-400"
+    {{ block.shopify_attributes }}
+  >
+    {% render 'icon', name: 'exclamation-triangle', class: 'mt-px size-5 shrink-0' %}
+    <span>{{ message }}</span>
+  </p>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.header_mega_menu.name",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_header-menu-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:blocks.header_mega_menu.settings.title.label",
+      "info": "t:blocks.header_mega_menu.settings.title.info"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:blocks.header_mega_menu.settings.layout.label",
+      "options": [
+        {
+          "value": "tiles",
+          "label": "t:blocks.header_mega_menu.settings.layout.options.tiles"
+        },
+        {
+          "value": "columns",
+          "label": "t:blocks.header_mega_menu.settings.layout.options.columns"
+        }
+      ],
+      "default": "tiles",
+      "info": "t:blocks.header_mega_menu.settings.layout.info"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:blocks.header_mega_menu.settings.paragraph_1.content"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.header_mega_menu.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "_header-menu-card"
+        },
+        {
+          "type": "_header-menu-card"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

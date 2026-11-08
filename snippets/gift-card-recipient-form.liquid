@@ -1,0 +1,154 @@
+{%- comment -%}
+  Invio del buono regalo a un'altra persona (dentro il form di un prodotto gift card). Nomi dei campi e limiti dalla
+  documentazione Shopify: email obbligatoria, nome fino a 255 caratteri, messaggio fino a 200, invio programmato fino a
+  90 giorni. La convalida di Shopify non funziona con il pagamento rapido: product-buy-buttons lo nasconde sui buoni.
+
+  - Senza JS: i campi sono visibili, la casella è disattivata e il campo nascosto vale "if_present" (i dati si inviano
+    solo se compilati).
+  - Con JS (frontend/scripts/product-page.js, syncRecipient): la casella apre i campi, che restano disattivati finché è
+    spenta, così non partono dati per sbaglio; si aggiunge il fuso orario del cliente per la data di invio.
+
+  Parametri:
+  - form: oggetto form del tag {% form 'product' %} (per gli errori senza JS)
+  - section_id: id della section (obbligatorio)
+
+  Uso: {% render 'gift-card-recipient-form', form: form, section_id: section_id %}
+{%- endcomment -%}
+{%- liquid
+  assign flag_name = 'properties[__shopify_send_gift_card_to_recipient]'
+  assign today_seconds = 'now' | date: '%s'
+  assign today = today_seconds | date: '%Y-%m-%d'
+  # 90 giorni in secondi: limite indicato da Shopify per l'invio programmato
+  assign last_day = today_seconds | plus: 7776000 | date: '%Y-%m-%d'
+-%}
+{%- capture field_class -%}
+  block w-full min-h-11 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none
+{%- endcapture -%}
+{%- capture label_class -%}text-body-sm font-semibold text-foreground{%- endcapture -%}
+
+<div
+  class="flex flex-col gap-4 js:[&:not([data-open])_[data-recipient-fields]]:hidden"
+  data-gift-recipient
+>
+  <div class="hidden items-center gap-3 js:flex">
+    <span class="relative flex size-5 shrink-0 cursor-pointer">
+      <input
+        type="checkbox"
+        id="Recipient-toggle-{{ section_id }}"
+        class="peer checkbox hover:border-foreground"
+        name="{{ flag_name }}"
+        value="true"
+        aria-controls="Recipient-fields-{{ section_id }}"
+        data-recipient-toggle
+        data-preserve-field
+        disabled
+      >
+      {% render 'icon', name: 'check', class: 'check-tick pointer-events-none absolute inset-0 m-auto size-4 text-primary-foreground' %}
+    </span>
+    <label for="Recipient-toggle-{{ section_id }}" class="cursor-pointer text-body text-foreground">
+      {{- 'products.product.gift_card_recipient.toggle' | t -}}
+    </label>
+  </div>
+
+  <input type="hidden" name="{{ flag_name }}" value="if_present" data-recipient-control>
+  <input type="hidden" name="properties[__shopify_offset]" value="" data-recipient-offset disabled>
+
+  {%- if form.errors -%}
+    <ul class="flex flex-col gap-1 rounded-md bg-danger-surface p-3 text-body-sm text-danger-foreground" role="alert">
+      {%- for field in form.errors -%}
+        <li>
+          {%- unless field == 'form' -%}
+            {{- form.errors.translated_fields[field] | capitalize }}{{ ' ' }}
+          {%- endunless -%}
+          {{- form.errors.messages[field] -}}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  <div class="flex flex-col gap-4" id="Recipient-fields-{{ section_id }}" data-recipient-fields>
+    <div class="flex flex-col gap-2">
+      <label for="Recipient-email-{{ section_id }}" class="{{ label_class }}">
+        {{- 'products.product.gift_card_recipient.email' | t -}}
+      </label>
+      <input
+        type="email"
+        id="Recipient-email-{{ section_id }}"
+        class="{{ field_class }}"
+        name="properties[Recipient email]"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        required
+        data-preserve-field
+        {% if form.errors contains 'email' %}
+          aria-invalid="true"
+        {% endif %}
+      >
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="Recipient-name-{{ section_id }}" class="{{ label_class }}">
+        {{- 'products.product.gift_card_recipient.name' | t }}
+        <span class="font-normal text-foreground/80">({{ 'products.product.gift_card_recipient.optional' | t }})</span>
+      </label>
+      <input
+        type="text"
+        id="Recipient-name-{{ section_id }}"
+        class="{{ field_class }}"
+        name="properties[Recipient name]"
+        maxlength="255"
+        autocomplete="off"
+        data-preserve-field
+        {% if form.errors contains 'name' %}
+          aria-invalid="true"
+        {% endif %}
+      >
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="Recipient-message-{{ section_id }}" class="{{ label_class }}">
+        {{- 'products.product.gift_card_recipient.message' | t }}
+        <span class="font-normal text-foreground/80">({{ 'products.product.gift_card_recipient.optional' | t }})</span>
+      </label>
+      <textarea
+        id="Recipient-message-{{ section_id }}"
+        class="{{ field_class }}"
+        name="properties[Message]"
+        rows="3"
+        maxlength="200"
+        aria-describedby="Recipient-message-hint-{{ section_id }}"
+        data-preserve-field
+        {% if form.errors contains 'message' %}
+          aria-invalid="true"
+        {% endif %}
+      ></textarea>
+      <p id="Recipient-message-hint-{{ section_id }}" class="text-body-sm text-foreground/80">
+        {{- 'products.product.gift_card_recipient.message_hint' | t: count: 200 -}}
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="Recipient-send_on-{{ section_id }}" class="{{ label_class }}">
+        {{- 'products.product.gift_card_recipient.send_on' | t }}
+        <span class="font-normal text-foreground/80">({{ 'products.product.gift_card_recipient.optional' | t }})</span>
+      </label>
+      <input
+        type="date"
+        id="Recipient-send_on-{{ section_id }}"
+        class="{{ field_class }}"
+        name="properties[Send on]"
+        min="{{ today }}"
+        max="{{ last_day }}"
+        aria-describedby="Recipient-send_on-hint-{{ section_id }}"
+        data-preserve-field
+        {% if form.errors contains 'send_on' %}
+          aria-invalid="true"
+        {% endif %}
+      >
+      <p id="Recipient-send_on-hint-{{ section_id }}" class="text-body-sm text-foreground/80">
+        {{- 'products.product.gift_card_recipient.send_on_hint' | t -}}
+      </p>
+    </div>
+  </div>
+</div>

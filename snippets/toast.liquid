@@ -1,0 +1,28 @@
+{%- comment -%}
+  Modello dei toast (frontend/scripts/toast.js), reso una volta nel layout. Il template resta inerte finché non serve.
+  open:flex e non flex: un display sempre impostato batterebbe il display:none dei popover chiusi.
+  Colori: invertiti rispetto alla pagina, con la palette del tema; gli errori come gli altri riquadri di errore.
+{%- endcomment -%}
+<template
+  id="ToastTemplate"
+  data-cart-added="{{ 'sections.cart.added' | t | escape }}"
+  data-cart-view="{{ 'sections.cart.view_cart' | t | escape }}"
+  data-cart-url="{{ routes.cart_url }}"
+>
+  <div
+    popover="manual"
+    class="group/toast fixed inset-x-4 top-auto bottom-4 m-0 w-auto items-start gap-3 rounded-lg bg-foreground py-2 ps-4 pe-2 text-body-sm text-background shadow-600 open:flex data-[placement=top]:top-4 data-[placement=top]:bottom-auto data-[tone=error]:border data-[tone=error]:border-danger-foreground/30 data-[tone=error]:bg-danger-surface data-[tone=error]:text-danger-foreground md:right-6 md:bottom-6 md:left-auto md:w-96 md:data-[placement=top]:top-6 md:data-[placement=top]:bottom-auto"
+  >
+    <span class="mt-2 shrink-0 group-data-[tone=error]/toast:hidden">{% render 'icon', name: 'check-circle', class: 'size-5' %}</span>
+    <span class="mt-2 hidden shrink-0 group-data-[tone=error]/toast:block">{% render 'icon', name: 'exclamation-triangle', class: 'size-5' %}</span>
+    <div class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-1 py-2">
+      <p class="min-w-0 text-pretty" aria-hidden="true" data-toast-message></p>
+      <p class="sr-only" data-toast-status></p>
+      <a class="rounded-sm font-semibold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current empty:hidden" data-toast-action></a>
+    </div>
+    <button type="button" class="button button-sm button-icon hover:bg-current/10 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-current" data-toast-close>
+      {% render 'icon', name: 'x-mark', class: 'size-5' %}
+      <span class="sr-only">{{ 'accessibility.close' | t }}</span>
+    </button>
+  </div>
+</template>
