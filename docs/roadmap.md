@@ -66,6 +66,8 @@ Non verificabili in Chrome headless o senza dati sullo store. Con `npm run start
 - Section nuove nell'editor, a 375, 750 e 990px: `content` (preset "Testo con immagine", blocchi annidati, aggiunta di un blocco), `columns`, `collection-list`, `newsletter`, `shop-the-look`
 - Newsletter: iscrizione vera, email già iscritta, consenso con e senza policy, conferma con `?customer_posted=true`, stessa section anche nel footer
 - `shop-the-look`: anteprima rapida da punto e da riga, tastiera, tocco, punti vicini ai bordi, `shopify:product:view` delle righe con `npm run start:events`
+- Modifiche al carrello da agenti e app (2026-11-09), con `npm run start:events`: `updateCart` chiamata dall'inspector con il cassetto chiuso (toast "Carrello aggiornato", "Vai al carrello" apre il cassetto), con il cassetto aperto e sulla pagina carrello (solo annuncio, niente toast); con carrello "Pagina" il link porta a `/cart`. Se possibile, un agente WebMCP vero in Chrome
+- Politica di reso nei dati strutturati della home: Rich Results Test dopo `npm run shopify:push:dev`
 
 ## Sullo store
 
