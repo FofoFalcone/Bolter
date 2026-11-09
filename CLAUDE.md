@@ -1,6 +1,6 @@
 # bolter-theme — istruzioni per Claude
 
-Tema Shopify Online Store 2.0 custom per lo store `b2x-srl.myshopify.com`, con pipeline Vite + `vite-plugin-shopify` (Volt) e animazioni Motion.
+Tema Shopify Online Store 2.0 custom (store di sviluppo `bolter-development.myshopify.com`), con pipeline Vite + `vite-plugin-shopify` (Volt) e animazioni Motion.
 Lavora come un **senior frontend developer specializzato in temi Shopify**: codice semplice e manutenibile, performance (Core Web Vitals) e accessibilità come requisiti, non come extra. Il merchant deve poter configurare tutto dal theme editor.
 
 Dettagli estesi in [README.md](README.md). Rispondi all'utente in italiano.
@@ -17,7 +17,7 @@ npm run start:watch  # watch, poi shopify theme dev sull'ambiente `local` (tools
 npm run start:events # come start:watch, con l'inspector degli standard storefront events
 npm run start:sync   # come start:watch, con --theme-editor-sync: le modifiche del theme editor finiscono nei JSON locali
 npm run start:measure # come start:watch, ma build minificata e senza sourcemap (prima misura con Lighthouse da DevTools)
-npm run shopify:push:dev   # build + push sul tema condiviso (201246376261)
+npm run shopify:push:dev   # build + push sul tema condiviso (ID in shopify.theme.toml)
 npm run shopify:push:prod  # build + push in PRODUZIONE
 ```
 
@@ -221,5 +221,5 @@ Il tema deve superare al meglio Lighthouse / PageSpeed Insights (Performance, Ac
 - Roadmap e voci aperte: [docs/roadmap.md](docs/roadmap.md).
 - Prove in Chrome headless sul theme dev: a tratti (anche per minuti, misurato il 2026-11-06) il proxy manda tutte le richieste sulla password dello store, da qualsiasi client: le pagine ricevono un 302 verso `/password`, le richieste con `section_id` un 302 **senza** `Location` e con testo "Bad Gateway" (la CLI trasforma la redirect in errore). `fetch` lo vede come risposta non ok e scatta il ripiego a navigazione completa: una ricarica dei filtri, delle varianti o del carrello sul theme dev non basta a dire che il codice è rotto, prima guarda quella risposta nel pannello Rete. La causa precisa dello stato non è nota. Per provare gli aggiornamenti via fetch senza dipendere dallo store: bundle di `.build-check/` su un piccolo server locale che imita la section.
 - Theme Check: 0 errori (al 2026-11-05). Qualsiasi errore nuovo è una regressione da correggere.
-- `config/settings_schema.json`: documentazione → repo GitHub `FofoFalcone/Bolter`, supporto → `sviluppatori@b2x.it`. `theme_support_email` e `theme_support_url` sono mutuamente esclusivi nello schema Shopify.
+- `config/settings_schema.json`: documentazione → repo GitHub `FofoFalcone/Bolter`, supporto → `effewebdeveloper@gmail.com`. `theme_support_email` e `theme_support_url` sono mutuamente esclusivi nello schema Shopify.
 - Le vulnerabilità residue di `npm audit` arrivano da `@shopify/cli-kit` (dipendenza di `vite-plugin-shopify`), solo tooling di sviluppo.

@@ -1,13 +1,13 @@
 # shopify.theme.toml
 [environments.local]            # usato da `shopify theme dev`
-store = "b2x-srl.myshopify.com"
+store = "bolter-development.myshopify.com"
 # nessun theme: la CLI usa un tema "development" personale e nascosto
 
 [environments.development]      # tema condiviso: riceve solo build
-store = "b2x-srl.myshopify.com"
-theme = "201246376261"
+store = "bolter-development.myshopify.com"
+# theme = "<ID del tema di sviluppo condiviso>"   (da `shopify theme list`)
 
 [environments.production]
-store = "b2x-srl.myshopify.com"
-theme = "201246507333"
+store = "bolter-development.myshopify.com"
+# theme = "<ID del tema di produzione>"           (da `shopify theme list`)
 ignore = ["config/settings_data.json"]
