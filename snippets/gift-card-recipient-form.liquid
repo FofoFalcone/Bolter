@@ -22,7 +22,7 @@
   assign last_day = today_seconds | plus: 7776000 | date: '%Y-%m-%d'
 -%}
 {%- capture field_class -%}
-  block w-full min-h-11 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none
+  block w-full min-h-11 rounded-md border border-input-border bg-input px-4 py-2.5 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none
 {%- endcapture -%}
 {%- capture label_class -%}text-body-sm font-semibold text-foreground{%- endcapture -%}
 

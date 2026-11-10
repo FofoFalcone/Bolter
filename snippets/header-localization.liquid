@@ -95,7 +95,7 @@
             {% render 'icon', name: 'chevron-left', class: 'size-5' %}
             {{- 'general.header.back' | t -}}
           </button>
-          <h2 class="text-title-page text-foreground">{{ heading }}</h2>
+          <h2 class="text-title-page text-headings">{{ heading }}</h2>
         </div>
         <p class="hidden px-3 pt-1 text-body-sm font-semibold text-muted lg:block">{{ heading }}</p>
 
@@ -111,7 +111,7 @@
                   data-localization-filter
                   placeholder="{{ 'general.localization.search' | t }}"
                   autocomplete="off"
-                  class="w-full rounded-button border border-border-strong bg-background py-2 pr-3 pl-9 text-body placeholder:text-muted"
+                  class="w-full rounded-button border border-input-border bg-input text-input-foreground py-2 pr-3 pl-9 text-body placeholder:text-input-foreground/65"
                 >
               </label>
             {%- endif -%}

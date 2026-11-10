@@ -41,10 +41,30 @@
       assign media_class = 'rounded-lg'
       assign info_class = 'pt-3'
     else
-      assign card_class = 'overflow-hidden rounded-lg border border-border bg-background'
+      assign card_class = 'card-colors overflow-hidden rounded-lg bg-background text-foreground'
+      if settings.product_card_style == 'box'
+        assign card_class = card_class | append: ' border border-border'
+      endif
       assign media_class = ''
       assign info_class = 'p-4'
   endcase
+
+  # Ombra come le card prodotto (Impostazioni tema → Card prodotto)
+  case settings.product_card_shadow
+    when 'small'
+      assign shadow_class = 'shadow-200'
+    when 'medium'
+      assign shadow_class = 'shadow-300'
+    when 'large'
+      assign shadow_class = 'shadow-400'
+    else
+      assign shadow_class = ''
+  endcase
+  if settings.product_card_style == 'plain'
+    assign media_class = media_class | append: ' ' | append: shadow_class
+  else
+    assign card_class = card_class | append: ' ' | append: shadow_class
+  endif
   case settings.product_card_image_ratio
     when 'square'
       assign media_class = media_class | append: ' aspect-square'
@@ -79,7 +99,7 @@
   </div>
 
   <div class="flex grow flex-col gap-2 {{ info_class }}">
-    <h3 class="text-body font-semibold text-balance text-foreground">
+    <h3 class="text-body font-semibold text-balance text-headings">
       <a
         href="{{ item.url }}"
         class="after:absolute after:inset-0 after:z-[1] after:rounded-[inherit] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"

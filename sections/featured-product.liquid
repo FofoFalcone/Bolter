@@ -11,7 +11,7 @@
   - Senza JS: <select name="id"> e form verso /cart/add, come nella pagina prodotto.
   - Senza prodotto scelto: segnaposto solo nel theme editor, nel negozio la section non stampa nulla.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   assign s = section.settings
@@ -109,7 +109,7 @@
               {%- endif -%}
 
             {%- when 'title' -%}
-              <h2 class="text-heading text-balance text-foreground md:text-subtitle" {{ block.shopify_attributes }}>
+              <h2 class="text-heading text-balance text-headings md:text-subtitle" {{ block.shopify_attributes }}>
                 <a href="{{ featured.url }}" class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                   {{- featured.title | escape -}}
                 </a>
@@ -203,7 +203,7 @@
       {{ 'product-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
     </div>
     <div class="flex flex-col gap-6">
-      <h2 class="text-heading text-foreground md:text-subtitle">{{ 'sections.featured_product.placeholder_title' | t }}</h2>
+      <h2 class="text-heading text-headings md:text-subtitle">{{ 'sections.featured_product.placeholder_title' | t }}</h2>
       <p class="text-subheading text-foreground">{{ 4999 | money }}</p>
       <p class="max-w-2xl text-body text-pretty text-foreground/80">{{ 'sections.featured_product.placeholder_text' | t }}</p>
       <span class="button button-primary button-lg pointer-events-none w-full opacity-60">
@@ -296,16 +296,11 @@
       "content": "t:sections.featured_product.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.featured_product.settings.color_background.label",
-      "info": "t:sections.featured_product.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.featured_product.settings.color_text.label",
-      "info": "t:sections.featured_product.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.featured_product.settings.color_scheme.label",
+      "info": "t:sections.featured_product.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

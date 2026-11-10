@@ -8,7 +8,7 @@
 
   Il consenso è una casella senza name: blocca l'invio finché non è spuntata e non aggiunge campi al cliente.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign form_id = 'Newsletter-' | append: section.id
@@ -39,7 +39,7 @@
   {%- assign consent_label = 'sections.newsletter.consent_label_html' | t: link: privacy_link -%}
 {%- endif -%}
 {%- capture field_class -%}
-  block min-h-11 w-full min-w-0 flex-1 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none
+  block min-h-11 w-full min-w-0 flex-1 rounded-md border border-input-border bg-input px-4 py-2.5 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none
 {%- endcapture -%}
 
 <div class="page-width py-8 md:py-16">
@@ -53,7 +53,7 @@
     {%- if s.heading != blank or s.text != blank -%}
       <div class="flex flex-col gap-3">
         {%- if s.heading != blank -%}
-          <h2 class="text-heading text-balance text-foreground md:text-title-page">{{ s.heading | escape }}</h2>
+          <h2 class="text-heading text-balance text-headings md:text-title-page">{{ s.heading | escape }}</h2>
         {%- endif -%}
         {%- if s.text != blank -%}
           <div class="prose prose-theme max-w-none text-body text-pretty text-foreground/80">
@@ -216,16 +216,11 @@
       "content": "t:sections.newsletter.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.newsletter.settings.color_background.label",
-      "info": "t:sections.newsletter.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.newsletter.settings.color_text.label",
-      "info": "t:sections.newsletter.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.newsletter.settings.color_scheme.label",
+      "info": "t:sections.newsletter.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

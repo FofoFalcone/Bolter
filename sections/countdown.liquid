@@ -11,7 +11,7 @@
     fine. Pulsante pausa (WCAG 2.2.2: contenuto che si aggiorna da solo). Senza JS restano le cifre del rendering.
   - JS: frontend/entrypoints/countdown.js (<countdown-timer>).
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign date_text = s.end_date | strip
@@ -269,18 +269,11 @@
       "info": "t:sections.countdown.settings.style.info"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.countdown.settings.color_background.label",
-      "info": "t:sections.countdown.settings.color_background.info",
-      "visible_if": "{{ section.settings.style == 'theme' }}"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.countdown.settings.color_text.label",
-      "info": "t:sections.countdown.settings.color_text.info",
-      "visible_if": "{{ section.settings.style == 'theme' }}"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.countdown.settings.color_scheme.label",
+      "info": "t:sections.countdown.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

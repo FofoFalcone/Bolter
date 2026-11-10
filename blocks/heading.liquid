@@ -16,7 +16,7 @@
   endcase
 -%}
 {%- if block.settings.heading != blank -%}
-  <{{ tag }} class="{{ size_class }} max-w-4xl text-balance text-foreground [&_a]:underline [&_a]:underline-offset-4" {{ block.shopify_attributes }}>
+  <{{ tag }} class="{{ size_class }} max-w-4xl text-balance text-headings [&_a]:underline [&_a]:underline-offset-4" {{ block.shopify_attributes }}>
     {{- block.settings.heading -}}
   </{{ tag }}>
 {%- endif -%}

@@ -60,6 +60,19 @@
   --color-danger-surface: #fee9e7; /* sds-color-background-danger-tertiary */
   --color-danger-foreground: #900b09; /* sds-color-text-danger-default */
 
+  /* Ruoli degli schemi di colori (non nel SDS): valori SDS equivalenti, ricalcolati sotto */
+  --color-headings: #1e1e1e; /* titoli */
+  --color-card: #ffffff; /* sfondo delle card con riquadro */
+  --color-card-foreground: #1e1e1e;
+  --color-secondary: #ffffff; /* pulsante secondario (button-neutral) */
+  --color-secondary-foreground: #1e1e1e;
+  --color-secondary-border: #d9d9d9;
+  --color-badge-sale: #fee9e7; /* badge "Saldi" */
+  --color-badge-sale-foreground: #900b09;
+  --color-input: #ffffff; /* campi dei form */
+  --color-input-foreground: #1e1e1e;
+  --color-input-border: #757575;
+
   /* Utility */
   --color-overlay: #00000080; /* sds-color-background-utilities-overlay */
   --color-scrim: #ffffffcc; /* sds-color-background-utilities-scrim */
@@ -134,25 +147,37 @@
 
 /*
  * Colori derivati dai quattro colori di base (background, foreground, primary, primary-foreground):
- * il merchant ne sceglie solo quattro (Impostazioni tema → Colori, stampati da snippets/head-styles.liquid)
- * e il resto si adatta. I valori in @theme sopra restano il riferimento SDS e registrano le utility: le percentuali
- * qui riproducono l'SDS con la palette predefinita.
+ * sono obbligatori in ogni schema di colori (Impostazioni tema → Colori, schema della pagina stampato da
+ * snippets/head-styles.liquid) e il resto si adatta. I valori in @theme sopra restano il riferimento SDS e
+ * registrano le utility: le percentuali qui riproducono l'SDS con lo schema predefinito.
  *
- * Una section con colori propri (snippets/section-colors.liquid) ridefinisce i quattro colori sul suo wrapper con
- * un {% style %}: serve ricalcolare lì anche i derivati, perché una custom property con var() si risolve
- * sull'elemento che la dichiara e i figli ereditano il valore già calcolato. Il selettore riconosce il
- * <style data-shopify> figlio diretto del wrapper.
+ * Gli altri colori dello schema (titoli, bordi, pulsante secondario, card, badge, campi) sono facoltativi: arrivano
+ * come --scheme-* (snippets/color-scheme-vars.liquid, `initial` se vuoti) e, se mancano, vale il calcolo qui sotto.
+ *
+ * Una section con uno schema diverso da quello della pagina (snippets/section-colors.liquid) ridefinisce i colori
+ * sul suo wrapper con un {% style %}: serve ricalcolare lì anche i derivati, perché una custom property con var() si
+ * risolve sull'elemento che la dichiara e i figli ereditano il valore già calcolato. Il selettore riconosce il
+ * <style data-shopify> figlio diretto del wrapper. Stesso motivo per le card (utility card-colors, utilities.css):
+ * dentro una card bordi, testi attenuati, badge e titoli si ricalcolano sui colori della card.
  */
 :root,
-.shopify-section:has(> style[data-shopify]) {
+.shopify-section:has(> style[data-shopify]),
+.card-colors {
   --color-surface: color-mix(in srgb, var(--color-foreground) 4.5%, var(--color-background));
   --color-surface-hover: color-mix(in srgb, var(--color-foreground) 11%, var(--color-background));
   --color-surface-strong: color-mix(in srgb, var(--color-foreground) 17%, var(--color-background));
   /* 65%: almeno 4.5:1 anche su bg-surface e su fondi colorati (l'SDS, a 61%, si ferma a 4.2:1) */
   --color-muted: color-mix(in srgb, var(--color-foreground) 65%, var(--color-background));
   --color-subtle: color-mix(in srgb, var(--color-foreground) 34%, var(--color-background));
-  --color-border: color-mix(in srgb, var(--color-foreground) 17%, var(--color-background));
+  --color-border: var(--scheme-border, color-mix(in srgb, var(--color-foreground) 17%, var(--color-background)));
   --color-border-strong: color-mix(in srgb, var(--color-foreground) 61.3%, var(--color-background));
+  --color-headings: var(--scheme-headings, var(--color-foreground));
+  --color-secondary: var(--scheme-secondary, var(--color-background));
+  --color-secondary-foreground: var(--scheme-secondary-foreground, var(--color-foreground));
+  --color-secondary-border: var(--scheme-secondary-border, var(--color-border));
+  --color-input: var(--scheme-input, var(--color-background));
+  --color-input-foreground: var(--scheme-input-foreground, var(--color-foreground));
+  --color-input-border: var(--scheme-input-border, var(--color-border-strong));
   --color-primary-hover: color-mix(in srgb, var(--color-primary) 86%, var(--color-primary-foreground));
   --color-neutral: color-mix(in srgb, var(--color-foreground) 92%, var(--color-background));
   --color-neutral-muted: color-mix(in srgb, var(--color-foreground) 61%, var(--color-background));
@@ -165,7 +190,18 @@
   --color-warning-foreground: color-mix(in srgb, var(--color-warning) 35%, var(--color-foreground));
   --color-danger-surface: color-mix(in srgb, var(--color-danger) 10%, var(--color-background));
   --color-danger-foreground: color-mix(in srgb, var(--color-danger) 50%, var(--color-foreground));
+  --color-badge-sale: var(--scheme-badge-sale, var(--color-danger-surface));
+  --color-badge-sale-foreground: var(--scheme-badge-sale-foreground, var(--color-danger-foreground));
   --color-scrim: color-mix(in srgb, var(--color-background) 80%, transparent);
+}
+
+/*
+ * Colori delle card: fuori da .card-colors, che li usa come sfondo e testo (lì sarebbero un riferimento circolare).
+ */
+:root,
+.shopify-section:has(> style[data-shopify]) {
+  --color-card: var(--scheme-card, var(--color-background));
+  --color-card-foreground: var(--scheme-card-foreground, var(--color-foreground));
 }
 
 :root {

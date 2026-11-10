@@ -28,14 +28,6 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -43,6 +35,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -102,13 +98,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -167,14 +159,6 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -193,6 +177,10 @@
         "show_language": {
           "label": "Show the language selector",
           "info": "Only if the store has more than one published language (Settings → Languages)."
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -295,14 +283,6 @@
         "header_4": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -310,6 +290,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -359,14 +343,6 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Below 990px the image reaches the screen edges. Everything else widens on screens wider than the maximum page width (Theme settings → Layout).",
@@ -374,6 +350,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -407,13 +387,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -435,13 +411,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -534,13 +506,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -612,13 +580,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -865,13 +829,9 @@
         "header_11": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -1063,13 +1023,9 @@
         "header_6": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -1165,14 +1121,6 @@
         "header_4": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -1180,6 +1128,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1209,13 +1161,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1301,13 +1249,9 @@
         "header_4": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -1441,14 +1385,6 @@
         "header_3": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -1456,6 +1392,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1485,14 +1425,6 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -1500,6 +1432,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -1533,13 +1469,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1585,14 +1517,6 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -1600,6 +1524,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1616,13 +1544,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1675,13 +1599,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1710,13 +1630,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       }
     },
@@ -1775,14 +1691,6 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -1790,6 +1698,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -1847,14 +1759,6 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Visible on screens wider than the maximum page width (Theme settings → Layout).",
@@ -1862,6 +1766,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -1950,13 +1858,9 @@
         "header_1": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -2013,13 +1917,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -2063,14 +1963,6 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: the palette color (Theme settings → Colors). If you only choose the background, text and buttons adapt on their own."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: the palette color. Make sure it reads well on the background (contrast of at least 4.5:1)."
-        },
         "section_width": {
           "label": "Width",
           "info": "Below 990px the image reaches the screen edges. Everything else widens on screens wider than the maximum page width (Theme settings → Layout).",
@@ -2078,6 +1970,10 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -2235,14 +2131,6 @@
         "header_3": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Leave empty to use the theme palette."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Leave empty to automatically pick the most readable color."
-        },
         "text_direction": {
           "label": "Text direction",
           "info": "Right to left is meant for text in Arabic, Hebrew and similar languages: it also changes the direction of the strip.",
@@ -2250,6 +2138,10 @@
             "auto": "Same as the page",
             "rtl": "Right to left"
           }
+        },
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -2530,12 +2422,9 @@
         "header_4": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors. With only a background, the text adapts on its own."
-        },
-        "color_text": {
-          "label": "Text"
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -2673,13 +2562,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: picked automatically for contrast with the background."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -2751,13 +2636,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: picked automatically for contrast with the background."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -2859,13 +2740,9 @@
             "theme": "Section colors"
           }
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: picked automatically for contrast with the background."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -2913,13 +2790,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: picked automatically for contrast with the background."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -3032,13 +2905,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: picked automatically for contrast with the background."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "blocks": {
@@ -3144,13 +3013,9 @@
         "header_2": {
           "content": "Colors"
         },
-        "color_background": {
-          "label": "Background",
-          "info": "Empty: theme colors."
-        },
-        "color_text": {
-          "label": "Text",
-          "info": "Empty: picked automatically for contrast with the background."
+        "color_scheme": {
+          "label": "Color scheme",
+          "info": "Edit the schemes in Theme settings → Colors."
         }
       },
       "presets": {
@@ -3272,8 +3137,10 @@
           "label": "Style",
           "options": {
             "box": "Box with border",
-            "plain": "No box"
-          }
+            "plain": "No box",
+            "box_borderless": "Box without border"
+          },
+          "info": "Without a border the box stands out from the section only if the color scheme has a card background different from the background."
         },
         "product_card_image_ratio": {
           "label": "Image ratio",
@@ -3308,6 +3175,16 @@
         "quick_view_dynamic_checkout": {
           "label": "Show accelerated checkout buttons",
           "info": "In the product quick view, below \"Add to cart\"."
+        },
+        "product_card_shadow": {
+          "label": "Shadow",
+          "info": "With \"No box\" the shadow sits under the image.",
+          "options": {
+            "none": "None",
+            "small": "Small",
+            "medium": "Medium",
+            "large": "Large"
+          }
         }
       }
     },
@@ -3387,7 +3264,84 @@
       }
     },
     "color": {
-      "name": "Colors"
+      "name": "Colors",
+      "settings": {
+        "color_schemes": {
+          "definition": {
+            "background": {
+              "label": "Background"
+            },
+            "foreground": {
+              "label": "Text",
+              "info": "Make sure it reads well on the background (contrast of at least 4.5:1)."
+            },
+            "primary": {
+              "label": "Primary button",
+              "info": "Also used for the focus outline and active controls: it must stand out from the background (contrast of at least 3:1)."
+            },
+            "primary_foreground": {
+              "label": "Button label"
+            },
+            "headings": {
+              "label": "Headings",
+              "info": "Empty: same as the text."
+            },
+            "border": {
+              "label": "Borders",
+              "info": "Dividers and outlines. Empty: calculated from text and background."
+            },
+            "header_1": {
+              "content": "Buttons"
+            },
+            "secondary": {
+              "label": "Secondary button background",
+              "info": "Empty: same as the background."
+            },
+            "secondary_foreground": {
+              "label": "Secondary button text",
+              "info": "Empty: same as the text."
+            },
+            "secondary_border": {
+              "label": "Secondary button border",
+              "info": "Empty: same as the borders."
+            },
+            "header_2": {
+              "content": "Cards and badges"
+            },
+            "card": {
+              "label": "Card background",
+              "info": "Boxed cards (Theme settings → Product card). Empty: same as the background."
+            },
+            "card_foreground": {
+              "label": "Card text",
+              "info": "Empty: same as the text."
+            },
+            "badge_sale": {
+              "label": "Sale badge background",
+              "info": "Empty: calculated from the scheme colors."
+            },
+            "badge_sale_foreground": {
+              "label": "Sale badge text",
+              "info": "Make sure it reads well on the badge (contrast of at least 4.5:1). Empty: calculated from the scheme colors."
+            },
+            "header_3": {
+              "content": "Form fields"
+            },
+            "input": {
+              "label": "Field background",
+              "info": "Empty: same as the background."
+            },
+            "input_foreground": {
+              "label": "Field text",
+              "info": "Empty: same as the text."
+            },
+            "input_border": {
+              "label": "Field border",
+              "info": "It must stand out from the background (contrast of at least 3:1). Empty: calculated from the scheme colors."
+            }
+          }
+        }
+      }
     },
     "layout": {
       "name": "Layout",

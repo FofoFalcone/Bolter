@@ -47,7 +47,7 @@ Ordine di lavoro concordato il 2026-11-05. Lo stato delle singole funzionalità 
 - [x] `agents.md.liquid`: si resta sul file gestito da Shopify
 - [x] Template `metaobject`: non serve finché lo store non ha metaobject con pagina web
 - [x] Barra di lettura nel blog (l'header a scomparsa esisteva già)
-- [x] Colori: palette (`color_palette`) e colori per section, al posto degli schemi di colore (scelta dell'utente del 2026-11-05, vedi shopify-alignment.md)
+- [x] Colori: schemi di colori (`color_scheme_group` + `color_scheme` in 34 section), al posto della palette usata dal 2026-11-05 (scelta dell'utente del 2026-11-10, vedi shopify-alignment.md)
 - [x] Attributi del carrello: confezione regalo, messaggio regalo, data di consegna
 - [ ] Nuova architettura dei temi Fall '26: ancora in anteprima, da riprendere quando sarà stabile
 
@@ -61,7 +61,7 @@ Non verificabili in Chrome headless o senza dati sullo store. Con `npm run start
 - Con i dati adatti sullo store: selling plan, regole di quantità, ritiro in negozio, buono regalo con destinatario, righe annidate, combined listings
 - Card e pagina articolo con la barra di lettura (lo store non ha articoli)
 - Galleria prodotto e lightbox su telefono vero, soprattutto iOS: pinch, spostamento con un dito, swipe tra le immagini (provati solo con il touch emulato di Chrome). Con un prodotto da 3 o più foto: griglia, contatore e frecce (al 2026-11-10 solo "Selling Plans Ski Wax" ne ha 3). Cambio variante con foto diverse (il proxy risponde 302 in headless)
-- Palette nell'editor (Impostazioni tema → Colori): una palette scura su tutte le pagine, compreso il testo sopra le immagini della hero
+- Schemi di colori nell'editor (Impostazioni tema → Colori): uno schema scuro come schema della pagina, compreso il testo sopra le immagini della hero; aggiunta, modifica ed eliminazione di uno schema; card e badge su `scheme-4` (arancione), che seguono la section
 - Attributi del carrello nell'editor (Impostazioni tema → Carrello) e con `npm run start:events`; un ordine di prova per vederli in admin
 - Section nuove nell'editor, a 375, 750 e 990px: `content` (preset "Testo con immagine", blocchi annidati, aggiunta di un blocco), `columns`, `collection-list`, `newsletter`, `shop-the-look`
 - Newsletter: iscrizione vera, email già iscritta, consenso con e senza policy, conferma con `?customer_posted=true`, stessa section anche nel footer

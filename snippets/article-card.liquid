@@ -93,7 +93,7 @@
       </p>
     {%- endif -%}
 
-    <{{ heading_tag }} class="text-balance text-foreground {% if featured %}text-heading md:text-title-page{% else %}text-heading{% endif %}">
+    <{{ heading_tag }} class="text-balance text-headings {% if featured %}text-heading md:text-title-page{% else %}text-heading{% endif %}">
       <a
         href="{{ article.url }}"
         class="decoration-1 underline-offset-4 after:absolute after:inset-0 after:z-[1] after:rounded-lg group-hover/card:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-primary"

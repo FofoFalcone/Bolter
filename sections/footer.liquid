@@ -7,7 +7,7 @@
   - Riga finale: copyright e icone dei metodi di pagamento attivi.
   Stile: solo utility Tailwind, nessun JS.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   # Social: id usato nelle impostazioni tema (social_<id>_link) e nome del brand da mostrare
@@ -29,7 +29,7 @@
   if section.settings.show_language and localization.available_languages.size > 1
     assign show_language = true
   endif
-  assign select_class = 'h-11 w-full max-w-64 appearance-none truncate rounded-button border border-border-strong bg-background ps-3 pe-9 text-body text-foreground hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+  assign select_class = 'h-11 w-full max-w-64 appearance-none truncate rounded-button border border-input-border bg-input ps-3 pe-9 text-body text-input-foreground hover:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
 -%}
 
 <footer class="border-t border-border bg-background">
@@ -80,7 +80,7 @@
     {%- for block in section.blocks -%}
       <div class="flex flex-col gap-3{% if block.type == 'text' %} col-span-2 md:col-span-1{% endif %}" {{ block.shopify_attributes }}>
         {%- if block.settings.heading != blank -%}
-          <h2 class="pb-4 text-body font-semibold text-foreground">{{ block.settings.heading | escape }}</h2>
+          <h2 class="pb-4 text-body font-semibold text-headings">{{ block.settings.heading | escape }}</h2>
         {%- endif -%}
 
         {%- case block.type -%}
@@ -150,7 +150,7 @@
                     </option>
                   {%- endfor -%}
                 </select>
-                {% render 'icon', name: 'chevron-up-down', class: 'pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted' %}
+                {% render 'icon', name: 'chevron-up-down', class: 'pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-input-foreground/65' %}
               </div>
             </div>
           {%- endif -%}
@@ -175,7 +175,7 @@
                     </option>
                   {%- endfor -%}
                 </select>
-                {% render 'icon', name: 'chevron-up-down', class: 'pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted' %}
+                {% render 'icon', name: 'chevron-up-down', class: 'pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-input-foreground/65' %}
               </div>
             </div>
           {%- endif -%}
@@ -274,16 +274,11 @@
       "content": "t:sections.footer.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.footer.settings.color_background.label",
-      "info": "t:sections.footer.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.footer.settings.color_text.label",
-      "info": "t:sections.footer.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.footer.settings.color_scheme.label",
+      "info": "t:sections.footer.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

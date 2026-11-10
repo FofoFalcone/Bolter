@@ -10,7 +10,7 @@
   - Sotto i 750px le card scorrono in orizzontale (scroll-snap), da 750px sono in griglia.
   Senza JS la section non mostra nulla: i consigli esistono solo come risposta dell'API.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
@@ -35,8 +35,14 @@
   capture sizes
     echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 4rem - ' | append: columns | append: ' * 1.5rem) / ' | append: columns | append: '), (min-width: 750px) calc((100vw - 4rem) / ' | append: columns_md | append: '), 70vw'
   endcapture
+  # Sotto i 750px la fila scorre e taglierebbe l'ombra delle card: spazio sopra e sotto, compensato dai margini
+  assign scroll_padding = 'pb-2'
+  if settings.product_card_shadow != 'none'
+    assign scroll_padding = 'pt-2 pb-10 -mt-2 -mb-8 md:my-0 md:pt-0'
+  endif
   capture list_class
-    echo 'flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 [scrollbar-width:thin]'
+    echo 'flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain [scrollbar-width:thin] '
+    echo scroll_padding
     echo ' -mx-4 scroll-px-4 px-4 md:mx-0 md:grid md:snap-none md:overflow-visible md:px-0 md:pb-0 md:gap-6'
     echo ' md:grid-cols-[repeat(var(--columns-md),minmax(0,1fr))] lg:grid-cols-[repeat(var(--columns),minmax(0,1fr))]'
   endcapture
@@ -176,16 +182,11 @@
       "content": "t:sections.product_recommendations.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.product_recommendations.settings.color_background.label",
-      "info": "t:sections.product_recommendations.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.product_recommendations.settings.color_text.label",
-      "info": "t:sections.product_recommendations.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.product_recommendations.settings.color_scheme.label",
+      "info": "t:sections.product_recommendations.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

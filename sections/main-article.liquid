@@ -11,7 +11,7 @@
     dispositivo o copia del link.
   - Tempo di lettura: parole del contenuto / 200 al minuto (stima, arrotondata per eccesso).
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign words = article.content | strip_html | split: ' ' | size
@@ -57,7 +57,7 @@
       </ul>
     {%- endif -%}
 
-    <h1 class="text-heading text-balance text-foreground md:text-title-page">{{ article.title | escape }}</h1>
+    <h1 class="text-heading text-balance text-headings md:text-title-page">{{ article.title | escape }}</h1>
 
     <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-body-sm text-foreground/80">
       {%- if s.show_author and article.author != blank -%}
@@ -179,10 +179,10 @@
   {%- if blog.comments_enabled? -%}
     {%- capture label_class -%}text-body-sm font-semibold text-foreground{%- endcapture -%}
     {%- capture field_class -%}
-      block w-full min-h-11 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary user-invalid:border-danger aria-invalid:border-danger motion-reduce:transition-none
+      block w-full min-h-11 rounded-md border border-input-border bg-input px-4 py-2.5 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary user-invalid:border-danger aria-invalid:border-danger motion-reduce:transition-none
     {%- endcapture -%}
     <section id="Comments-{{ section.id }}" class="mx-auto mt-16 flex max-w-2xl scroll-mt-[calc(var(--header-height,0px)+2rem)] flex-col gap-8 md:mt-24" aria-labelledby="CommentsTitle-{{ section.id }}">
-      <h2 id="CommentsTitle-{{ section.id }}" class="text-heading text-foreground">
+      <h2 id="CommentsTitle-{{ section.id }}" class="text-heading text-headings">
         {{- 'blogs.comments.title' | t: count: article.comments_count -}}
       </h2>
 
@@ -205,7 +205,7 @@
       {%- endif -%}
 
       {%- form 'new_comment', article, id: form_id, class: 'flex scroll-mt-[calc(var(--header-height,0px)+2rem)] flex-col gap-6 rounded-lg bg-surface p-6 md:p-8' -%}
-        <h3 class="text-subheading text-foreground">{{ 'blogs.comments.form_title' | t }}</h3>
+        <h3 class="text-subheading text-headings">{{ 'blogs.comments.form_title' | t }}</h3>
 
         {%- if form.posted_successfully? -%}
           <div class="flex items-start gap-3 rounded-md bg-positive-surface p-4 text-positive-foreground outline-none" tabindex="-1" autofocus role="status">
@@ -356,16 +356,11 @@
       "content": "t:sections.main_article.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_article.settings.color_background.label",
-      "info": "t:sections.main_article.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_article.settings.color_text.label",
-      "info": "t:sections.main_article.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_article.settings.color_scheme.label",
+      "info": "t:sections.main_article.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

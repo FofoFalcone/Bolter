@@ -9,7 +9,9 @@
  */
 {
   "current": {
+    "favicon": "shopify://shop_images/A_Cubo_di_voxel-selection_1.png",
     "layout_page_width": 1920,
+    "cart_type": "drawer",
     "page_transition": "clip_wipe",
     "page_transition_duration": 800,
     "sections": {
@@ -21,11 +23,48 @@
       }
     },
     "content_for_index": [],
-    "blocks": {
-      "16514531619034609226": {
-        "type": "shopify://apps/violetta/blocks/violetta-widget/01a11fd8-73ff-7344-89eb-6db595dd332d",
-        "disabled": false,
-        "settings": {}
+    "color_schemes": {
+      "scheme-1": {
+        "settings": {
+          "background": "#ffffff",
+          "foreground": "#1e1e1e",
+          "primary": "#2c2c2c",
+          "primary_foreground": "#f5f5f5"
+        }
+      },
+      "scheme-2": {
+        "settings": {
+          "background": "#f5f5f5",
+          "foreground": "#1e1e1e",
+          "primary": "#2c2c2c",
+          "primary_foreground": "#f5f5f5"
+        }
+      },
+      "scheme-3": {
+        "settings": {
+          "background": "#1e1e1e",
+          "foreground": "#ffffff",
+          "primary": "#ffffff",
+          "primary_foreground": "#1e1e1e"
+        }
+      },
+      "scheme-4": {
+        "settings": {
+          "background": "#f66200",
+          "foreground": "#000000",
+          "primary": "#000000",
+          "primary_foreground": "#f66200",
+          "card": "#ffffff",
+          "card_foreground": "#000000"
+        }
+      },
+      "scheme-5": {
+        "settings": {
+          "background": "#000000",
+          "foreground": "#f66200",
+          "primary": "#f66200",
+          "primary_foreground": "#000000"
+        }
       }
     }
   }

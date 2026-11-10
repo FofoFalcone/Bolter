@@ -8,7 +8,7 @@
   - Mobile, senza JS o con prefers-reduced-motion: carosello nativo scorrevole con scroll-snap.
   JS: frontend/entrypoints/scroll-gallery.js — CSS: frontend/entrypoints/scroll-gallery.css
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'vite-tag', entry: 'scroll-gallery.css' %}
 {%- assign scroll_region_label = 'accessibility.scroll_region' | t -%}
 
@@ -144,16 +144,11 @@
       "content": "t:sections.scroll_gallery.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.scroll_gallery.settings.color_background.label",
-      "info": "t:sections.scroll_gallery.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.scroll_gallery.settings.color_text.label",
-      "info": "t:sections.scroll_gallery.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.scroll_gallery.settings.color_scheme.label",
+      "info": "t:sections.scroll_gallery.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

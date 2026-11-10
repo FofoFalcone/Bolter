@@ -2,7 +2,7 @@
   Elenco di collezioni scelte dal merchant, con le stesse card di /collections (snippets/collection-card.liquid).
   Senza collezioni nel negozio non stampa nulla; nell'editor mostra dei segnaposto.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
@@ -231,16 +231,11 @@
       "content": "t:sections.collection_list.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.collection_list.settings.color_background.label",
-      "info": "t:sections.collection_list.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.collection_list.settings.color_text.label",
-      "info": "t:sections.collection_list.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.collection_list.settings.color_scheme.label",
+      "info": "t:sections.collection_list.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

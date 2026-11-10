@@ -3,7 +3,7 @@
   la documentazione Shopify: ricerca, ritorno al catalogo e alla home, link utili scelti dal merchant.
   Il merchant può aggiungere altre section sotto (es. collezioni in evidenza). Above the fold: niente data-animate.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign search_id = 'NotFoundSearch-' | append: section.id
@@ -13,7 +13,7 @@
   <div class="mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
     <div class="flex flex-col items-center gap-4">
       <p class="text-subheading font-semibold tabular-nums text-foreground/80">404</p>
-      <h1 class="text-heading text-balance text-foreground md:text-title-page">{{ 'general.404.title' | t }}</h1>
+      <h1 class="text-heading text-balance text-headings md:text-title-page">{{ 'general.404.title' | t }}</h1>
       <p class="max-w-xl text-subheading text-pretty text-foreground/80">{{ 'general.404.subtext' | t }}</p>
     </div>
 
@@ -24,14 +24,14 @@
         <div class="relative min-w-0 flex-1">
           {% render 'icon',
             name: 'magnifying-glass',
-            class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-foreground/80'
+            class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-input-foreground/80'
           %}
           <input
             id="{{ search_id }}"
             type="search"
             name="q"
             placeholder="{{ 'general.predictive_search.placeholder' | t | escape }}"
-            class="h-13 w-full rounded-button border border-border-strong bg-background pr-4 pl-12 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+            class="h-13 w-full rounded-button border border-input-border bg-input pr-4 pl-12 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
           >
         </div>
         <button type="submit" class="button button-neutral button-lg shrink-0">{{ 'general.search.submit' | t }}</button>
@@ -84,16 +84,11 @@
       "content": "t:sections.main_404.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_404.settings.color_background.label",
-      "info": "t:sections.main_404.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_404.settings.color_text.label",
-      "info": "t:sections.main_404.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_404.settings.color_scheme.label",
+      "info": "t:sections.main_404.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

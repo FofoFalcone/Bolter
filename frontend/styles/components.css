@@ -139,13 +139,17 @@
   --button-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--color-white) 14%, transparent), var(--shadow-100);
 }
 
-/* Variant=Neutral (secondario): contorno sottile su fondo pagina, si riempie all'hover */
+/*
+ * Variant=Neutral (secondario): contorno sottile su fondo pagina, si riempie all'hover. Colori "Pulsante secondario"
+ * dello schema (vuoti = sfondo, testo e bordo della section); l'hover ripete i rapporti SDS (surface 4.5%,
+ * neutral-subtle ≈ bordo all'80% + testo al 20%).
+ */
 @utility button-neutral {
-  --button-fg: var(--color-foreground);
-  --button-bg: var(--color-background);
-  --button-bg-hover: var(--color-surface);
-  --button-border: var(--color-border);
-  --button-border-hover: var(--color-neutral-subtle);
+  --button-fg: var(--color-secondary-foreground);
+  --button-bg: var(--color-secondary);
+  --button-bg-hover: color-mix(in srgb, var(--color-secondary-foreground) 4.5%, var(--color-secondary));
+  --button-border: var(--color-secondary-border);
+  --button-border-hover: color-mix(in srgb, var(--color-secondary-border) 80%, var(--color-secondary-foreground));
   --button-shadow: var(--shadow-100);
 }
 
@@ -314,7 +318,7 @@
 /* Colori dei contenuti richtext del merchant per la utility `prose` (frontend/styles/prose.css) */
 @utility prose-theme {
   --tw-prose-body: var(--color-foreground);
-  --tw-prose-headings: var(--color-foreground);
+  --tw-prose-headings: var(--color-headings);
   --tw-prose-lead: var(--color-muted);
   --tw-prose-links: var(--color-foreground);
   --tw-prose-bold: var(--color-foreground);

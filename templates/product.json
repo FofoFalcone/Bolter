@@ -71,9 +71,7 @@
       ],
       "settings": {
         "media_layout": "thumbnails",
-        "sticky_info": true,
-        "color_background": "",
-        "color_text": ""
+        "sticky_info": true
       }
     },
     "recommendations": {
@@ -82,9 +80,7 @@
         "intent": "related",
         "heading": "",
         "limit": 4,
-        "columns_desktop": 4,
-        "color_background": "",
-        "color_text": ""
+        "columns_desktop": 4
       }
     }
   },

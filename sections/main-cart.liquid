@@ -4,7 +4,7 @@
   Funziona senza JS (form verso routes.cart_url: "Aggiorna carrello" e "Checkout").
   JS: frontend/entrypoints/cart.js (<cart-items>): quantità e rimozioni senza ricaricare la pagina.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'vite-tag', entry: 'cart.js' %}
 
 <div class="page-width py-8 md:py-12">
@@ -17,7 +17,7 @@
   <s-view-event class="contents" view-event-payload='{{ cart | standard_event_data: "view", context: "page" | escape }}'>
   <cart-items class="block" data-section-id="{{ section.id }}">
     {%- if cart.item_count > 0 -%}
-      <h1 class="mb-8 text-heading text-foreground outline-none md:text-title-page" tabindex="-1" data-cart-focus>{{ 'sections.cart.title' | t }}</h1>
+      <h1 class="mb-8 text-heading text-headings outline-none md:text-title-page" tabindex="-1" data-cart-focus>{{ 'sections.cart.title' | t }}</h1>
 
       <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
         <form action="{{ routes.cart_url }}" method="post" id="CartForm-{{ section.id }}" novalidate>
@@ -36,7 +36,7 @@
       </div>
     {%- else -%}
       <div class="flex flex-col items-center gap-6 py-16 text-center">
-        <h1 class="text-heading text-foreground outline-none md:text-title-page" tabindex="-1" data-cart-focus>{{ 'sections.cart.empty' | t }}</h1>
+        <h1 class="text-heading text-headings outline-none md:text-title-page" tabindex="-1" data-cart-focus>{{ 'sections.cart.empty' | t }}</h1>
         <a href="{{ routes.all_products_collection_url }}" class="button button-primary">
           {{- 'sections.cart.continue_shopping' | t -}}
         </a>
@@ -81,16 +81,11 @@
       "content": "t:sections.main_cart.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_cart.settings.color_background.label",
-      "info": "t:sections.main_cart.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_cart.settings.color_text.label",
-      "info": "t:sections.main_cart.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_cart.settings.color_scheme.label",
+      "info": "t:sections.main_cart.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

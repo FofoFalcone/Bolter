@@ -7,7 +7,7 @@
   - Articolo in evidenza: il primo della prima pagina, senza filtri (con un tag scelto si vedono tutti uguali).
   - Immagine LCP: il primo articolo, eager + fetchpriority high se la section è la prima della pagina.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
@@ -32,7 +32,7 @@
 
 <div class="page-width py-8 md:py-16">
   <header class="flex flex-col gap-6">
-    <h1 class="text-heading text-balance text-foreground md:text-title-page">
+    <h1 class="text-heading text-balance text-headings md:text-title-page">
       {{- blog.title | escape -}}
       {%- if current_tags.size > 0 -%}
         <span class="sr-only">: {{ current_tags | join: ', ' | escape }}</span>
@@ -278,16 +278,11 @@
       "content": "t:sections.main_blog.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_blog.settings.color_background.label",
-      "info": "t:sections.main_blog.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_blog.settings.color_text.label",
-      "info": "t:sections.main_blog.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_blog.settings.color_scheme.label",
+      "info": "t:sections.main_blog.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

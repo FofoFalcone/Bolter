@@ -10,3 +10,14 @@
   margin-inline: auto;
   padding-inline: var(--page-gutter);
 }
+
+/*
+ * Card con riquadro (product-card, search-result-card, testimonials): sfondo e testo dai colori "Card" dello schema
+ * della section (vuoti = quelli della section). Dentro, bordi, testi attenuati, badge e titoli si ricalcolano su
+ * questi colori (.card-colors in tokens.css). Lo sfondo e il colore del testo vanno messi sull'elemento con
+ * bg-background e text-foreground: tra due utility dello stesso livello non c'è un ordine garantito.
+ */
+@utility card-colors {
+  --color-background: var(--color-card);
+  --color-foreground: var(--color-card-foreground);
+}

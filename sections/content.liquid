@@ -5,7 +5,7 @@
   pagina, che può essere above the fold, e nell'anteprima dei preset: qui l'animazione nasconderebbe tutto il contenuto
   e il selettore mostrerebbe "No preview available".
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.width %}
 {%- liquid
   assign s = section.settings
@@ -125,16 +125,11 @@
       "content": "t:sections.content.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.content.settings.color_background.label",
-      "info": "t:sections.content.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.content.settings.color_text.label",
-      "info": "t:sections.content.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.content.settings.color_scheme.label",
+      "info": "t:sections.content.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

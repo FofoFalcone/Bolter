@@ -12,7 +12,7 @@
   - Blocchi senza contenuto: nel negozio spariscono; nell'editor resta un segnaposto.
   JS: frontend/entrypoints/carousel.js; effetti e barra: frontend/entrypoints/carousel-effects.js (solo se usati).
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
   assign page_max = settings.layout_page_width | append: 'px'
@@ -93,7 +93,8 @@
   endif
 
   assign track_padding_class = 'py-1 -my-1'
-  if effect == 'coverflow'
+  # Coverflow e ombra delle card prodotto: la fila scorre e taglierebbe ciò che esce in verticale
+  if effect == 'coverflow' or settings.product_card_shadow != 'none'
     assign track_padding_class = 'py-6 -my-6'
   endif
 
@@ -804,15 +805,11 @@
       "content": "t:sections.carousel.settings.header_4.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.carousel.settings.color_background.label",
-      "info": "t:sections.carousel.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.carousel.settings.color_text.label"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.carousel.settings.color_scheme.label",
+      "info": "t:sections.carousel.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

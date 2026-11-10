@@ -68,6 +68,8 @@ function convertSettings(settings = [], base) {
     for (const option of setting.options ?? []) {
       option.label = translate(option.label, `${key}.options.${slug(option.value)}`);
     }
+    // color_scheme_group: i colori di ogni schema sono setting annidati in "definition"
+    if (setting.definition) convertSettings(setting.definition, `${key}.definition`);
   }
 }
 

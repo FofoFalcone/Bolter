@@ -9,7 +9,7 @@
   - shopify:product:view sulle card prodotto con contesto "search".
   Limiti di Shopify: al massimo 1.000 risultati (filtri e conteggi calcolati su questi), 50 per pagina.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
@@ -92,7 +92,7 @@
 
 <div class="page-width py-8 md:py-12">
   <header class="flex flex-col gap-6">
-    <h1 class="text-heading text-balance text-foreground md:text-title-page">
+    <h1 class="text-heading text-balance text-headings md:text-title-page">
       {%- if search.performed -%}
         {{ 'sections.search.title_with_terms' | t: terms: terms }}
       {%- else -%}
@@ -126,7 +126,7 @@
           {% unless search.performed %}
             autofocus
           {% endunless %}
-          class="h-13 w-full rounded-button border border-border-strong bg-background ps-12 pe-4 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none [&::-webkit-search-cancel-button]:hidden"
+          class="h-13 w-full rounded-button border border-input-border bg-input ps-12 pe-4 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none [&::-webkit-search-cancel-button]:hidden"
         >
       </div>
       <button type="submit" class="button button-primary button-lg shrink-0">
@@ -211,7 +211,7 @@
                     <select
                       id="SortBy-{{ section.id }}"
                       name="sort_by"
-                      class="h-9 cursor-pointer appearance-none rounded-button border border-border-strong bg-background ps-3 pe-9 text-body-sm text-foreground transition-colors duration-150 hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+                      class="h-9 cursor-pointer appearance-none rounded-button border border-input-border bg-input ps-3 pe-9 text-body-sm text-input-foreground transition-colors duration-150 hover:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
                       data-facets-sort
                       data-default="{{ search.default_sort_by | escape }}"
                     >
@@ -221,7 +221,7 @@
                         </option>
                       {%- endfor -%}
                     </select>
-                    {% render 'icon', name: 'chevron-down', class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto size-4 text-muted' %}
+                    {% render 'icon', name: 'chevron-down', class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto size-4 text-input-foreground/65' %}
                   </div>
                   <button type="submit" class="button button-neutral button-sm js:hidden">{{ 'sections.collection.apply' | t }}</button>
                 </form>
@@ -439,16 +439,11 @@
       "content": "t:sections.main_search.settings.header_3.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_search.settings.color_background.label",
-      "info": "t:sections.main_search.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_search.settings.color_text.label",
-      "info": "t:sections.main_search.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_search.settings.color_scheme.label",
+      "info": "t:sections.main_search.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

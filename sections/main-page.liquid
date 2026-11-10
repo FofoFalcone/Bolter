@@ -4,7 +4,7 @@
   ricerca anche se nascosto); il contenuto richtext va in `prose prose-theme`.
   Above the fold: niente data-animate. Le immagini inserite nel contenuto arrivano già dall'editor di Shopify.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   case s.content_width
@@ -27,7 +27,7 @@
 <div class="page-width py-8 md:py-16">
   <div class="mx-auto flex {{ width_class }} flex-col gap-8 md:gap-12">
     <header class="flex flex-col gap-4 {{ align_class }}{% unless s.show_title %} sr-only{% endunless %}">
-      <h1 class="text-heading text-balance text-foreground md:text-title-page">{{ page.title | escape }}</h1>
+      <h1 class="text-heading text-balance text-headings md:text-title-page">{{ page.title | escape }}</h1>
     </header>
 
     {%- if page.content != blank -%}
@@ -106,16 +106,11 @@
       "content": "t:sections.main_page.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_page.settings.color_background.label",
-      "info": "t:sections.main_page.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_page.settings.color_text.label",
-      "info": "t:sections.main_page.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_page.settings.color_scheme.label",
+      "info": "t:sections.main_page.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

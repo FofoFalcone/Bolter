@@ -118,10 +118,30 @@
       assign media_class = 'rounded-lg'
       assign info_class = 'pt-3'
     else
-      assign card_class = 'overflow-hidden rounded-lg border border-border bg-background'
+      assign card_class = 'card-colors overflow-hidden rounded-lg bg-background text-foreground'
+      if settings.product_card_style == 'box'
+        assign card_class = card_class | append: ' border border-border'
+      endif
       assign media_class = ''
       assign info_class = 'p-3 @3xs:p-4'
   endcase
+
+  # Ombra (Impostazioni tema → Card prodotto): sul riquadro, o sotto l'immagine senza riquadro
+  case settings.product_card_shadow
+    when 'small'
+      assign shadow_class = 'shadow-200'
+    when 'medium'
+      assign shadow_class = 'shadow-300'
+    when 'large'
+      assign shadow_class = 'shadow-400'
+    else
+      assign shadow_class = ''
+  endcase
+  if settings.product_card_style == 'plain'
+    assign media_class = media_class | append: ' ' | append: shadow_class
+  else
+    assign card_class = card_class | append: ' ' | append: shadow_class
+  endif
 
   # 'fill': cresce l'immagine; 'grid': immagine a proporzioni fisse, cresce il testo (riquadri allineati)
   assign price_class = ''
@@ -226,7 +246,7 @@
         </span>
       {%- else -%}
         {%- if compare_at_price > price -%}
-          <span class="absolute top-2 left-2 rounded-sm bg-danger-surface px-2 py-1 text-body-sm font-semibold text-danger-foreground">
+          <span class="absolute top-2 left-2 rounded-sm bg-badge-sale px-2 py-1 text-body-sm font-semibold text-badge-sale-foreground">
             {{- 'products.product.on_sale' | t -}}
           </span>
         {%- endif -%}

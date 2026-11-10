@@ -3,7 +3,7 @@
   Le colonne non superano mai i blocchi presenti, così una riga incompleta riempie comunque la larghezza.
   A 4 colonne, da 750 a 989px, la griglia è 2 x 2: 3 colonne lascerebbero un elemento da solo.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
@@ -116,7 +116,7 @@
           {%- endif -%}
 
           {%- if b.title != blank -%}
-            <{{ title_tag }} class="text-subheading font-semibold text-balance text-foreground">
+            <{{ title_tag }} class="text-subheading font-semibold text-balance text-headings">
               {{- b.title | escape -}}
             </{{ title_tag }}>
           {%- endif -%}
@@ -279,16 +279,11 @@
       "content": "t:sections.columns.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.columns.settings.color_background.label",
-      "info": "t:sections.columns.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.columns.settings.color_text.label",
-      "info": "t:sections.columns.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.columns.settings.color_scheme.label",
+      "info": "t:sections.columns.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

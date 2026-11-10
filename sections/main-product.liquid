@@ -9,7 +9,7 @@
   aggiornate al cambio variante hanno l'attributo data-product-part.
   Selettore varianti, quantità e form sono snippet condivisi con l'anteprima rapida (sections/quick-view.liquid).
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
   assign featured_media = current_variant.featured_media | default: product.featured_media
@@ -75,7 +75,7 @@
           {%- endif -%}
 
         {%- when 'title' -%}
-          <h1 class="text-heading text-foreground md:text-subtitle" {{ block.shopify_attributes }}>
+          <h1 class="text-heading text-headings md:text-subtitle" {{ block.shopify_attributes }}>
             {{- product.title | escape -}}
           </h1>
 
@@ -223,16 +223,11 @@
       "content": "t:sections.main_product.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_product.settings.color_background.label",
-      "info": "t:sections.main_product.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_product.settings.color_text.label",
-      "info": "t:sections.main_product.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_product.settings.color_scheme.label",
+      "info": "t:sections.main_product.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

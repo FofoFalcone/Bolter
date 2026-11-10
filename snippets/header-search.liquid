@@ -33,7 +33,7 @@
       <div class="relative flex-1">
         {% render 'icon',
           name: 'magnifying-glass',
-          class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted lg:left-5 lg:size-6'
+          class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-input-foreground/65 lg:left-5 lg:size-6'
         %}
         <input
           id="HeaderSearchInput"
@@ -52,7 +52,7 @@
             aria-autocomplete="list"
             aria-haspopup="listbox"
           {% endif %}
-          class="h-13 w-full rounded-button border border-border-strong bg-background pr-4 pl-12 text-subheading text-foreground transition-colors placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:h-16 lg:pl-14 lg:text-heading [&::-webkit-search-cancel-button]:hidden"
+          class="h-13 w-full rounded-button border border-input-border bg-input pr-4 pl-12 text-subheading text-input-foreground transition-colors placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:h-16 lg:pl-14 lg:text-heading [&::-webkit-search-cancel-button]:hidden"
         >
         {%- comment -%} Caricamento: piccolo indicatore a destra del campo (data-loading su <predictive-search>) {%- endcomment -%}
         <span

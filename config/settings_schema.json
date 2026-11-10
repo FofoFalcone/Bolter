@@ -40,13 +40,131 @@
     "name": "t:settings_schema.color.name",
     "settings": [
       {
-        "type": "color_palette",
-        "id": "color_palette",
-        "default": {
-          "background": "#ffffff",
-          "foreground": "#1e1e1e",
-          "primary": "#2c2c2c",
-          "primary_foreground": "#f5f5f5"
+        "type": "color_scheme_group",
+        "id": "color_schemes",
+        "definition": [
+          {
+            "type": "color",
+            "id": "background",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.background.label",
+            "default": "#ffffff"
+          },
+          {
+            "type": "color",
+            "id": "foreground",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.foreground.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.foreground.info",
+            "default": "#1e1e1e"
+          },
+          {
+            "type": "color",
+            "id": "headings",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.headings.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.headings.info"
+          },
+          {
+            "type": "color",
+            "id": "border",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.border.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.border.info"
+          },
+          {
+            "type": "header",
+            "content": "t:settings_schema.color.settings.color_schemes.definition.header_1.content"
+          },
+          {
+            "type": "color",
+            "id": "primary",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.primary.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.primary.info",
+            "default": "#2c2c2c"
+          },
+          {
+            "type": "color",
+            "id": "primary_foreground",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.primary_foreground.label",
+            "default": "#f5f5f5"
+          },
+          {
+            "type": "color",
+            "id": "secondary",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.secondary.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.secondary.info"
+          },
+          {
+            "type": "color",
+            "id": "secondary_foreground",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.secondary_foreground.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.secondary_foreground.info"
+          },
+          {
+            "type": "color",
+            "id": "secondary_border",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.secondary_border.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.secondary_border.info"
+          },
+          {
+            "type": "header",
+            "content": "t:settings_schema.color.settings.color_schemes.definition.header_2.content"
+          },
+          {
+            "type": "color",
+            "id": "card",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.card.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.card.info"
+          },
+          {
+            "type": "color",
+            "id": "card_foreground",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.card_foreground.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.card_foreground.info"
+          },
+          {
+            "type": "color",
+            "id": "badge_sale",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.badge_sale.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.badge_sale.info"
+          },
+          {
+            "type": "color",
+            "id": "badge_sale_foreground",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.badge_sale_foreground.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.badge_sale_foreground.info"
+          },
+          {
+            "type": "header",
+            "content": "t:settings_schema.color.settings.color_schemes.definition.header_3.content"
+          },
+          {
+            "type": "color",
+            "id": "input",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.input.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.input.info"
+          },
+          {
+            "type": "color",
+            "id": "input_foreground",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.input_foreground.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.input_foreground.info"
+          },
+          {
+            "type": "color",
+            "id": "input_border",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.input_border.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.input_border.info"
+          }
+        ],
+        "role": {
+          "background": "background",
+          "text": "foreground",
+          "links": "foreground",
+          "icons": "foreground",
+          "primary_button": "primary",
+          "on_primary_button": "primary_foreground",
+          "primary_button_border": "primary",
+          "secondary_button": "background",
+          "on_secondary_button": "foreground",
+          "secondary_button_border": "foreground"
         }
       }
     ]
@@ -179,11 +297,41 @@
             "label": "t:settings_schema.product.settings.product_card_style.options.box"
           },
           {
+            "value": "box_borderless",
+            "label": "t:settings_schema.product.settings.product_card_style.options.box_borderless"
+          },
+          {
             "value": "plain",
             "label": "t:settings_schema.product.settings.product_card_style.options.plain"
           }
         ],
-        "default": "box"
+        "default": "box",
+        "info": "t:settings_schema.product.settings.product_card_style.info"
+      },
+      {
+        "type": "select",
+        "id": "product_card_shadow",
+        "label": "t:settings_schema.product.settings.product_card_shadow.label",
+        "info": "t:settings_schema.product.settings.product_card_shadow.info",
+        "options": [
+          {
+            "value": "none",
+            "label": "t:settings_schema.product.settings.product_card_shadow.options.none"
+          },
+          {
+            "value": "small",
+            "label": "t:settings_schema.product.settings.product_card_shadow.options.small"
+          },
+          {
+            "value": "medium",
+            "label": "t:settings_schema.product.settings.product_card_shadow.options.medium"
+          },
+          {
+            "value": "large",
+            "label": "t:settings_schema.product.settings.product_card_shadow.options.large"
+          }
+        ],
+        "default": "none"
       },
       {
         "type": "select",

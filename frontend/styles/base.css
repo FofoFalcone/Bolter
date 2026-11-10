@@ -16,6 +16,8 @@
   h5,
   h6 {
     font-family: var(--font-heading);
+    /* Colore "Titoli" dello schema (vuoto = testo); una utility text-* sul titolo vince sempre */
+    color: var(--color-headings);
     text-wrap: balance;
   }
 

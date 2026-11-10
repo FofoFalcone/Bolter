@@ -11,7 +11,7 @@
   di MOTION_QUERY nel JS. Le parole partono a opacity 15% (= START_OPACITY) per evitare un flash.
   JS: frontend/entrypoints/scroll-text-reveal.js
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 
 {%- liquid
   assign statement = section.settings.statement | strip | strip_newlines
@@ -37,7 +37,7 @@
             <p class="mb-6 text-body-sm font-semibold text-muted">{{ section.settings.kicker | escape }}</p>
           {%- endif -%}
 
-          <h2 class="{{ heading_class }} text-foreground">
+          <h2 class="{{ heading_class }} text-headings">
             <span class="sr-only">{{ statement | escape }}</span>
             <span aria-hidden="true">
               {%- assign words = statement | split: ' ' -%}
@@ -113,16 +113,11 @@
       "content": "t:sections.scroll_text_reveal.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.scroll_text_reveal.settings.color_background.label",
-      "info": "t:sections.scroll_text_reveal.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.scroll_text_reveal.settings.color_text.label",
-      "info": "t:sections.scroll_text_reveal.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.scroll_text_reveal.settings.color_scheme.label",
+      "info": "t:sections.scroll_text_reveal.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

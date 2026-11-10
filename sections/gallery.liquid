@@ -15,7 +15,7 @@
   base comune in frontend/scripts/gallery-arrangements.js)
   CSS: frontend/entrypoints/gallery.css
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'vite-tag', entry: 'gallery.css' %}
 
 {%- liquid
@@ -205,7 +205,7 @@
                   Card prodotto del tema (impostazioni del tema → Card prodotto), alta quanto l'elemento della
                   galleria; il suo controllo principale (anteprima rapida o link) è il data-gallery-control.
                 {%- endcomment -%}
-                <div class="h-(--gallery-item-height){% if settings.product_card_style == 'box' %} rounded-lg shadow-300{% endif %}">
+                <div class="h-(--gallery-item-height)">
                   {% render 'product-card',
                     product: block_product,
                     card_id: block.id,
@@ -941,16 +941,11 @@
       "content": "t:sections.gallery.settings.header_11.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.gallery.settings.color_background.label",
-      "info": "t:sections.gallery.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.gallery.settings.color_text.label",
-      "info": "t:sections.gallery.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.gallery.settings.color_scheme.label",
+      "info": "t:sections.gallery.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

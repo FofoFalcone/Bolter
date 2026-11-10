@@ -16,7 +16,7 @@
     della hero), in CSS con le varianti overlay: / overlay-light: (frontend/entrypoints/theme.css). header.js
     aggiunge data-solid oltre la hero, con un menu aperto o con il focus da tastiera nell'header.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   assign menu = section.settings.menu
@@ -520,16 +520,11 @@
       "content": "t:sections.header.settings.header_4.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.header.settings.color_background.label",
-      "info": "t:sections.header.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.header.settings.color_text.label",
-      "info": "t:sections.header.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.header.settings.color_scheme.label",
+      "info": "t:sections.header.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

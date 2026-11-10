@@ -8,7 +8,7 @@
   - Niente dati strutturati Review/AggregateRating: Google non li mostra per recensioni scelte e pubblicate dal
     negozio stesso su di sé ("self-serving"). Le recensioni dei prodotti arrivano dalle app, nel metafield reviews.rating.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
   assign s = section.settings
@@ -17,7 +17,7 @@
 
   case s.style
     when 'border'
-      assign card_class = 'rounded-lg border border-border bg-background p-6 md:p-8'
+      assign card_class = 'card-colors rounded-lg border border-border bg-background p-6 text-foreground md:p-8'
     when 'plain'
       assign card_class = 'py-2'
     else
@@ -224,16 +224,11 @@
       "content": "t:sections.testimonials.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.testimonials.settings.color_background.label",
-      "info": "t:sections.testimonials.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.testimonials.settings.color_text.label",
-      "info": "t:sections.testimonials.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.testimonials.settings.color_scheme.label",
+      "info": "t:sections.testimonials.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

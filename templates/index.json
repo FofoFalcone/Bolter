@@ -12,8 +12,7 @@
     "main": {
       "type": "main-index",
       "settings": {
-        "image": "shopify://shop_images/AdobeStock_4620787642.jpg",
-        "image_mobile": "shopify://shop_images/AdobeStock_332909802.jpg",
+        "image": "shopify://shop_images/d1dc6c8e-b142-4ef2-8289-af92ae5dc73e.png",
         "width": "full",
         "height": "full",
         "content_horizontal": "center",
@@ -29,9 +28,7 @@
         "button_label": "Shop now",
         "button_link": "",
         "secondary_button_label": "Learn more",
-        "secondary_button_link": "",
-        "color_background": "",
-        "color_text": ""
+        "secondary_button_link": ""
       }
     },
     "statement": {
@@ -41,8 +38,7 @@
         "statement": "Crediamo in prodotti fatti bene, che durano nel tempo e raccontano una storia ogni volta che li usi.",
         "text_size": "large",
         "show_progress": true,
-        "color_background": "",
-        "color_text": ""
+        "color_scheme": "scheme-5"
       }
     },
     "gallery_DU63QJ": {
@@ -51,42 +47,42 @@
         "product_VCzYpf": {
           "type": "product",
           "settings": {
-            "product": "bionike-bipack-detergente-corpo-capelli-uso-quotidiano-750-ml-bionike",
+            "product": "voxelia-atlas-s1",
             "quick_view": true
           }
         },
         "product_KfREk6": {
           "type": "product",
           "settings": {
-            "product": "bionike-aza17-concentrato-anti-imperfezioni-bionike",
+            "product": "voxelia-atlas-x1",
             "quick_view": true
           }
         },
         "product_C4NeEq": {
           "type": "product",
           "settings": {
-            "product": "acqua-micellare-1205-500-ml",
+            "product": "voxelia-lumen-mini",
             "quick_view": true
           }
         },
         "product_C36EYK": {
           "type": "product",
           "settings": {
-            "product": "3d-mascara-volume-lunghezza-curvatura-1-979",
+            "product": "voxelia-lumen-ultra",
             "quick_view": true
           }
         },
         "product_NGLmei": {
           "type": "product",
           "settings": {
-            "product": "3-shampoo-trattante",
+            "product": "voxelia-wash-cure-station",
             "quick_view": true
           }
         },
         "product_RHLHGE": {
           "type": "product",
           "settings": {
-            "product": "20-1549",
+            "product": "voxelia-orbit-s1-3d-scanner",
             "quick_view": true
           }
         }
@@ -141,8 +137,7 @@
         "enable_open": true,
         "open_room": 24,
         "show_controls": true,
-        "color_background": "",
-        "color_text": ""
+        "color_scheme": "scheme-4"
       }
     },
     "carousel_4hX3Pw": {
@@ -151,7 +146,6 @@
         "image_eLPyn6": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/AdobeStock_271408123_9420fd77-fa14-420e-b3e5-c0259be38b46.jpg",
             "overlay": 30,
             "text_tone": "light",
             "heading": "The new collection",
@@ -165,7 +159,6 @@
         "image_rBQED6": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/AdobeStock_2216480505.jpg",
             "overlay": 30,
             "text_tone": "light",
             "heading": "The new collection",
@@ -179,7 +172,6 @@
         "image_JazGHF": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/AdobeStock_2211207241.jpg",
             "overlay": 30,
             "text_tone": "light",
             "heading": "The new collection",
@@ -223,9 +215,7 @@
         "pagination": "progress",
         "effect": "parallax",
         "autoplay": false,
-        "autoplay_interval": 5,
-        "color_background": "",
-        "color_text": ""
+        "autoplay_interval": 5
       }
     },
     "carousel_YDVCCp": {
@@ -294,9 +284,7 @@
         "pagination": "dots",
         "effect": "none",
         "autoplay": false,
-        "autoplay_interval": 5,
-        "color_background": "",
-        "color_text": ""
+        "autoplay_interval": 5
       }
     },
     "collections": {
@@ -330,13 +318,11 @@
         "tab_sale"
       ],
       "settings": {
+        "section_width": "page",
         "heading": "I nostri prodotti",
         "products_to_show": 4,
         "columns_desktop": 4,
-        "show_view_all": true,
-        "section_width": "page",
-        "color_background": "",
-        "color_text": ""
+        "show_view_all": true
       }
     },
     "shop_the_look_PaTin6": {
@@ -374,15 +360,12 @@
       ],
       "name": "t:sections.shop_the_look.presets.preset_1.name",
       "settings": {
-        "image": "shopify://shop_images/1576358.jpg",
+        "section_width": "page",
         "heading": "Shop the look",
         "intro": "",
         "show_list": true,
         "image_position": "left",
-        "quick_view": true,
-        "section_width": "page",
-        "color_background": "",
-        "color_text": ""
+        "quick_view": true
       }
     },
     "content_z4mHJQ": {
@@ -425,9 +408,7 @@
       "settings": {
         "width": "medium",
         "align": "center",
-        "spacing": "medium",
-        "color_background": "",
-        "color_text": ""
+        "spacing": "medium"
       }
     },
     "content_QkKhFJ": {
@@ -447,7 +428,6 @@
             "image_6tTbt8": {
               "type": "image",
               "settings": {
-                "image": "shopify://shop_images/1576344_87eaa3ed-f86e-4fbf-a949-678bc8303f73.jpg",
                 "ratio": "natural",
                 "link": ""
               },
@@ -512,25 +492,20 @@
       "settings": {
         "width": "wide",
         "align": "start",
-        "spacing": "medium",
-        "color_background": "",
-        "color_text": ""
+        "spacing": "medium"
       }
     },
     "story": {
       "type": "image-with-text-parallax",
       "settings": {
-        "image": "shopify://shop_images/1576365_9c69b3ae-3059-4d89-b420-cf2db53c4a19.jpg",
+        "section_width": "page",
         "image_position": "left",
         "intensity": "medium",
         "label": "La nostra storia",
         "heading": "Fatto a mano, pensato per durare",
         "text": "<p>Racconta qui il tuo brand, i materiali o il processo di produzione.</p>",
         "button_label": "Scopri di più",
-        "button_link": "",
-        "section_width": "page",
-        "color_background": "",
-        "color_text": ""
+        "button_link": ""
       }
     },
     "lookbook": {
@@ -578,9 +553,7 @@
       "settings": {
         "heading": "Lookbook",
         "intro": "",
-        "show_progress": true,
-        "color_background": "",
-        "color_text": ""
+        "show_progress": true
       }
     },
     "faq": {
@@ -618,9 +591,7 @@
         "intro": "",
         "open_first": false,
         "allow_multiple": false,
-        "animate_on_scroll": true,
-        "color_background": "",
-        "color_text": ""
+        "animate_on_scroll": true
       }
     }
   },

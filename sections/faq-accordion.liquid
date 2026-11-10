@@ -5,7 +5,7 @@
   Componente condiviso: snippets/accordion-item.liquid + frontend/entrypoints/accordion.js
   (CSS in frontend/styles/accordion.css, dentro theme.css: pochi byte, niente richiesta che blocca il rendering)
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 
 <div class="page-width py-8 md:py-16">
   {% render 'section-header',
@@ -102,16 +102,11 @@
       "content": "t:sections.faq_accordion.settings.header_2.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.faq_accordion.settings.color_background.label",
-      "info": "t:sections.faq_accordion.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.faq_accordion.settings.color_text.label",
-      "info": "t:sections.faq_accordion.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.faq_accordion.settings.color_scheme.label",
+      "info": "t:sections.faq_accordion.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

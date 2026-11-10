@@ -12,7 +12,7 @@
 {%- if heading != blank or intro != blank -%}
   <div class="flex max-w-3xl flex-col gap-4 {% if align == 'start' %}text-start{% else %}mx-auto text-center{% endif %} {{ class }}">
     {%- if heading != blank -%}
-      <h2 class="text-heading text-foreground md:text-title-page">{{ heading | escape }}</h2>
+      <h2 class="text-heading text-headings md:text-title-page">{{ heading | escape }}</h2>
     {%- endif -%}
     {%- if intro != blank -%}
       <div class="prose prose-theme max-w-none text-subheading [--tw-prose-body:var(--color-muted)]">

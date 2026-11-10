@@ -13,7 +13,7 @@
   CSS: frontend/entrypoints/collection.css (cassetto dei filtri), in fondo alla section: un <link> nel body blocca
   il rendering di ciò che segue, e il cassetto all'apertura della pagina è chiuso.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {% render 'vite-tag', entry: 'collection.js' %}
 
@@ -110,7 +110,7 @@
   <s-view-event class="block" view-event-payload='{{ collection | standard_event_data: "view" | escape }}'>
     <header class="grid gap-6{% if show_image %} md:grid-cols-2 md:items-center md:gap-12{% endif %}">
       <div class="flex flex-col gap-4">
-        <h1 class="text-heading text-balance text-foreground md:text-title-page">{{ collection.title | escape }}</h1>
+        <h1 class="text-heading text-balance text-headings md:text-title-page">{{ collection.title | escape }}</h1>
         {%- if s.show_description and collection.description != blank -%}
           <div class="prose prose-theme max-w-2xl text-pretty">{{ collection.description }}</div>
         {%- endif -%}
@@ -222,7 +222,7 @@
                   <select
                     id="SortBy-{{ section.id }}"
                     name="sort_by"
-                    class="h-9 cursor-pointer appearance-none rounded-button border border-border-strong bg-background ps-3 pe-9 text-body-sm text-foreground transition-colors duration-150 hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+                    class="h-9 cursor-pointer appearance-none rounded-button border border-input-border bg-input ps-3 pe-9 text-body-sm text-input-foreground transition-colors duration-150 hover:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
                     data-facets-sort
                     data-default="{{ collection.default_sort_by | escape }}"
                   >
@@ -232,7 +232,7 @@
                       </option>
                     {%- endfor -%}
                   </select>
-                  {% render 'icon', name: 'chevron-down', class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto size-4 text-muted' %}
+                  {% render 'icon', name: 'chevron-down', class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto size-4 text-input-foreground/65' %}
                 </div>
                 <button type="submit" class="button button-neutral button-sm js:hidden">{{ 'sections.collection.apply' | t }}</button>
               </form>
@@ -469,16 +469,11 @@
       "content": "t:sections.main_collection.settings.header_4.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_collection.settings.color_background.label",
-      "info": "t:sections.main_collection.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_collection.settings.color_text.label",
-      "info": "t:sections.main_collection.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_collection.settings.color_scheme.label",
+      "info": "t:sections.main_collection.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

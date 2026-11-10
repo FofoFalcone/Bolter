@@ -1,0 +1,37 @@
+{%- comment -%}
+  Dichiarazioni CSS di uno schema di colori (Impostazioni tema → Colori), da stampare dentro una regola: :root in
+  snippets/head-styles.liquid, il wrapper della section in snippets/section-colors.liquid.
+
+  - Obbligatori (background, foreground, primary, primary_foreground): diventano i token --color-*.
+  - Facoltativi: --scheme-<nome> col colore scelto, oppure `initial` se vuoto. `initial` serve anche a non ereditare
+    il valore dello schema della pagina: con var(--scheme-x, calcolo) in frontend/styles/tokens.css vale il calcolo.
+  Per aggiungere un colore facoltativo: definition in config/settings_schema.json, una riga qui sotto, token e calcolo
+  in tokens.css. Righe esplicite invece di un ciclo con colors[key]: l'accesso con chiave dinamica alle impostazioni
+  di uno schema non è documentato.
+
+  Parametri:
+  - scheme: oggetto color_scheme
+
+  Uso: {% render 'color-scheme-vars', scheme: scheme %}
+{%- endcomment -%}
+{%- liquid
+  assign colors = scheme.settings
+  assign brightness = colors.background | color_brightness
+-%}
+--color-background: {{ colors.background }};
+--color-foreground: {{ colors.foreground }};
+--color-primary: {{ colors.primary }};
+--color-primary-foreground: {{ colors.primary_foreground }};
+--scheme-headings: {{ colors.headings | default: 'initial' }};
+--scheme-border: {{ colors.border | default: 'initial' }};
+--scheme-secondary: {{ colors.secondary | default: 'initial' }};
+--scheme-secondary-foreground: {{ colors.secondary_foreground | default: 'initial' }};
+--scheme-secondary-border: {{ colors.secondary_border | default: 'initial' }};
+--scheme-card: {{ colors.card | default: 'initial' }};
+--scheme-card-foreground: {{ colors.card_foreground | default: 'initial' }};
+--scheme-badge-sale: {{ colors.badge_sale | default: 'initial' }};
+--scheme-badge-sale-foreground: {{ colors.badge_sale_foreground | default: 'initial' }};
+--scheme-input: {{ colors.input | default: 'initial' }};
+--scheme-input-foreground: {{ colors.input_foreground | default: 'initial' }};
+--scheme-input-border: {{ colors.input_border | default: 'initial' }};
+color-scheme: {% if brightness < 128 %}dark{% else %}light{% endif %};

@@ -5,7 +5,7 @@
   Senza JS: tutte le collezioni visibili una sotto l'altra, ognuna con il proprio titolo.
   JS: frontend/entrypoints/collection-tabs.js — CSS: frontend/entrypoints/collection-tabs.css
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {% render 'vite-tag', entry: 'collection-tabs.css' %}
 
@@ -112,7 +112,7 @@
           {{ block.shopify_attributes }}
         >
           {%- comment -%} Con le tab il titolo del pannello serve solo agli screen reader {%- endcomment -%}
-          <{{ panel_heading_tag }} class="mb-4 text-heading text-foreground{% if visible_count > 1 %} js:sr-only{% endif %}">
+          <{{ panel_heading_tag }} class="mb-4 text-heading text-headings{% if visible_count > 1 %} js:sr-only{% endif %}">
             {{- label | escape -}}
           </{{ panel_heading_tag }}>
 
@@ -240,16 +240,11 @@
       "content": "t:sections.collection_tabs.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.collection_tabs.settings.color_background.label",
-      "info": "t:sections.collection_tabs.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.collection_tabs.settings.color_text.label",
-      "info": "t:sections.collection_tabs.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.collection_tabs.settings.color_scheme.label",
+      "info": "t:sections.collection_tabs.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

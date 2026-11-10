@@ -1,59 +1,34 @@
 {%- comment -%}
-  Colori propri di una section (setting color_background e color_text): li imposta sul wrapper .shopify-section, così
-  coprono tutta la larghezza senza toccare il markup. Senza nessuno dei due colori non stampa nulla e la section segue
-  la palette. Gli altri token si ricalcolano da soli (frontend/styles/tokens.css): lo <style> deve restare figlio
-  diretto del wrapper, quindi questo render va fuori da ogni elemento e da ogni condizione.
-
-  - Solo lo sfondo: il testo diventa il colore più leggibile tra quello della palette, il bianco e il nero.
-  - Pulsante primario: resta quello della palette finché si distingue dallo sfondo (3:1, WCAG 1.4.11); altrimenti
-    prende il colore del testo, con lo sfondo come etichetta.
+  Schema di colori di una section (setting color_scheme, schemi in Impostazioni tema → Colori): imposta i colori
+  dello schema (snippets/color-scheme-vars.liquid) sul wrapper .shopify-section, così coprono tutta la larghezza senza toccare il markup. Con lo
+  schema della pagina (il primo, snippets/head-styles.liquid) non stampa nulla. Gli altri token si ricalcolano da soli
+  (frontend/styles/tokens.css): lo <style> deve restare figlio diretto del wrapper, quindi questo render va fuori da
+  ogni elemento e da ogni condizione. Card e badge seguono lo schema della section.
 
   Parametri:
   - section_id: section.id
-  - background: colore di sfondo (può essere vuoto)
-  - text: colore del testo (può essere vuoto)
+  - scheme: section.settings.color_scheme (oggetto color_scheme; nil se settings_data.json non ha gli schemi)
 
-  Uso: {% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+  Uso: {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- endcomment -%}
-{%- if background != blank or text != blank -%}
-  {%- liquid
-    assign palette = settings.color_palette
-
-    assign base = palette.background
-    if background != blank
-      assign base = background
+{%- liquid
+  assign page_scheme_id = ''
+  for item in settings.color_schemes
+    if forloop.first
+      assign page_scheme_id = item.id
     endif
-
-    assign foreground = text
-    if text == blank
-      assign foreground = palette.foreground
-      assign contrast = palette.foreground | color_contrast: base
-      if contrast < 4.5
-        assign white_contrast = '#ffffff' | color_contrast: base
-        assign black_contrast = '#000000' | color_contrast: base
-        assign foreground = '#000000'
-        if white_contrast > black_contrast
-          assign foreground = '#ffffff'
-        endif
-      endif
+    if item.id == 'scheme-1'
+      assign page_scheme_id = item.id
+      break
     endif
-
-    assign primary_contrast = palette.primary | color_contrast: base
-    assign base_brightness = base | color_brightness
-  -%}
+  endfor
+-%}
+{%- if scheme != blank and scheme.id != page_scheme_id -%}
   {% style %}
     #shopify-section-{{ section_id }} {
-      {% if background != blank -%}
-        --color-background: {{ background }};
-        background-color: {{ background }};
-        color-scheme: {% if base_brightness < 128 %}dark{% else %}light{% endif %};
-      {%- endif %}
-      --color-foreground: {{ foreground }};
-      color: {{ foreground }};
-      {% if primary_contrast < 3 -%}
-        --color-primary: {{ foreground }};
-        --color-primary-foreground: {{ base }};
-      {%- endif %}
+      {% render 'color-scheme-vars', scheme: scheme %}
+      background-color: {{ scheme.settings.background }};
+      color: {{ scheme.settings.foreground }};
     }
   {% endstyle %}
 {%- endif -%}

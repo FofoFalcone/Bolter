@@ -157,7 +157,7 @@
             <input type="hidden" name="updates[]" value="{{ item.quantity }}">
             <p class="text-body-sm text-muted">{{ 'products.product.quantity.label' | t }}: {{ item.quantity }}</p>
           {%- else -%}
-          <div class="flex w-fit items-center rounded-button border border-border-strong bg-background p-0.5" data-quantity>
+          <div class="flex w-fit items-center rounded-button border border-input-border bg-input text-input-foreground [--color-foreground:var(--color-input-foreground)] p-0.5" data-quantity>
             {%- comment -%}
               Id stabili: dopo l'aggiornamento il focus torna sul controllo usato (frontend/scripts/cart-api.js).
               − e + al limite: aria-disabled, così il focus resta. Il contenuto si sostituisce a ogni modifica, quindi lo

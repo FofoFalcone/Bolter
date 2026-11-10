@@ -9,7 +9,7 @@
   - JS (frontend/entrypoints/hero.js, caricato solo se serve): video con pausa/riproduzione e
     profondità allo scorrimento con Motion.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 
 {%- liquid
   assign s = section.settings
@@ -131,7 +131,7 @@
     assign secondary_button = 'button button-lg button-neutral focus-visible:outline-black'
   else
     # Senza media il fondo può essere bg-surface ("inset"): text-muted lì scende a 4.2:1, foreground/80 resta ≥ 8:1
-    assign heading_color = 'text-foreground'
+    assign heading_color = 'text-headings'
     assign text_color = 'text-foreground/80'
     assign eyebrow_color = 'text-foreground/70'
     assign primary_button = 'button button-lg button-primary'
@@ -568,18 +568,11 @@
       "visible_if": "{{ section.settings.image == blank and section.settings.video == blank }}"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_index.settings.color_background.label",
-      "info": "t:sections.main_index.settings.color_background.info",
-      "visible_if": "{{ section.settings.image == blank and section.settings.video == blank }}"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_index.settings.color_text.label",
-      "info": "t:sections.main_index.settings.color_text.info",
-      "visible_if": "{{ section.settings.image == blank and section.settings.video == blank }}"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_index.settings.color_scheme.label",
+      "info": "t:sections.main_index.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "presets": [

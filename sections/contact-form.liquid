@@ -11,7 +11,7 @@
   - Dopo `main-page` (template page.contact) il margine superiore si azzera: è la continuazione della pagina
     (con !important: deve vincere anche su md:py-16, che Tailwind emette dopo la variante in-*).
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign form_id = 'ContactForm-' | append: section.id
@@ -115,7 +115,7 @@
   dopo un errore del server (aria-invalid), focus con contorno primary.
 {%- endcomment -%}
 {%- capture field_class -%}
-  block w-full min-h-11 rounded-md border border-border-strong bg-background px-4 py-2.5 text-body text-foreground transition-colors duration-150 placeholder:text-muted hover:border-foreground focus-visible:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary user-invalid:border-danger aria-invalid:border-danger motion-reduce:transition-none
+  block w-full min-h-11 rounded-md border border-input-border bg-input px-4 py-2.5 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary user-invalid:border-danger aria-invalid:border-danger motion-reduce:transition-none
 {%- endcapture -%}
 {%- capture icon_box_class -%}flex size-11 shrink-0 items-center justify-center rounded-md bg-surface text-foreground{%- endcapture -%}
 
@@ -607,16 +607,11 @@
       "content": "t:sections.contact_form.settings.header_4.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.contact_form.settings.color_background.label",
-      "info": "t:sections.contact_form.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.contact_form.settings.color_text.label",
-      "info": "t:sections.contact_form.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.contact_form.settings.color_scheme.label",
+      "info": "t:sections.contact_form.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

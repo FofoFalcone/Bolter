@@ -4,7 +4,7 @@
   documentazione Shopify); con il menu niente paginazione, compaiono solo le collezioni che contiene.
   Prima riga eager, prima immagine LCP se la section è la prima della pagina. Above the fold: niente data-animate.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
   assign page_max = settings.layout_page_width | append: 'px'
@@ -56,7 +56,7 @@
 {%- endcapture -%}
 
 <div class="page-width flex flex-col gap-8 py-12 md:gap-12 md:py-16">
-  <h1 class="text-heading text-balance text-foreground md:text-title-page">
+  <h1 class="text-heading text-balance text-headings md:text-title-page">
     {{- s.heading | default: page_title | escape -}}
   </h1>
 
@@ -119,7 +119,7 @@
         {% render 'pagination', paginate: paginate %}
       {%- else -%}
         <div class="flex flex-col items-center gap-4 rounded-lg bg-surface px-6 py-16 text-center">
-          <h2 class="text-heading text-balance text-foreground">{{ 'sections.list_collections.empty_title' | t }}</h2>
+          <h2 class="text-heading text-balance text-headings">{{ 'sections.list_collections.empty_title' | t }}</h2>
           <p class="max-w-xl text-body text-pretty text-foreground/80">{{ 'sections.list_collections.empty_text' | t }}</p>
           <a href="{{ routes.root_url }}" class="button button-primary">{{ 'general.404.home' | t }}</a>
         </div>
@@ -248,16 +248,11 @@
       "content": "t:sections.main_list_collections.settings.header_1.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.main_list_collections.settings.color_background.label",
-      "info": "t:sections.main_list_collections.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.main_list_collections.settings.color_text.label",
-      "info": "t:sections.main_list_collections.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_list_collections.settings.color_scheme.label",
+      "info": "t:sections.main_list_collections.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ]
 }

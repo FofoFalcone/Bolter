@@ -7,7 +7,7 @@
   - Da destra a sinistra: il JS legge la direzione del testo (setting text_direction, altrimenti quella della pagina).
   - Blocchi senza contenuto: nel negozio spariscono; nell'editor il logo resta come segnaposto.
 {%- endcomment -%}
-{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign is_rows = false
@@ -642,16 +642,11 @@
       "content": "t:sections.ticker.settings.header_3.content"
     },
     {
-      "type": "color",
-      "id": "color_background",
-      "label": "t:sections.ticker.settings.color_background.label",
-      "info": "t:sections.ticker.settings.color_background.info"
-    },
-    {
-      "type": "color",
-      "id": "color_text",
-      "label": "t:sections.ticker.settings.color_text.label",
-      "info": "t:sections.ticker.settings.color_text.info"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.ticker.settings.color_scheme.label",
+      "info": "t:sections.ticker.settings.color_scheme.info",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

@@ -19,14 +19,6 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -34,6 +26,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -93,13 +89,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -158,14 +150,6 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -184,6 +168,10 @@
         },
         "header_2": {
           "content": "Paese e lingua"
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -286,14 +274,6 @@
         "header_4": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -301,6 +281,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -350,14 +334,6 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Sotto i 990px l'immagine arriva ai bordi dello schermo. Il resto si allarga sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -365,6 +341,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -390,13 +370,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -468,13 +444,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -501,13 +473,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -608,13 +576,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -856,13 +820,9 @@
         "header_11": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -1054,13 +1014,9 @@
         "header_6": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -1156,14 +1112,6 @@
         "header_4": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -1171,6 +1119,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1256,13 +1208,9 @@
         "header_4": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -1374,13 +1322,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1432,14 +1376,6 @@
         "header_3": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -1447,6 +1383,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1476,14 +1416,6 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -1491,6 +1423,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -1524,13 +1460,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1576,14 +1508,6 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -1591,6 +1515,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1607,13 +1535,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1666,13 +1590,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1701,13 +1621,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       }
     },
@@ -1766,14 +1682,6 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -1781,6 +1689,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -1838,14 +1750,6 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Si nota sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -1853,6 +1757,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -1941,13 +1849,9 @@
         "header_1": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -2004,13 +1908,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -2054,14 +1954,6 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: il colore della palette (Impostazioni tema → Colori). Se scegli solo lo sfondo, testo e pulsanti si adattano da soli."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: il colore della palette. Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
-        },
         "section_width": {
           "label": "Larghezza",
           "info": "Sotto i 990px l'immagine arriva ai bordi dello schermo. Il resto si allarga sugli schermi più larghi della larghezza massima della pagina (Impostazioni tema → Layout).",
@@ -2069,6 +1961,10 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -2226,14 +2122,6 @@
         "header_3": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Lascia vuoto per usare la palette del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Lascia vuoto per scegliere da solo il colore più leggibile."
-        },
         "text_direction": {
           "label": "Direzione del testo",
           "info": "Da destra a sinistra serve per testi in arabo, ebraico e lingue simili: cambia anche il verso della striscia.",
@@ -2241,6 +2129,10 @@
             "auto": "Come la pagina",
             "rtl": "Da destra a sinistra"
           }
+        },
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -2521,12 +2413,9 @@
         "header_4": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema. Con il solo sfondo il testo si adatta da solo."
-        },
-        "color_text": {
-          "label": "Testo"
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -2664,13 +2553,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -2742,13 +2627,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -2850,13 +2731,9 @@
             "theme": "Colori della section"
           }
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -2904,13 +2781,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -3023,13 +2896,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "blocks": {
@@ -3135,13 +3004,9 @@
         "header_2": {
           "content": "Colori"
         },
-        "color_background": {
-          "label": "Sfondo",
-          "info": "Vuoto: colori del tema."
-        },
-        "color_text": {
-          "label": "Testo",
-          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        "color_scheme": {
+          "label": "Schema di colori",
+          "info": "Gli schemi si modificano in Impostazioni tema → Colori."
         }
       },
       "presets": {
@@ -3249,8 +3114,10 @@
           "label": "Stile",
           "options": {
             "box": "Riquadro con bordo",
-            "plain": "Senza riquadro"
-          }
+            "plain": "Senza riquadro",
+            "box_borderless": "Riquadro senza bordo"
+          },
+          "info": "Senza bordo il riquadro si distingue dalla section solo se lo schema di colori ha uno sfondo delle card diverso dallo sfondo."
         },
         "product_card_image_ratio": {
           "label": "Proporzioni immagine",
@@ -3285,6 +3152,16 @@
         "quick_view_dynamic_checkout": {
           "label": "Mostra i pulsanti di pagamento rapido",
           "info": "Nell'anteprima rapida del prodotto, sotto ad \"Aggiungi al carrello\"."
+        },
+        "product_card_shadow": {
+          "label": "Ombra",
+          "info": "Con \"Senza riquadro\" l'ombra è sotto l'immagine.",
+          "options": {
+            "none": "Nessuna",
+            "small": "Piccola",
+            "medium": "Media",
+            "large": "Grande"
+          }
         }
       }
     },
@@ -3364,7 +3241,84 @@
       }
     },
     "color": {
-      "name": "Colori"
+      "name": "Colori",
+      "settings": {
+        "color_schemes": {
+          "definition": {
+            "background": {
+              "label": "Sfondo"
+            },
+            "foreground": {
+              "label": "Testo",
+              "info": "Sceglilo ben leggibile sullo sfondo (contrasto di almeno 4,5:1)."
+            },
+            "primary": {
+              "label": "Pulsante principale",
+              "info": "Anche per il contorno di focus e i controlli attivi: deve distinguersi dallo sfondo (contrasto di almeno 3:1)."
+            },
+            "primary_foreground": {
+              "label": "Etichetta del pulsante"
+            },
+            "headings": {
+              "label": "Titoli",
+              "info": "Vuoto: come il testo."
+            },
+            "border": {
+              "label": "Bordi",
+              "info": "Filetti e contorni. Vuoto: calcolato da testo e sfondo."
+            },
+            "header_1": {
+              "content": "Pulsanti"
+            },
+            "secondary": {
+              "label": "Sfondo del pulsante secondario",
+              "info": "Vuoto: come lo sfondo."
+            },
+            "secondary_foreground": {
+              "label": "Testo del pulsante secondario",
+              "info": "Vuoto: come il testo."
+            },
+            "secondary_border": {
+              "label": "Bordo del pulsante secondario",
+              "info": "Vuoto: come i bordi."
+            },
+            "header_2": {
+              "content": "Card e badge"
+            },
+            "card": {
+              "label": "Sfondo delle card",
+              "info": "Card con riquadro (Impostazioni tema → Card prodotto). Vuoto: come lo sfondo."
+            },
+            "card_foreground": {
+              "label": "Testo delle card",
+              "info": "Vuoto: come il testo."
+            },
+            "badge_sale": {
+              "label": "Sfondo del badge Saldi",
+              "info": "Vuoto: calcolato dai colori dello schema."
+            },
+            "badge_sale_foreground": {
+              "label": "Testo del badge Saldi",
+              "info": "Sceglilo ben leggibile sul badge (contrasto di almeno 4,5:1). Vuoto: calcolato dai colori dello schema."
+            },
+            "header_3": {
+              "content": "Campi dei form"
+            },
+            "input": {
+              "label": "Sfondo dei campi",
+              "info": "Vuoto: come lo sfondo."
+            },
+            "input_foreground": {
+              "label": "Testo dei campi",
+              "info": "Vuoto: come il testo."
+            },
+            "input_border": {
+              "label": "Bordo dei campi",
+              "info": "Deve distinguersi dallo sfondo (contrasto di almeno 3:1). Vuoto: calcolato dai colori dello schema."
+            }
+          }
+        }
+      }
     },
     "quantity": {
       "name": "Disponibilità",
