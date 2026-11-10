@@ -21,6 +21,25 @@
     text-wrap: balance;
   }
 
+  /*
+   * Impostazioni tema → Tipografia → Titoli in maiuscolo: solo i titoli con un formato da titolo (hero, pagina,
+   * sottotitolo, heading, anche con prefisso responsive), non i titoli delle card né le domande delle FAQ, che in
+   * maiuscolo si leggono male. --heading-case e --heading-tracking arrivano da snippets/head-styles.liquid; se
+   * mancano, le proprietà tornano ai valori ereditati. --tw-tracking vince sulla spaziatura dei token text-* (le
+   * utility la leggono con var(--tw-tracking, …)): il maiuscolo con la spaziatura negativa dei titoli risulta stretto.
+   */
+  :is(h1, h2, h3, h4, h5, h6):is(
+      [class*='text-title-'],
+      [class*='text-subtitle'],
+      [class~='text-heading'],
+      [class*=':text-heading']
+    ) {
+    --tw-tracking: var(--heading-tracking);
+    /* Per text-subtitle, che non ha una spaziatura nel token */
+    letter-spacing: var(--heading-tracking);
+    text-transform: var(--heading-case);
+  }
+
   p {
     text-wrap: pretty;
   }

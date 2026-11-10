@@ -125,5 +125,483 @@
         }
       }
     }
+  },
+  "presets": {
+    "Essential": {
+      "cart_type": "drawer",
+      "type_body_font": "inter_n4",
+      "type_heading_font": "inter_n7",
+      "type_heading_scale": 100,
+      "type_heading_uppercase": false,
+      "color_schemes": {
+        "scheme-1": {
+          "settings": {
+            "background": "#ffffff",
+            "foreground": "#1a1d21",
+            "headings": "#0e1013",
+            "border": "#e3e4e6",
+            "primary": "#a84300",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ffffff",
+            "secondary_foreground": "#1a1d21",
+            "secondary_border": "#7d828a",
+            "card": "#ffffff",
+            "card_foreground": "#1a1d21",
+            "badge_sale": "#f66200",
+            "badge_sale_foreground": "#0e1013",
+            "input": "#ffffff",
+            "input_foreground": "#1a1d21",
+            "input_border": "#7d828a"
+          }
+        },
+        "scheme-2": {
+          "settings": {
+            "background": "#f3f2ee",
+            "foreground": "#1a1d21",
+            "headings": "#0e1013",
+            "border": "#dcdad3",
+            "primary": "#1a1d21",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ffffff",
+            "secondary_foreground": "#1a1d21",
+            "secondary_border": "#7a7d82",
+            "card": "#ffffff",
+            "card_foreground": "#1a1d21",
+            "badge_sale": "#f66200",
+            "badge_sale_foreground": "#0e1013",
+            "input": "#ffffff",
+            "input_foreground": "#1a1d21",
+            "input_border": "#7a7d82"
+          }
+        },
+        "scheme-3": {
+          "settings": {
+            "background": "#121417",
+            "foreground": "#e6e8eb",
+            "headings": "#ffffff",
+            "border": "#2c3036",
+            "primary": "#f66200",
+            "primary_foreground": "#0e1013",
+            "secondary": "#1b1e22",
+            "secondary_foreground": "#ffffff",
+            "secondary_border": "#646a72",
+            "card": "#1b1e22",
+            "card_foreground": "#e6e8eb",
+            "badge_sale": "#f66200",
+            "badge_sale_foreground": "#0e1013",
+            "input": "#1b1e22",
+            "input_foreground": "#ffffff",
+            "input_border": "#6e747c"
+          }
+        },
+        "scheme-4": {
+          "settings": {
+            "background": "#ff7a1f",
+            "foreground": "#000000",
+            "headings": "#000000",
+            "border": "#c95f14",
+            "primary": "#0e1013",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ff7a1f",
+            "secondary_foreground": "#000000",
+            "secondary_border": "#000000",
+            "card": "#ffffff",
+            "card_foreground": "#1a1d21",
+            "badge_sale": "#0e1013",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#ffffff",
+            "input_foreground": "#1a1d21",
+            "input_border": "#0e1013"
+          }
+        },
+        "scheme-5": {
+          "settings": {
+            "background": "#0e1013",
+            "foreground": "#ffffff",
+            "headings": "#f66200",
+            "border": "#2a2d33",
+            "primary": "#f66200",
+            "primary_foreground": "#0e1013",
+            "secondary": "#0e1013",
+            "secondary_foreground": "#ffffff",
+            "secondary_border": "#8a8f96",
+            "card": "#1a1d21",
+            "card_foreground": "#ffffff",
+            "badge_sale": "#f66200",
+            "badge_sale_foreground": "#0e1013",
+            "input": "#1a1d21",
+            "input_foreground": "#ffffff",
+            "input_border": "#6e747c"
+          }
+        }
+      },
+      "style_corner_radius": "medium",
+      "button_shape": "pill",
+      "style_border_width": 1,
+      "style_shadow": "soft",
+      "layout_page_width": 1920,
+      "product_card_style": "box",
+      "product_card_shadow": "none",
+      "product_card_image_ratio": "portrait",
+      "page_transition": "clip_wipe",
+      "page_transition_duration": 800
+    },
+    "Graphic": {
+      "cart_type": "drawer",
+      "type_body_font": "space_grotesk_n4",
+      "type_heading_font": "space_grotesk_n7",
+      "type_heading_scale": 110,
+      "type_heading_uppercase": true,
+      "color_schemes": {
+        "scheme-1": {
+          "settings": {
+            "background": "#fffdf5",
+            "foreground": "#111111",
+            "headings": "#111111",
+            "border": "#111111",
+            "primary": "#111111",
+            "primary_foreground": "#fffdf5",
+            "secondary": "#ffe14d",
+            "secondary_foreground": "#111111",
+            "secondary_border": "#111111",
+            "card": "#ffffff",
+            "card_foreground": "#111111",
+            "badge_sale": "#ff5c39",
+            "badge_sale_foreground": "#111111",
+            "input": "#ffffff",
+            "input_foreground": "#111111",
+            "input_border": "#111111"
+          }
+        },
+        "scheme-2": {
+          "settings": {
+            "background": "#ffe14d",
+            "foreground": "#111111",
+            "headings": "#111111",
+            "border": "#111111",
+            "primary": "#111111",
+            "primary_foreground": "#ffe14d",
+            "secondary": "#ffffff",
+            "secondary_foreground": "#111111",
+            "secondary_border": "#111111",
+            "card": "#ffffff",
+            "card_foreground": "#111111",
+            "badge_sale": "#ff5c39",
+            "badge_sale_foreground": "#111111",
+            "input": "#ffffff",
+            "input_foreground": "#111111",
+            "input_border": "#111111"
+          }
+        },
+        "scheme-3": {
+          "settings": {
+            "background": "#111111",
+            "foreground": "#f5f5f0",
+            "headings": "#ffe14d",
+            "border": "#f5f5f0",
+            "primary": "#ffe14d",
+            "primary_foreground": "#111111",
+            "secondary": "#111111",
+            "secondary_foreground": "#f5f5f0",
+            "secondary_border": "#f5f5f0",
+            "card": "#1c1c1c",
+            "card_foreground": "#f5f5f0",
+            "badge_sale": "#ff5c39",
+            "badge_sale_foreground": "#111111",
+            "input": "#1c1c1c",
+            "input_foreground": "#f5f5f0",
+            "input_border": "#f5f5f0"
+          }
+        },
+        "scheme-4": {
+          "settings": {
+            "background": "#3d5afe",
+            "foreground": "#ffffff",
+            "headings": "#ffffff",
+            "border": "#ffffff",
+            "primary": "#ffe14d",
+            "primary_foreground": "#111111",
+            "secondary": "#3d5afe",
+            "secondary_foreground": "#ffffff",
+            "secondary_border": "#ffffff",
+            "card": "#ffffff",
+            "card_foreground": "#111111",
+            "badge_sale": "#ffe14d",
+            "badge_sale_foreground": "#111111",
+            "input": "#ffffff",
+            "input_foreground": "#111111",
+            "input_border": "#111111"
+          }
+        },
+        "scheme-5": {
+          "settings": {
+            "background": "#ff6bd6",
+            "foreground": "#111111",
+            "headings": "#111111",
+            "border": "#111111",
+            "primary": "#111111",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ff6bd6",
+            "secondary_foreground": "#111111",
+            "secondary_border": "#111111",
+            "card": "#ffffff",
+            "card_foreground": "#111111",
+            "badge_sale": "#111111",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#ffffff",
+            "input_foreground": "#111111",
+            "input_border": "#111111"
+          }
+        }
+      },
+      "style_corner_radius": "square",
+      "button_shape": "square",
+      "style_border_width": 2,
+      "style_shadow": "hard",
+      "layout_page_width": 1280,
+      "product_card_style": "box",
+      "product_card_shadow": "medium",
+      "product_card_image_ratio": "square",
+      "page_transition": "pixels",
+      "page_transition_duration": 600
+    },
+    "Soft": {
+      "cart_type": "drawer",
+      "type_body_font": "dm_sans_n4",
+      "type_heading_font": "fraunces_n5",
+      "type_heading_scale": 105,
+      "type_heading_uppercase": false,
+      "color_schemes": {
+        "scheme-1": {
+          "settings": {
+            "background": "#fbf7f4",
+            "foreground": "#2d2a32",
+            "headings": "#2d2a32",
+            "border": "#ece4dd",
+            "primary": "#7c4d6b",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ffffff",
+            "secondary_foreground": "#2d2a32",
+            "secondary_border": "#a08d82",
+            "card": "#ffffff",
+            "card_foreground": "#2d2a32",
+            "badge_sale": "#f6d5e0",
+            "badge_sale_foreground": "#6b2140",
+            "input": "#ffffff",
+            "input_foreground": "#2d2a32",
+            "input_border": "#a08d82"
+          }
+        },
+        "scheme-2": {
+          "settings": {
+            "background": "#f6e3e7",
+            "foreground": "#2d2a32",
+            "headings": "#2d2a32",
+            "border": "#e6cbd2",
+            "primary": "#2d2a32",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ffffff",
+            "secondary_foreground": "#2d2a32",
+            "secondary_border": "#a8878f",
+            "card": "#fffafb",
+            "card_foreground": "#2d2a32",
+            "badge_sale": "#7c4d6b",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#ffffff",
+            "input_foreground": "#2d2a32",
+            "input_border": "#a8878f"
+          }
+        },
+        "scheme-3": {
+          "settings": {
+            "background": "#e3ebe2",
+            "foreground": "#24302a",
+            "headings": "#24302a",
+            "border": "#c9d6c7",
+            "primary": "#3f5b4b",
+            "primary_foreground": "#ffffff",
+            "secondary": "#ffffff",
+            "secondary_foreground": "#24302a",
+            "secondary_border": "#7d917d",
+            "card": "#f6f9f5",
+            "card_foreground": "#24302a",
+            "badge_sale": "#7c4d6b",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#ffffff",
+            "input_foreground": "#24302a",
+            "input_border": "#7d917d"
+          }
+        },
+        "scheme-4": {
+          "settings": {
+            "background": "#7c4d6b",
+            "foreground": "#ffffff",
+            "headings": "#ffffff",
+            "border": "#966a86",
+            "primary": "#ffffff",
+            "primary_foreground": "#2d2a32",
+            "secondary": "#7c4d6b",
+            "secondary_foreground": "#ffffff",
+            "secondary_border": "#e7cfe0",
+            "card": "#fbf7f4",
+            "card_foreground": "#2d2a32",
+            "badge_sale": "#f6d5e0",
+            "badge_sale_foreground": "#6b2140",
+            "input": "#ffffff",
+            "input_foreground": "#2d2a32",
+            "input_border": "#a08d82"
+          }
+        },
+        "scheme-5": {
+          "settings": {
+            "background": "#2d2a32",
+            "foreground": "#f3ece6",
+            "headings": "#ffffff",
+            "border": "#45404b",
+            "primary": "#f6d5e0",
+            "primary_foreground": "#2d2a32",
+            "secondary": "#2d2a32",
+            "secondary_foreground": "#f3ece6",
+            "secondary_border": "#8a8290",
+            "card": "#38343e",
+            "card_foreground": "#f3ece6",
+            "badge_sale": "#f6d5e0",
+            "badge_sale_foreground": "#6b2140",
+            "input": "#38343e",
+            "input_foreground": "#f3ece6",
+            "input_border": "#8a8290"
+          }
+        }
+      },
+      "style_corner_radius": "large",
+      "button_shape": "pill",
+      "style_border_width": 1,
+      "style_shadow": "none",
+      "layout_page_width": 1280,
+      "product_card_style": "box_borderless",
+      "product_card_shadow": "none",
+      "product_card_image_ratio": "portrait",
+      "page_transition": "fade",
+      "page_transition_duration": 400
+    },
+    "Editorial": {
+      "cart_type": "drawer",
+      "type_body_font": "instrument_sans_n4",
+      "type_heading_font": "playfair_display_n4",
+      "type_heading_scale": 115,
+      "type_heading_uppercase": true,
+      "color_schemes": {
+        "scheme-1": {
+          "settings": {
+            "background": "#f7f3ec",
+            "foreground": "#1f1b16",
+            "headings": "#1f1b16",
+            "border": "#e2d9cb",
+            "primary": "#1f1b16",
+            "primary_foreground": "#f7f3ec",
+            "secondary": "#f7f3ec",
+            "secondary_foreground": "#1f1b16",
+            "secondary_border": "#1f1b16",
+            "card": "#f7f3ec",
+            "card_foreground": "#1f1b16",
+            "badge_sale": "#8c2f1c",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#fffdf9",
+            "input_foreground": "#1f1b16",
+            "input_border": "#8b8172"
+          }
+        },
+        "scheme-2": {
+          "settings": {
+            "background": "#ebe2d3",
+            "foreground": "#1f1b16",
+            "headings": "#1f1b16",
+            "border": "#d6cab6",
+            "primary": "#1f1b16",
+            "primary_foreground": "#f7f3ec",
+            "secondary": "#ebe2d3",
+            "secondary_foreground": "#1f1b16",
+            "secondary_border": "#1f1b16",
+            "card": "#f7f3ec",
+            "card_foreground": "#1f1b16",
+            "badge_sale": "#8c2f1c",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#fffdf9",
+            "input_foreground": "#1f1b16",
+            "input_border": "#857a68"
+          }
+        },
+        "scheme-3": {
+          "settings": {
+            "background": "#1f1b16",
+            "foreground": "#efe7da",
+            "headings": "#ffffff",
+            "border": "#3a332b",
+            "primary": "#efe7da",
+            "primary_foreground": "#1f1b16",
+            "secondary": "#1f1b16",
+            "secondary_foreground": "#efe7da",
+            "secondary_border": "#8f8576",
+            "card": "#2a251f",
+            "card_foreground": "#efe7da",
+            "badge_sale": "#d9784f",
+            "badge_sale_foreground": "#1f1b16",
+            "input": "#2a251f",
+            "input_foreground": "#efe7da",
+            "input_border": "#8f8576"
+          }
+        },
+        "scheme-4": {
+          "settings": {
+            "background": "#a6492a",
+            "foreground": "#ffffff",
+            "headings": "#ffffff",
+            "border": "#bd6a4d",
+            "primary": "#ffffff",
+            "primary_foreground": "#1f1b16",
+            "secondary": "#a6492a",
+            "secondary_foreground": "#ffffff",
+            "secondary_border": "#ffffff",
+            "card": "#f7f3ec",
+            "card_foreground": "#1f1b16",
+            "badge_sale": "#1f1b16",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#fffdf9",
+            "input_foreground": "#1f1b16",
+            "input_border": "#8b8172"
+          }
+        },
+        "scheme-5": {
+          "settings": {
+            "background": "#454a2e",
+            "foreground": "#f7f3ec",
+            "headings": "#ffffff",
+            "border": "#5c6243",
+            "primary": "#f7f3ec",
+            "primary_foreground": "#1f1b16",
+            "secondary": "#454a2e",
+            "secondary_foreground": "#f7f3ec",
+            "secondary_border": "#d9d4c0",
+            "card": "#f7f3ec",
+            "card_foreground": "#1f1b16",
+            "badge_sale": "#8c2f1c",
+            "badge_sale_foreground": "#ffffff",
+            "input": "#fffdf9",
+            "input_foreground": "#1f1b16",
+            "input_border": "#8b8172"
+          }
+        }
+      },
+      "style_corner_radius": "square",
+      "button_shape": "square",
+      "style_border_width": 1,
+      "style_shadow": "none",
+      "layout_page_width": 1440,
+      "product_card_style": "plain",
+      "product_card_shadow": "none",
+      "product_card_image_ratio": "portrait",
+      "page_transition": "wipe",
+      "page_transition_duration": 600
+    }
   }
 }

@@ -3075,6 +3075,15 @@
         },
         "type_heading_font": {
           "label": "Heading font"
+        },
+        "type_heading_scale": {
+          "label": "Heading size",
+          "info": "Page and section headings, on every screen size. Body text is unchanged.",
+          "unit": "%"
+        },
+        "type_heading_uppercase": {
+          "label": "Uppercase headings",
+          "info": "Page and section headings. Product names in cards and FAQ questions stay as they are."
         }
       }
     },
@@ -3206,10 +3215,9 @@
       }
     },
     "button": {
-      "name": "Buttons",
       "settings": {
         "button_shape": {
-          "label": "Shape",
+          "label": "Button shape",
           "info": "Applies to every button in the store, including accelerated checkout buttons.",
           "options": {
             "pill": "Pill",
@@ -3350,6 +3358,38 @@
           "label": "Maximum page width",
           "info": "Applies to all sections set to \"Page\" width. Suitable sections can go full width with their own setting.",
           "unit": "px"
+        }
+      }
+    },
+    "style": {
+      "name": "Style",
+      "settings": {
+        "paragraph_1": {
+          "content": "Shape and depth across the whole store: cards, buttons, panels, fields and images."
+        },
+        "style_corner_radius": {
+          "label": "Corners",
+          "info": "Cards, images, panels, fields and badges. Button shape is set below.",
+          "options": {
+            "square": "Square",
+            "small": "Subtle",
+            "medium": "Medium",
+            "large": "Large"
+          }
+        },
+        "style_border_width": {
+          "label": "Border thickness",
+          "info": "Outline of boxed cards and buttons.",
+          "unit": "px"
+        },
+        "style_shadow": {
+          "label": "Shadows",
+          "info": "Hard: solid offset shadow in the text color, for a graphic look. Cards show the shadow chosen in Product cards.",
+          "options": {
+            "soft": "Soft",
+            "none": "None",
+            "hard": "Hard"
+          }
         }
       }
     }

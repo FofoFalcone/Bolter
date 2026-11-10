@@ -30,7 +30,50 @@
   if card_hex != blank and card_hex != background_hex
     assign card_matches = false
   endif
+
+  # Testo attenuato e bordi forti: quota minima di testo (dal 65% / 60% del SDS a salire) che dà almeno 4.5:1 sul fondo
+  # surface (testo, caso peggiore) e 3:1 sullo sfondo (bordi dei controlli). Con bianco e nero restano i valori SDS; su
+  # fondi di tono medio o saturi (arancione, blu, terracotta) la percentuale fissa scendeva a 3-4:1. color_contrast
+  # arrotonda a un decimale: soglie 4.6 e 3.1 per restare sopra il minimo. Stesso calcolo sui colori delle card.
+  assign foreground_hex = colors.foreground | append: ''
+  assign card_foreground_hex = colors.card_foreground | append: '' | default: foreground_hex
+  assign card_background_hex = card_hex | default: background_hex
+  assign muted_mix = 100
+  assign strong_mix = 100
+  assign card_muted_mix = 100
+  assign surface = foreground_hex | color_mix: background_hex, 5
+  assign card_surface = card_foreground_hex | color_mix: card_background_hex, 5
+  for step in (13..20)
+    assign pct = step | times: 5
+    assign candidate = foreground_hex | color_mix: background_hex, pct
+    assign ratio = candidate | color_contrast: surface
+    if ratio >= 4.6
+      assign muted_mix = pct
+      break
+    endif
+  endfor
+  for step in (12..20)
+    assign pct = step | times: 5
+    assign candidate = foreground_hex | color_mix: background_hex, pct
+    assign ratio = candidate | color_contrast: background_hex
+    if ratio >= 3.1
+      assign strong_mix = pct
+      break
+    endif
+  endfor
+  for step in (13..20)
+    assign pct = step | times: 5
+    assign candidate = card_foreground_hex | color_mix: card_background_hex, pct
+    assign ratio = candidate | color_contrast: card_surface
+    if ratio >= 4.6
+      assign card_muted_mix = pct
+      break
+    endif
+  endfor
 -%}
+--muted-mix: {{ muted_mix }}%;
+--strong-mix: {{ strong_mix }}%;
+--card-muted-mix: {{ card_muted_mix }}%;
 --color-background: {{ colors.background }};
 --color-foreground: {{ colors.foreground }};
 --color-primary: {{ colors.primary }};

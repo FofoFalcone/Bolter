@@ -120,7 +120,7 @@
     else
       assign card_class = 'card-colors overflow-hidden rounded-lg bg-background text-foreground'
       if settings.product_card_style == 'box'
-        assign card_class = card_class | append: ' border border-border'
+        assign card_class = card_class | append: ' card-border'
       endif
       assign media_class = ''
       assign info_class = 'p-3 @3xs:p-4'

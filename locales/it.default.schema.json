@@ -3026,6 +3026,15 @@
         },
         "type_heading_font": {
           "label": "Font dei titoli"
+        },
+        "type_heading_scale": {
+          "label": "Dimensione dei titoli",
+          "info": "Titoli di pagine e section, su tutti gli schermi. Il testo resta invariato.",
+          "unit": "%"
+        },
+        "type_heading_uppercase": {
+          "label": "Titoli in maiuscolo",
+          "info": "Titoli di pagine e section. I nomi dei prodotti nelle card e le domande delle FAQ restano come sono."
         }
       }
     },
@@ -3183,10 +3192,9 @@
       }
     },
     "button": {
-      "name": "Pulsanti",
       "settings": {
         "button_shape": {
-          "label": "Forma",
+          "label": "Forma dei pulsanti",
           "info": "Vale per tutti i pulsanti del negozio, compresi quelli di pagamento rapido.",
           "options": {
             "pill": "Pillola",
@@ -3341,6 +3349,38 @@
           "label": "Larghezza massima della pagina",
           "info": "Vale per tutte le section con larghezza \"Pagina\". Le section adatte possono andare a tutta larghezza con il proprio setting.",
           "unit": "px"
+        }
+      }
+    },
+    "style": {
+      "name": "Stile",
+      "settings": {
+        "paragraph_1": {
+          "content": "Forma e profondità di tutto il negozio: card, pulsanti, pannelli, campi e immagini."
+        },
+        "style_corner_radius": {
+          "label": "Angoli",
+          "info": "Card, immagini, pannelli, campi e badge. La forma dei pulsanti si sceglie qui sotto.",
+          "options": {
+            "square": "Squadrati",
+            "small": "Leggeri",
+            "medium": "Medi",
+            "large": "Ampi"
+          }
+        },
+        "style_border_width": {
+          "label": "Spessore dei bordi",
+          "info": "Contorno delle card con riquadro e dei pulsanti.",
+          "unit": "px"
+        },
+        "style_shadow": {
+          "label": "Ombre",
+          "info": "Nette: ombra piena e sfalsata nel colore del testo, per uno stile grafico. Le card mostrano l'ombra scelta in Card prodotto.",
+          "options": {
+            "soft": "Morbide",
+            "none": "Nessuna",
+            "hard": "Nette"
+          }
         }
       }
     }

@@ -83,22 +83,29 @@
   --font-heading: var(--font-heading-family, var(--font-sans));
   --font-mono: 'Roboto Mono', ui-monospace, monospace; /* sds-typography-family-mono */
 
-  /* Scala SDS (sostituisce text-xs…text-9xl di Tailwind): text-title-hero, text-heading, text-body… */
+  /*
+   * Scala SDS (sostituisce text-xs…text-9xl di Tailwind): text-title-hero, text-heading, text-body…
+   * I quattro formati dei titoli si moltiplicano per --heading-scale (Impostazioni tema → Tipografia, stampata da
+   * snippets/head-styles.liquid; 1 se manca). Testo, sottotitoli piccoli e codice non cambiano.
+   * Peso dei titoli = quello scelto nel font dei titoli (--font-heading-weight, snippets/theme-fonts.liquid): il tema
+   * carica solo quel peso, e un 700 imposto a un serif scelto a 400 diventerebbe un grassetto simulato dal browser.
+   * text-heading resta al massimo 600, come nel SDS.
+   */
   --text-*: initial;
-  --text-title-hero: 4.5rem; /* Title Hero 72/1.2 bold */
+  --text-title-hero: calc(4.5rem * var(--heading-scale, 1)); /* Title Hero 72/1.2 bold */
   --text-title-hero--line-height: 1.2;
   --text-title-hero--letter-spacing: -0.03em;
-  --text-title-hero--font-weight: 700;
-  --text-title-page: 3rem; /* Title Page 48/1.2 bold */
+  --text-title-hero--font-weight: var(--font-heading-weight, 700);
+  --text-title-page: calc(3rem * var(--heading-scale, 1)); /* Title Page 48/1.2 bold */
   --text-title-page--line-height: 1.2;
   --text-title-page--letter-spacing: -0.02em;
-  --text-title-page--font-weight: 700;
-  --text-subtitle: 2rem; /* Subtitle 32/1.2 regular */
+  --text-title-page--font-weight: var(--font-heading-weight, 700);
+  --text-subtitle: calc(2rem * var(--heading-scale, 1)); /* Subtitle 32/1.2 regular */
   --text-subtitle--line-height: 1.2;
-  --text-heading: 1.5rem; /* Heading 24/1.2 semibold */
+  --text-heading: calc(1.5rem * var(--heading-scale, 1)); /* Heading 24/1.2 semibold */
   --text-heading--line-height: 1.2;
   --text-heading--letter-spacing: -0.02em;
-  --text-heading--font-weight: 600;
+  --text-heading--font-weight: min(var(--font-heading-weight, 600), 600);
   --text-subheading: 1.25rem; /* Subheading 20/1.2 regular */
   --text-subheading--line-height: 1.2;
   --text-body: 1rem; /* Body Base 16/1.4 */
@@ -108,23 +115,31 @@
   --text-code: 1rem; /* Body Code 16/1.3 mono */
   --text-code--line-height: 1.3;
 
-  /* ---------- Raggi (sds-size-radius-*) ---------- */
+  /*
+   * ---------- Raggi (sds-size-radius-*) ----------
+   * Moltiplicati per --radius-scale (Impostazioni tema → Stile → Angoli: 0, 0.5, 1, 1.5; 1 = SDS).
+   */
   --radius-*: initial;
-  --radius-sm: 0.25rem; /* 100 = 4px */
-  --radius-md: 0.5rem; /* 200 = 8px */
-  --radius-lg: 1rem; /* 400 = 16px */
-  --radius-xl: 1.5rem; /* xl = 24px */
+  --radius-sm: calc(0.25rem * var(--radius-scale, 1)); /* 100 = 4px */
+  --radius-md: calc(0.5rem * var(--radius-scale, 1)); /* 200 = 8px */
+  --radius-lg: calc(1rem * var(--radius-scale, 1)); /* 400 = 16px */
+  --radius-xl: calc(1.5rem * var(--radius-scale, 1)); /* xl = 24px */
   /* Forma dei pulsanti (Impostazioni tema → Pulsanti, --button-radius dal layout) → rounded-button */
   --radius-button: var(--button-radius, 9999px);
 
-  /* ---------- Ombre (SDS Drop Shadow 100–600) ---------- */
+  /*
+   * ---------- Ombre (SDS Drop Shadow 100–600) ----------
+   * Il valore SDS è il ripiego di --style-shadow-*: Impostazioni tema → Stile → Ombre le sostituisce con "nessuna" o
+   * "nette" (snippets/head-styles.liquid). Con var() nel token le utility shadow-* leggono la variabile invece di
+   * copiare il valore (verificato sul CSS compilato da Tailwind v4).
+   */
   --shadow-*: initial;
-  --shadow-100: 0 1px 4px 0 #0c0c0d0d;
-  --shadow-200: 0 1px 4px 0 #0c0c0d0d, 0 1px 4px 0 #0c0c0d1a;
-  --shadow-300: 0 4px 4px -1px #0c0c0d0d, 0 4px 4px -1px #0c0c0d1a;
-  --shadow-400: 0 4px 4px -4px #0c0c0d0d, 0 16px 32px -4px #0c0c0d1a;
-  --shadow-500: 0 4px 4px -4px #0c0c0d0d, 0 16px 16px -8px #0c0c0d1a;
-  --shadow-600: 0 16px 32px -8px #0c0c0d66;
+  --shadow-100: var(--style-shadow-100, 0 1px 4px 0 #0c0c0d0d);
+  --shadow-200: var(--style-shadow-200, 0 1px 4px 0 #0c0c0d0d, 0 1px 4px 0 #0c0c0d1a);
+  --shadow-300: var(--style-shadow-300, 0 4px 4px -1px #0c0c0d0d, 0 4px 4px -1px #0c0c0d1a);
+  --shadow-400: var(--style-shadow-400, 0 4px 4px -4px #0c0c0d0d, 0 16px 32px -4px #0c0c0d1a);
+  --shadow-500: var(--style-shadow-500, 0 4px 4px -4px #0c0c0d0d, 0 16px 16px -8px #0c0c0d1a);
+  --shadow-600: var(--style-shadow-600, 0 16px 32px -8px #0c0c0d66);
 
   /* ---------- Movimento ---------- */
   /* Ease-out del tema (= DEFAULTS.ease in frontend/scripts/animations.js) → utility ease-theme */
@@ -166,11 +181,15 @@
   --color-surface: color-mix(in srgb, var(--color-foreground) 4.5%, var(--color-background));
   --color-surface-hover: color-mix(in srgb, var(--color-foreground) 11%, var(--color-background));
   --color-surface-strong: color-mix(in srgb, var(--color-foreground) 17%, var(--color-background));
-  /* 65%: almeno 4.5:1 anche su bg-surface e su fondi colorati (l'SDS, a 61%, si ferma a 4.2:1) */
-  --color-muted: color-mix(in srgb, var(--color-foreground) 65%, var(--color-background));
+  /*
+   * Quota di testo calcolata per ogni schema in snippets/color-scheme-vars.liquid: --muted-mix dà almeno 4.5:1 anche
+   * su bg-surface, --strong-mix almeno 3:1 per i bordi dei controlli. Una percentuale fissa (65%) bastava su bianco e
+   * nero ma scendeva a 3-4:1 su fondi di tono medio o saturi. 65% e 61.3% (SDS) se lo schema non le stampa.
+   */
+  --color-muted: color-mix(in srgb, var(--color-foreground) var(--muted-mix, 65%), var(--color-background));
   --color-subtle: color-mix(in srgb, var(--color-foreground) 34%, var(--color-background));
   --color-border: var(--scheme-border, color-mix(in srgb, var(--color-foreground) 17%, var(--color-background)));
-  --color-border-strong: color-mix(in srgb, var(--color-foreground) 61.3%, var(--color-background));
+  --color-border-strong: color-mix(in srgb, var(--color-foreground) var(--strong-mix, 61.3%), var(--color-background));
   --color-headings: var(--scheme-headings, var(--color-foreground));
   --color-secondary: var(--scheme-secondary, var(--color-background));
   --color-secondary-foreground: var(--scheme-secondary-foreground, var(--color-foreground));

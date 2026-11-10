@@ -5,6 +5,9 @@
   - Classe .js: gli elementi [data-animate] vengono nascosti solo con JS attivo (frontend/styles/animations.css).
   - Impostazioni tema → Pulsanti: forma letta dal token --radius-button (frontend/styles/tokens.css).
   - Impostazioni tema → Layout: larghezza massima della pagina, letta dal token --container-page.
+  - Impostazioni tema → Stile: angoli (--radius-scale), spessore dei bordi di card e pulsanti (--style-border-width),
+    ombre (--style-shadow-*: assenti = morbide SDS). Tipografia: dimensione dei titoli (--heading-scale) e maiuscolo
+    (--heading-case, --heading-tracking). Tutti letti dai token in frontend/styles/tokens.css e base.css.
   - Impostazioni tema → Colori: schemi di colori (settings.color_schemes, definizioni in settings_data.json). La pagina
     usa lo schema "scheme-1" (o il primo, se il merchant lo ha eliminato); le section scelgono il proprio
     (snippets/section-colors.liquid). Gli altri colori si ricavano da questi quattro (frontend/styles/tokens.css).
@@ -28,6 +31,10 @@
       break
     endif
   endfor
+
+  # Dimensione dei titoli: sotto i 750px metà dello scostamento (a 130% un titolo da 48px non sta su 375px)
+  assign heading_scale = settings.type_heading_scale | default: 100 | divided_by: 100.0
+  assign heading_scale_mobile = heading_scale | minus: 1 | divided_by: 2 | plus: 1 | round: 3
 -%}
 {% style %}
   :root {
@@ -36,7 +43,48 @@
     {%- endif %}
     --button-radius: {% case settings.button_shape %}{% when 'square' %}0px{% when 'rounded' %}var(--radius-md){% else %}9999px{% endcase %};
     --container-page: {{ settings.layout_page_width }}px;
+    --radius-scale: {% case settings.style_corner_radius %}{% when 'square' %}0{% when 'small' %}0.5{% when 'large' %}1.5{% else %}1{% endcase %};
+    --style-border-width: {{ settings.style_border_width | default: 1 }}px;
+    --heading-scale: {{ heading_scale_mobile }};
+    {%- if settings.type_heading_uppercase %}
+      --heading-case: uppercase;
+      --heading-tracking: 0.04em;
+    {%- endif %}
+    {%- if settings.style_shadow == 'none' %}
+      --style-shadow-100: 0 0 #0000;
+      --style-shadow-200: 0 0 #0000;
+      --style-shadow-300: 0 0 #0000;
+      --style-shadow-400: 0 0 #0000;
+      --style-shadow-500: 0 0 #0000;
+      --style-shadow-600: 0 0 #0000;
+    {%- endif %}
   }
+  {%- if heading_scale != 1 %}
+    @media (width >= 46.875rem) {
+      :root {
+        --heading-scale: {{ heading_scale }};
+      }
+    }
+  {%- endif %}
+  {%- if settings.style_shadow == 'hard' %}
+    {%- comment -%}
+      Ombre nette nel colore del testo del contesto: dichiarate anche sulle section con un proprio schema e sulle card,
+      dove --color-foreground cambia (una custom property con var() si risolve dove è dichiarata). --shadow-* è
+      ridefinita insieme perché alcuni componenti la leggono direttamente (pulsanti). Il contorno delle card
+      (utility card-border) prende lo stesso colore dell'ombra.
+    {%- endcomment -%}
+    :root,
+    .shopify-section:has(> style[data-shopify]),
+    .card-colors {
+      --style-card-border-color: var(--color-foreground);
+      {%- for step in (1..6) %}
+        {%- assign offset = step | plus: 1 %}
+        {%- if step == 6 %}{% assign offset = 8 %}{% endif %}
+        --style-shadow-{{ step }}00: {{ offset }}px {{ offset }}px 0 0 var(--color-foreground);
+        --shadow-{{ step }}00: var(--style-shadow-{{ step }}00);
+      {%- endfor %}
+    }
+  {%- endif %}
 {% endstyle %}
 
 {% render 'vite-tag', entry: 'theme.css', preload_stylesheet: true %}

@@ -38,5 +38,7 @@
     {%- else -%}
       --font-heading-family: {{ heading_font.family }}, {{ heading_font.fallback_families }};
     {%- endif -%}
+    {%- comment -%} Peso dei titoli = peso scelto (l'unico caricato): letto dai token text-title-* e text-heading {%- endcomment -%}
+    --font-heading-weight: {{ heading_font.weight }};
   }
 {% endstyle %}

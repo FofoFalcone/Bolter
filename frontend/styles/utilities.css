@@ -20,9 +20,20 @@
  * della section se la card ha il suo stesso sfondo, altrimenti vuoti e ricalcolati sulla card
  * (snippets/color-scheme-vars.liquid).
  */
+/*
+ * Contorno delle card con riquadro (product-card e search-result-card con stile "Riquadro", testimonials "Bordo"):
+ * spessore da Impostazioni tema → Stile → Spessore dei bordi (--style-border-width, snippets/head-styles.liquid).
+ * Con card-colors il colore si ricalcola sulla card (vedi sotto); con le ombre "Nette" bordo e ombra sono nel colore
+ * del testo (--style-card-border-color, snippets/head-styles.liquid), come nello stile grafico che le usa.
+ */
+@utility card-border {
+  border: var(--style-border-width, 1px) solid var(--style-card-border-color, var(--color-border));
+}
+
 @utility card-colors {
   --color-background: var(--color-card);
   --color-foreground: var(--color-card-foreground);
+  --muted-mix: var(--card-muted-mix);
   --scheme-headings: var(--card-scheme-headings);
   --scheme-border: var(--card-scheme-border);
   --scheme-secondary: var(--card-scheme-secondary);
