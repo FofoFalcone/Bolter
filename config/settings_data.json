@@ -27,43 +27,101 @@
       "scheme-1": {
         "settings": {
           "background": "#ffffff",
-          "foreground": "#1e1e1e",
-          "primary": "#2c2c2c",
-          "primary_foreground": "#f5f5f5"
+          "foreground": "#1a1d21",
+          "headings": "#0e1013",
+          "border": "#e3e4e6",
+          "primary": "#a84300",
+          "primary_foreground": "#ffffff",
+          "secondary": "#ffffff",
+          "secondary_foreground": "#1a1d21",
+          "secondary_border": "#7d828a",
+          "card": "#ffffff",
+          "card_foreground": "#1a1d21",
+          "badge_sale": "#f66200",
+          "badge_sale_foreground": "#0e1013",
+          "input": "#ffffff",
+          "input_foreground": "#1a1d21",
+          "input_border": "#7d828a"
         }
       },
       "scheme-2": {
         "settings": {
-          "background": "#f5f5f5",
-          "foreground": "#1e1e1e",
-          "primary": "#2c2c2c",
-          "primary_foreground": "#f5f5f5"
+          "background": "#f3f2ee",
+          "foreground": "#1a1d21",
+          "headings": "#0e1013",
+          "border": "#dcdad3",
+          "primary": "#1a1d21",
+          "primary_foreground": "#ffffff",
+          "secondary": "#ffffff",
+          "secondary_foreground": "#1a1d21",
+          "secondary_border": "#7a7d82",
+          "card": "#ffffff",
+          "card_foreground": "#1a1d21",
+          "badge_sale": "#f66200",
+          "badge_sale_foreground": "#0e1013",
+          "input": "#ffffff",
+          "input_foreground": "#1a1d21",
+          "input_border": "#7a7d82"
         }
       },
       "scheme-3": {
         "settings": {
-          "background": "#1e1e1e",
-          "foreground": "#ffffff",
-          "primary": "#ffffff",
-          "primary_foreground": "#1e1e1e"
+          "background": "#121417",
+          "foreground": "#e6e8eb",
+          "headings": "#ffffff",
+          "border": "#2c3036",
+          "primary": "#f66200",
+          "primary_foreground": "#0e1013",
+          "secondary": "#1b1e22",
+          "secondary_foreground": "#ffffff",
+          "secondary_border": "#646a72",
+          "card": "#1b1e22",
+          "card_foreground": "#e6e8eb",
+          "badge_sale": "#f66200",
+          "badge_sale_foreground": "#0e1013",
+          "input": "#1b1e22",
+          "input_foreground": "#ffffff",
+          "input_border": "#6e747c"
         }
       },
       "scheme-4": {
         "settings": {
-          "background": "#f66200",
+          "background": "#ff7a1f",
           "foreground": "#000000",
-          "primary": "#000000",
-          "primary_foreground": "#f66200",
+          "headings": "#000000",
+          "border": "#c95f14",
+          "primary": "#0e1013",
+          "primary_foreground": "#ffffff",
+          "secondary": "#ff7a1f",
+          "secondary_foreground": "#000000",
+          "secondary_border": "#000000",
           "card": "#ffffff",
-          "card_foreground": "#000000"
+          "card_foreground": "#1a1d21",
+          "badge_sale": "#0e1013",
+          "badge_sale_foreground": "#ffffff",
+          "input": "#ffffff",
+          "input_foreground": "#1a1d21",
+          "input_border": "#0e1013"
         }
       },
       "scheme-5": {
         "settings": {
-          "background": "#000000",
-          "foreground": "#f66200",
+          "background": "#0e1013",
+          "foreground": "#ffffff",
+          "headings": "#f66200",
+          "border": "#2a2d33",
           "primary": "#f66200",
-          "primary_foreground": "#000000"
+          "primary_foreground": "#0e1013",
+          "secondary": "#0e1013",
+          "secondary_foreground": "#ffffff",
+          "secondary_border": "#8a8f96",
+          "card": "#1a1d21",
+          "card_foreground": "#ffffff",
+          "badge_sale": "#f66200",
+          "badge_sale_foreground": "#0e1013",
+          "input": "#1a1d21",
+          "input_foreground": "#ffffff",
+          "input_border": "#6e747c"
         }
       }
     }
