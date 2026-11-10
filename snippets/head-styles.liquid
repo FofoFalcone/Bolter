@@ -12,6 +12,7 @@
     usa lo schema "scheme-1" (o il primo, se il merchant lo ha eliminato); le section scelgono il proprio
     (snippets/section-colors.liquid). Gli altri colori si ricavano da questi quattro (frontend/styles/tokens.css).
     color-scheme adatta i controlli nativi. Senza schemi in settings_data.json valgono i colori SDS di tokens.css.
+    Con la modalità scura automatica, sotto prefers-color-scheme: dark :root prende lo schema scuro.
   - preload_stylesheet: Shopify anticipa il CSS globale con l'header Link (e le 103 Early Hints).
 
   Uso: {% render 'head-styles' %}
@@ -59,6 +60,17 @@
       --style-shadow-600: 0 0 #0000;
     {%- endif %}
   }
+  {%- comment -%}
+    Modalità scura automatica (Impostazioni tema → Colori): lo schema della pagina diventa lo schema scuro. Le section
+    con uno schema proprio decidono in snippets/section-colors.liquid (solo quelle chiare e neutre).
+  {%- endcomment -%}
+  {%- if settings.dark_mode == 'auto' and settings.dark_mode_scheme != blank and settings.dark_mode_scheme.id != page_scheme.id %}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        {% render 'color-scheme-vars', scheme: settings.dark_mode_scheme %}
+      }
+    }
+  {%- endif %}
   {%- if heading_scale != 1 %}
     @media (width >= 46.875rem) {
       :root {
@@ -82,6 +94,33 @@
         {%- if step == 6 %}{% assign offset = 8 %}{% endif %}
         --style-shadow-{{ step }}00: {{ offset }}px {{ offset }}px 0 0 var(--color-foreground);
         --shadow-{{ step }}00: var(--style-shadow-{{ step }}00);
+      {%- endfor %}
+    }
+    {%- comment -%}
+      Pressione "fisica": il pulsante scende sulla propria ombra invece di rimpicciolire. Solo qui, non in
+      components.css: un translate su tutti i pulsanti batterebbe le utility translate-* di un pulsante posizionato.
+    {%- endcomment %}
+    @media (prefers-reduced-motion: no-preference) {
+      .button:active:not(:disabled, [aria-disabled='true']) {
+        scale: 1;
+        translate: 2px 2px;
+        box-shadow: none;
+      }
+    }
+  {%- elsif settings.style_shadow == 'glow' %}
+    {%- comment -%}
+      Ombre luminose: alone del colore primario dello schema (stile Retro), ridichiarate su section e card come le
+      ombre nette. Contorno delle card leggermente tinto dello stesso colore.
+    {%- endcomment -%}
+    :root,
+    .shopify-section:has(> style[data-shopify]),
+    .card-colors {
+      --style-card-border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+      {%- comment -%} Raggi dell'alone (nomi senza la parola "b-l-u-r": Tailwind la leggerebbe come una classe) {%- endcomment -%}
+      {%- assign glow_radii = '6,10,16,24,32,48' | split: ',' %}
+      {%- for radius in glow_radii %}
+        --style-shadow-{{ forloop.index }}00: 0 0 {{ radius }}px 0 color-mix(in srgb, var(--color-primary) 45%, transparent);
+        --shadow-{{ forloop.index }}00: var(--style-shadow-{{ forloop.index }}00);
       {%- endfor %}
     }
   {%- endif %}

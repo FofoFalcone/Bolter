@@ -4,6 +4,10 @@
   schema della pagina (il primo, snippets/head-styles.liquid) non stampa nulla. Gli altri token si ricalcolano da soli
   (frontend/styles/tokens.css): lo <style> deve restare figlio diretto del wrapper, quindi questo render va fuori da
   ogni elemento e da ogni condizione. Card e badge seguono lo schema della section.
+  Sfondo sfumato dello schema (background_gradient, facoltativo) come background-image sopra il colore pieno, che
+  resta il riferimento dei contrasti. Modalità scura automatica: se lo schema è chiaro e neutro
+  (snippets/scheme-goes-dark.liquid) la section prende lo schema scuro con prefers-color-scheme: dark. Con lo schema
+  della pagina non serve: cambia :root (snippets/head-styles.liquid).
 
   Parametri:
   - section_id: section.id
@@ -24,11 +28,28 @@
   endfor
 -%}
 {%- if scheme != blank and scheme.id != page_scheme_id -%}
+  {%- liquid
+    capture goes_dark
+      render 'scheme-goes-dark', scheme: scheme
+    endcapture
+    assign dark_scheme = settings.dark_mode_scheme
+  -%}
   {% style %}
     #shopify-section-{{ section_id }} {
       {% render 'color-scheme-vars', scheme: scheme %}
       background-color: {{ scheme.settings.background }};
+      background-image: {{ scheme.settings.background_gradient | default: 'none' }};
       color: {{ scheme.settings.foreground }};
     }
+    {%- if goes_dark == 'true' %}
+      @media (prefers-color-scheme: dark) {
+        #shopify-section-{{ section_id }} {
+          {% render 'color-scheme-vars', scheme: dark_scheme %}
+          background-color: {{ dark_scheme.settings.background }};
+          background-image: {{ dark_scheme.settings.background_gradient | default: 'none' }};
+          color: {{ dark_scheme.settings.foreground }};
+        }
+      }
+    {%- endif %}
   {% endstyle %}
 {%- endif -%}

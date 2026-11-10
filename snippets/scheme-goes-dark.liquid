@@ -1,0 +1,42 @@
+{%- comment -%}
+  Modalità scura automatica (Impostazioni tema → Colori → Modalità scura): stampa "true" se, con il dispositivo in
+  modalità scura, lo schema va sostituito dallo schema scuro (settings.dark_mode_scheme), altrimenti nulla.
+
+  Passano allo scuro solo gli schemi chiari e neutri (bianco, panna, beige, cipria): resterebbero fasce abbaglianti in
+  una pagina scura. Gli schemi colorati (un arancione, un blu: accenti scelti apposta) e quelli già scuri restano.
+  "Neutro" = croma bassa (differenza tra il canale RGB più alto e il più basso sotto 32 su 255): la saturazione HSL
+  non serve, perché un panna quasi bianco come #fbf7f4 ha il 46% di saturazione. Chiaro = color_brightness ≥ 128,
+  la stessa soglia di color-scheme in snippets/color-scheme-vars.liquid.
+  Lo schema della pagina passa sempre allo scuro (snippets/head-styles.liquid): questo snippet serve alle section con
+  uno schema proprio (snippets/section-colors.liquid) e all'header (logo chiaro).
+
+  Parametri:
+  - scheme: oggetto color_scheme
+
+  Uso: {% capture goes_dark %}{% render 'scheme-goes-dark', scheme: scheme %}{% endcapture %}
+       {% if goes_dark == 'true' %}…{% endif %}
+{%- endcomment -%}
+{%- liquid
+  assign applies = false
+  if settings.dark_mode == 'auto' and scheme != blank and settings.dark_mode_scheme != blank
+    if scheme.id != settings.dark_mode_scheme.id
+      assign applies = true
+    endif
+  endif
+
+  if applies
+    assign background = scheme.settings.background | append: ''
+    assign brightness = background | color_brightness
+    if brightness >= 128
+      assign red = background | color_extract: 'red'
+      assign green = background | color_extract: 'green'
+      assign blue = background | color_extract: 'blue'
+      assign channel_max = red | at_least: green | at_least: blue
+      assign channel_min = red | at_most: green | at_most: blue
+      assign chroma = channel_max | minus: channel_min
+      if chroma < 32
+        echo 'true'
+      endif
+    endif
+  endif
+-%}

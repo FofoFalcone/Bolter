@@ -77,24 +77,37 @@
       endfor
     endif
 
-    # Opzione del selettore colore: la prima con swatch Shopify, altrimenti la prima con un nome indicato
+    # Selettore varianti nella card (Impostazioni tema → Card prodotto):
+    # - Automatica: la prima opzione con campioni Shopify, altrimenti la prima tra le "Opzioni con campione immagine";
+    # - Personalizzata: la prima opzione con uno dei nomi scritti dal merchant (es. Taglia), qualunque essa sia.
+    # swatch_visual: i valori sono campioni (colore/immagine Shopify o immagine della variante) solo se l'opzione ha
+    # campioni Shopify o è tra le "Opzioni con campione immagine"; altrimenti etichette di testo. Senza questa
+    # distinzione "S, M, L" diventavano tre cerchi con la stessa foto della variante.
     assign swatch_option = nil
+    assign swatch_visual = false
     if settings.product_card_swatches and product.has_only_default_variant == false
-      for option in product.options_with_values
-        assign swatch_count = option.values | map: 'swatch' | compact | size
-        if swatch_count > 0
-          assign swatch_option = option
-          break
-        endif
-      endfor
+      assign image_swatch_names = settings.product_card_swatch_options | downcase | split: ','
+      if settings.product_card_option == 'custom'
+        assign wanted_names = settings.product_card_option_names | downcase | split: ','
+      else
+        assign wanted_names = image_swatch_names
+        for option in product.options_with_values
+          assign swatch_count = option.values | map: 'swatch' | compact | size
+          if swatch_count > 0
+            assign swatch_option = option
+            break
+          endif
+        endfor
+      endif
+
       unless swatch_option
-        assign color_names = settings.product_card_swatch_options | downcase | split: ','
-        assign option_name = ''
         for option in product.options_with_values
           assign option_name = option.name | downcase | strip
-          for color_name in color_names
-            assign color_name = color_name | strip
-            if color_name != blank and option_name == color_name
+          for wanted_name in wanted_names
+            # Variabile diversa da quella del ciclo: `assign` scrive nello scope globale, e la variabile del ciclo
+            # (in uno scope interno) la nasconderebbe, lasciando lo spazio dopo la virgola (" size" ≠ "size").
+            assign wanted = wanted_name | strip
+            if wanted != blank and option_name == wanted
               assign swatch_option = option
               break
             endif
@@ -104,6 +117,22 @@
           endif
         endfor
       endunless
+
+      if swatch_option
+        assign swatch_count = swatch_option.values | map: 'swatch' | compact | size
+        assign option_name = swatch_option.name | downcase | strip
+        if swatch_count > 0
+          assign swatch_visual = true
+        else
+          for image_swatch_name in image_swatch_names
+            assign image_swatch = image_swatch_name | strip
+            if image_swatch != blank and option_name == image_swatch
+              assign swatch_visual = true
+              break
+            endif
+          endfor
+        endif
+      endif
     endif
   else
     # Segnaposto (solo theme editor): nessun link, niente href="#"
@@ -140,7 +169,9 @@
   if settings.product_card_style == 'plain'
     assign media_class = media_class | append: ' ' | append: shadow_class
   else
-    assign card_class = card_class | append: ' ' | append: shadow_class
+    # All'hover la card con riquadro si solleva: l'ombra sale a shadow-400 (segue Impostazioni tema → Stile → Ombre:
+    # nulla con "Nessuna", uno scatto con "Nette"). Niente translate: nei caroselli il bordo superiore verrebbe tagliato.
+    assign card_class = card_class | append: ' transition-shadow duration-300 ease-theme hover:shadow-400 ' | append: shadow_class
   endif
 
   # 'fill': cresce l'immagine; 'grid': immagine a proporzioni fisse, cresce il testo (riquadri allineati)
@@ -190,7 +221,7 @@
     {%- if primary_media -%}
       {%- capture primary_class -%}
         absolute inset-0 size-full object-cover
-        {%- unless secondary_media %} transition-[scale] duration-500 motion-safe:group-hover/card:scale-105{% endunless -%}
+        {%- unless secondary_media %} transition-[scale] duration-700 ease-theme motion-safe:group-hover/card:scale-105{% endunless -%}
       {%- endcapture -%}
       {%- comment -%}
         media-loading solo attorno all'immagine principale: il riflesso si ferma appena un'img del contenitore ha
@@ -256,9 +287,10 @@
 
   {%- if swatch_option -%}
     {%- comment -%}
-      Selettore colore: radio (solo con JS), in basso sull'immagine e sopra il link esteso della card (z-10).
-      Così l'altezza delle informazioni non dipende dalla presenza dei colori. Se i colori non ci stanno la
+      Selettore varianti: radio (solo con JS), in basso sull'immagine e sopra il link esteso della card (z-10).
+      Così l'altezza delle informazioni non dipende dalla presenza dei valori. Se i valori non ci stanno la
       riga scorre in orizzontale. Selezionato solo se il prodotto ha già una variante scelta (es. filtro colore).
+      Campioni (cerchi) solo per le opzioni visive (swatch_visual), etichette di testo per le altre.
     {%- endcomment -%}
     <fieldset
       class="absolute bottom-2 left-2 z-10 hidden h-8 max-w-[calc(100%-1rem)] flex-nowrap items-center gap-2 overflow-x-auto rounded-full bg-background/90 px-1.5 shadow-200 [scrollbar-width:none] js:flex"
@@ -269,12 +301,14 @@
       {%- for value in swatch_option.values limit: swatch_limit -%}
         {%- liquid
           assign swatch_background = nil
-          if value.swatch.image
-            assign swatch_background = value.swatch.image | image_url: width: 72 | prepend: 'url(' | append: ')'
-          elsif value.swatch.color
-            assign swatch_background = value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
-          elsif value.variant.featured_media
-            assign swatch_background = value.variant.featured_media | image_url: width: 72 | prepend: 'url(' | append: ')'
+          if swatch_visual
+            if value.swatch.image
+              assign swatch_background = value.swatch.image | image_url: width: 72 | prepend: 'url(' | append: ')'
+            elsif value.swatch.color
+              assign swatch_background = value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
+            elsif value.variant.featured_media
+              assign swatch_background = value.variant.featured_media | image_url: width: 72 | prepend: 'url(' | append: ')'
+            endif
           endif
           assign input_id = card_id | append: '-' | append: swatch_option.position | append: '-' | append: forloop.index0
         -%}
@@ -354,7 +388,7 @@
           href="{{ url }}"
         {% endif %}
         data-card-link
-        class="outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
+        class="decoration-1 underline-offset-4 outline-none group-hover/card:underline after:absolute after:inset-0 after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
         {% unless quick_view %}
           {{ control_attributes }}
         {% endunless %}

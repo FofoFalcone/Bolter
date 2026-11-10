@@ -253,7 +253,7 @@
         },
         "transparent_logo": {
           "label": "Light logo",
-          "info": "Used over heroes with light text. Same proportions as the main logo."
+          "info": "Used over heroes with light text and, with automatic dark mode (Theme settings → Colors), on dark backgrounds. Same proportions as the main logo."
         },
         "header_2": {
           "content": "Actions"
@@ -1041,8 +1041,7 @@
           "label": "Colors",
           "options": {
             "dark": "Dark",
-            "light": "Light",
-            "positive": "Green (promotions, shipping)"
+            "light": "Light"
           }
         },
         "autoplay": {
@@ -3023,6 +3022,115 @@
           "name": "Video"
         }
       }
+    },
+    "collage": {
+      "name": "Collage",
+      "settings": {
+        "section_width": {
+          "label": "Width",
+          "info": "At full width, the content extends beyond the page's maximum width.",
+          "options": {
+            "page": "Page",
+            "full": "Full width"
+          }
+        },
+        "color_scheme": {
+          "label": "Color scheme"
+        },
+        "header_1": {
+          "content": "Text"
+        },
+        "heading": {
+          "label": "Heading",
+          "default": "Made to stand out"
+        },
+        "text": {
+          "label": "Text",
+          "default": "<p>Tell the story of your collection with layered images, cut-outs and stickers: the energy of a mood board, the order of a catalog.</p>"
+        },
+        "button_label": {
+          "label": "Button label",
+          "default": "Discover the collection"
+        },
+        "button_link": {
+          "label": "Button link",
+          "info": "Without a link the button is hidden."
+        },
+        "text_position": {
+          "label": "Text position",
+          "info": "From 750px. Below that, the text is always above the collage.",
+          "options": {
+            "start": "Left",
+            "end": "Right"
+          }
+        },
+        "header_2": {
+          "content": "Collage"
+        },
+        "arrangement": {
+          "label": "Arrangement",
+          "info": "Position and rotation of the images, in block order.",
+          "options": {
+            "scatter": "Scattered",
+            "stack": "Fan",
+            "cascade": "Cascade"
+          }
+        },
+        "frame": {
+          "label": "Image frame",
+          "options": {
+            "polaroid": "Polaroid",
+            "none": "None"
+          }
+        }
+      },
+      "blocks": {
+        "image": {
+          "name": "Image",
+          "settings": {
+            "image": {
+              "label": "Image",
+              "info": "Cropped portrait (4:5). Alt text from Content → Files."
+            }
+          }
+        },
+        "sticker": {
+          "name": "Sticker",
+          "settings": {
+            "text": {
+              "label": "Text",
+              "info": "Keep it short: one or two words.",
+              "default": "New"
+            },
+            "shape": {
+              "label": "Shape",
+              "info": "The round badge rotates as the page scrolls.",
+              "options": {
+                "circle": "Round badge",
+                "label": "Label"
+              }
+            },
+            "style": {
+              "label": "Colors",
+              "options": {
+                "primary": "Primary",
+                "sale": "Sale badge",
+                "contrast": "Contrast"
+              }
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Collage",
+          "blocks": {
+            "block_5": {
+              "text": "Limited edition"
+            }
+          }
+        }
+      }
     }
   },
   "settings_schema": {
@@ -3164,19 +3272,19 @@
           "label": "Show second image on hover"
         },
         "header_1": {
-          "content": "Color selector"
+          "content": "Variant picker on cards"
         },
         "product_card_swatches": {
-          "label": "Show available colors",
-          "info": "Selecting a color shows that variant's image, price and link on the card."
+          "label": "Show an option on cards",
+          "info": "Choosing a value, the card shows that variant's price, availability, link and, if it has one, its image."
         },
         "product_card_swatch_options": {
-          "label": "Color option names",
-          "info": "Comma-separated. Used by product cards and by the product page and quick view picker when the option has no colors or images linked in Shopify (category metafield): the swatch is then the variant image.",
+          "label": "Options with image swatches",
+          "info": "Comma-separated. If an option with one of these names has no colors or images linked in Shopify (category metafields), its values show the variant image as a swatch: on cards, on the product page and in quick view. Other options stay as text labels.",
           "default": "Color, Colour, Colore"
         },
         "product_card_swatch_limit": {
-          "label": "Visible colors"
+          "label": "Visible values"
         },
         "header_2": {
           "content": "Quick view"
@@ -3194,6 +3302,22 @@
             "medium": "Medium",
             "large": "Large"
           }
+        },
+        "product_card_option": {
+          "label": "Option to show",
+          "info": "Automatic: the option with colors or images linked in Shopify, or one of the \"Options with image swatches\" (at the bottom of this panel). Custom: the option with the name you enter below.",
+          "options": {
+            "auto": "Automatic",
+            "custom": "Custom"
+          }
+        },
+        "product_card_option_names": {
+          "label": "Option name",
+          "info": "Comma-separated, one per language (e.g. Size, Taglia). If the product has no option with this name, the card shows no picker. Values are text labels, or swatches if the option is among the \"Options with image swatches\".",
+          "default": "Size, Taglia"
+        },
+        "header_3": {
+          "content": "Variant swatches"
         }
       }
     },
@@ -3346,8 +3470,27 @@
             "input_border": {
               "label": "Field border",
               "info": "It must stand out from the background (contrast of at least 3:1). Empty: calculated from the scheme colors."
+            },
+            "background_gradient": {
+              "label": "Background gradient",
+              "info": "Optional. Shown on sections that use this scheme, not on the page background. Contrast is calculated on the background color: pick a gradient with tones close to that color."
             }
           }
+        },
+        "header_1": {
+          "content": "Dark mode"
+        },
+        "dark_mode": {
+          "label": "Dark mode",
+          "info": "When the customer's device is in dark mode, the page and sections with a light, neutral scheme use the dark scheme. Colored or already dark sections stay as they are. In the editor it follows your device's mode.",
+          "options": {
+            "off": "Off",
+            "auto": "Follow the device"
+          }
+        },
+        "dark_mode_scheme": {
+          "label": "Dark scheme",
+          "info": "Use a scheme with a dark background. The header's light logo (the section's \"Light logo\" setting) replaces the regular one."
         }
       }
     },
@@ -3384,11 +3527,12 @@
         },
         "style_shadow": {
           "label": "Shadows",
-          "info": "Hard: solid offset shadow in the text color, for a graphic look. Cards show the shadow chosen in Product cards.",
+          "info": "Hard: solid offset shadow in the text color, buttons press down onto it. Glow: a halo in the primary color. Cards show the shadow chosen in Product cards.",
           "options": {
             "soft": "Soft",
             "none": "None",
-            "hard": "Hard"
+            "hard": "Hard",
+            "glow": "Glow"
           }
         }
       }

@@ -244,7 +244,7 @@
         },
         "transparent_logo": {
           "label": "Logo chiaro",
-          "info": "Usato sopra le hero con testo chiaro. Stesse proporzioni del logo principale."
+          "info": "Usato sopra le hero con testo chiaro e, con la modalità scura automatica (Impostazioni tema → Colori), sugli sfondi scuri. Stesse proporzioni del logo principale."
         },
         "header_2": {
           "content": "Azioni"
@@ -1032,8 +1032,7 @@
           "label": "Colori",
           "options": {
             "dark": "Scuri",
-            "light": "Chiari",
-            "positive": "Verde (promozioni, spedizioni)"
+            "light": "Chiari"
           }
         },
         "autoplay": {
@@ -3014,6 +3013,115 @@
           "name": "Video"
         }
       }
+    },
+    "collage": {
+      "name": "Collage",
+      "settings": {
+        "section_width": {
+          "label": "Larghezza",
+          "info": "A tutta larghezza i contenuti si estendono oltre la larghezza massima della pagina.",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutta la larghezza"
+          }
+        },
+        "color_scheme": {
+          "label": "Schema di colori"
+        },
+        "header_1": {
+          "content": "Testo"
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Fatto per farsi notare"
+        },
+        "text": {
+          "label": "Testo",
+          "default": "<p>Racconta la collezione con immagini sovrapposte, ritagli e adesivi: l'energia di una bacheca, l'ordine di un catalogo.</p>"
+        },
+        "button_label": {
+          "label": "Testo del pulsante",
+          "default": "Scopri la collezione"
+        },
+        "button_link": {
+          "label": "Link del pulsante",
+          "info": "Senza link il pulsante non compare."
+        },
+        "text_position": {
+          "label": "Posizione del testo",
+          "info": "Da 750px. Sotto, il testo sta sempre sopra il collage.",
+          "options": {
+            "start": "A sinistra",
+            "end": "A destra"
+          }
+        },
+        "header_2": {
+          "content": "Collage"
+        },
+        "arrangement": {
+          "label": "Composizione",
+          "info": "Posizione e rotazione delle immagini, nell'ordine dei blocchi.",
+          "options": {
+            "scatter": "Sparsa",
+            "stack": "A ventaglio",
+            "cascade": "A cascata"
+          }
+        },
+        "frame": {
+          "label": "Cornice delle immagini",
+          "options": {
+            "polaroid": "Polaroid",
+            "none": "Nessuna"
+          }
+        }
+      },
+      "blocks": {
+        "image": {
+          "name": "Immagine",
+          "settings": {
+            "image": {
+              "label": "Immagine",
+              "info": "Ritagliata in verticale (4:5). Testo alternativo da Contenuti → File."
+            }
+          }
+        },
+        "sticker": {
+          "name": "Adesivo",
+          "settings": {
+            "text": {
+              "label": "Testo",
+              "info": "Breve: una o due parole.",
+              "default": "Novità"
+            },
+            "shape": {
+              "label": "Forma",
+              "info": "Il bollino tondo ruota mentre la pagina scorre.",
+              "options": {
+                "circle": "Bollino tondo",
+                "label": "Etichetta"
+              }
+            },
+            "style": {
+              "label": "Colori",
+              "options": {
+                "primary": "Primario",
+                "sale": "Badge Saldi",
+                "contrast": "Contrasto"
+              }
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Collage",
+          "blocks": {
+            "block_5": {
+              "text": "Edizione limitata"
+            }
+          }
+        }
+      }
     }
   },
   "settings_schema": {
@@ -3141,19 +3249,19 @@
           "label": "Mostra la seconda immagine al passaggio del mouse"
         },
         "header_1": {
-          "content": "Selettore colore"
+          "content": "Selettore varianti nella card"
         },
         "product_card_swatches": {
-          "label": "Mostra i colori disponibili",
-          "info": "Selezionando un colore la card mostra immagine, prezzo e link di quella variante."
+          "label": "Mostra un'opzione nella card",
+          "info": "Scegliendo un valore, la card mostra prezzo, disponibilità, link e, se c'è, l'immagine di quella variante."
         },
         "product_card_swatch_options": {
-          "label": "Nomi dell'opzione colore",
-          "info": "Separati da virgola. Valgono per le card e per il selettore della pagina prodotto e dell'anteprima rapida, se l'opzione non ha colori o immagini collegati in Shopify (metafield di categoria): in quel caso il campione è l'immagine della variante.",
+          "label": "Opzioni con campione immagine",
+          "info": "Separati da virgola. Se un'opzione con uno di questi nomi non ha colori o immagini collegati in Shopify (metafield di categoria), i suoi valori mostrano l'immagine della variante come campione: nella card, nella pagina prodotto e nell'anteprima rapida. Le altre opzioni restano etichette di testo.",
           "default": "Colore, Color"
         },
         "product_card_swatch_limit": {
-          "label": "Colori visibili"
+          "label": "Valori visibili"
         },
         "header_2": {
           "content": "Anteprima rapida"
@@ -3171,6 +3279,22 @@
             "medium": "Media",
             "large": "Grande"
           }
+        },
+        "product_card_option": {
+          "label": "Opzione da mostrare",
+          "info": "Automatica: l'opzione con colori o immagini collegati in Shopify, oppure una delle \"Opzioni con campione immagine\" (in fondo al pannello). Personalizzata: l'opzione con il nome che scrivi qui sotto.",
+          "options": {
+            "auto": "Automatica",
+            "custom": "Personalizzata"
+          }
+        },
+        "product_card_option_names": {
+          "label": "Nome dell'opzione",
+          "info": "Separati da virgola, uno per lingua (es. Taglia, Size). Se il prodotto non ha un'opzione con questo nome, la card non mostra il selettore. I valori sono etichette di testo, o campioni se l'opzione è tra le \"Opzioni con campione immagine\".",
+          "default": "Taglia, Size"
+        },
+        "header_3": {
+          "content": "Campioni delle varianti"
         }
       }
     },
@@ -3323,8 +3447,27 @@
             "input_border": {
               "label": "Bordo dei campi",
               "info": "Deve distinguersi dallo sfondo (contrasto di almeno 3:1). Vuoto: calcolato dai colori dello schema."
+            },
+            "background_gradient": {
+              "label": "Sfondo sfumato",
+              "info": "Facoltativo. Compare sulle section che usano questo schema, non sullo sfondo generale della pagina. I contrasti si calcolano sul colore di sfondo: scegli un gradiente con tinte vicine a quel colore."
             }
           }
+        },
+        "header_1": {
+          "content": "Modalità scura"
+        },
+        "dark_mode": {
+          "label": "Modalità scura",
+          "info": "Con il dispositivo del cliente in modalità scura, la pagina e le section con uno schema chiaro e neutro usano lo schema scuro. Le section colorate o già scure restano come sono. Nell'editor segue la modalità del tuo dispositivo.",
+          "options": {
+            "off": "Disattivata",
+            "auto": "Segue il dispositivo"
+          }
+        },
+        "dark_mode_scheme": {
+          "label": "Schema scuro",
+          "info": "Usa uno schema con lo sfondo scuro. Il logo chiaro dell'header (impostazione \"Logo chiaro\" della section) sostituisce quello normale."
         }
       }
     },
@@ -3375,11 +3518,12 @@
         },
         "style_shadow": {
           "label": "Ombre",
-          "info": "Nette: ombra piena e sfalsata nel colore del testo, per uno stile grafico. Le card mostrano l'ombra scelta in Card prodotto.",
+          "info": "Nette: ombra piena e sfalsata nel colore del testo, i pulsanti premuti ci scendono sopra. Luminose: alone nel colore primario. Le card mostrano l'ombra scelta in Card prodotto.",
           "options": {
             "soft": "Morbide",
             "none": "Nessuna",
-            "hard": "Nette"
+            "hard": "Nette",
+            "glow": "Luminose"
           }
         }
       }

@@ -10,11 +10,10 @@
   assign s = section.settings
   assign count = section.blocks.size
 
+  # Solo chiari o scuri (scelta dell'utente del 2026-11-11: tolta l'opzione verde per le promozioni)
   case s.style
     when 'light'
       assign style_class = 'bg-surface text-foreground'
-    when 'positive'
-      assign style_class = 'bg-positive-surface text-positive-foreground'
     else
       assign style_class = 'bg-primary text-primary-foreground'
   endcase
@@ -116,10 +115,6 @@
         {
           "value": "light",
           "label": "t:sections.announcement_bar.settings.style.options.light"
-        },
-        {
-          "value": "positive",
-          "label": "t:sections.announcement_bar.settings.style.options.positive"
         }
       ],
       "default": "dark"

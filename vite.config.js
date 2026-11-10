@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import pruneStaleAssets from './tools/prune-stale-assets.mjs';
 
 const PUBLIC_DIR = 'frontend/public';
+// CSS inlinato nel Liquid con inline_asset_content: nome stabile (vedi assetFileNames)
+const INLINE_CSS = 'page-transitions.css';
 
 export default defineConfig(({ mode }) => {
   // Modalità:
@@ -49,7 +51,11 @@ export default defineConfig(({ mode }) => {
 
       rollupOptions: {
         output: {
-          assetFileNames: '[name].[hash][extname]',
+          // page-transitions.css senza hash: snippets/page-transitions.liquid lo inlina nel <head> con
+          // inline_asset_content (nome fisso, massimo 15 KB, controllato da tools/ensure-build.mjs). Come <link>
+          // era una richiesta in più che bloccava il primo rendering (Lighthouse mobile: ~560 ms stimati).
+          assetFileNames: ({ names = [] }) =>
+            names.includes(INLINE_CSS) ? '[name][extname]' : '[name].[hash][extname]',
           chunkFileNames: '[name].[hash].js',
           entryFileNames: '[name].[hash].js',
         },

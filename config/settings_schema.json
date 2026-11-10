@@ -68,6 +68,12 @@
             "default": "#ffffff"
           },
           {
+            "type": "color_background",
+            "id": "background_gradient",
+            "label": "t:settings_schema.color.settings.color_schemes.definition.background_gradient.label",
+            "info": "t:settings_schema.color.settings.color_schemes.definition.background_gradient.info"
+          },
+          {
             "type": "color",
             "id": "foreground",
             "label": "t:settings_schema.color.settings.color_schemes.definition.foreground.label",
@@ -173,7 +179,10 @@
           }
         ],
         "role": {
-          "background": "background",
+          "background": {
+            "solid": "background",
+            "gradient": "background_gradient"
+          },
           "text": "foreground",
           "links": "foreground",
           "icons": "foreground",
@@ -184,6 +193,34 @@
           "on_secondary_button": "foreground",
           "secondary_button_border": "foreground"
         }
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.color.settings.header_1.content"
+      },
+      {
+        "type": "select",
+        "id": "dark_mode",
+        "label": "t:settings_schema.color.settings.dark_mode.label",
+        "info": "t:settings_schema.color.settings.dark_mode.info",
+        "options": [
+          {
+            "value": "off",
+            "label": "t:settings_schema.color.settings.dark_mode.options.off"
+          },
+          {
+            "value": "auto",
+            "label": "t:settings_schema.color.settings.dark_mode.options.auto"
+          }
+        ],
+        "default": "off"
+      },
+      {
+        "type": "color_scheme",
+        "id": "dark_mode_scheme",
+        "label": "t:settings_schema.color.settings.dark_mode_scheme.label",
+        "info": "t:settings_schema.color.settings.dark_mode_scheme.info",
+        "default": "scheme-3"
       }
     ]
   },
@@ -268,6 +305,10 @@
           {
             "value": "hard",
             "label": "t:settings_schema.style.settings.style_shadow.options.hard"
+          },
+          {
+            "value": "glow",
+            "label": "t:settings_schema.style.settings.style_shadow.options.glow"
           }
         ],
         "default": "soft"
@@ -451,11 +492,30 @@
         "default": true
       },
       {
+        "type": "select",
+        "id": "product_card_option",
+        "label": "t:settings_schema.product.settings.product_card_option.label",
+        "info": "t:settings_schema.product.settings.product_card_option.info",
+        "options": [
+          {
+            "value": "auto",
+            "label": "t:settings_schema.product.settings.product_card_option.options.auto"
+          },
+          {
+            "value": "custom",
+            "label": "t:settings_schema.product.settings.product_card_option.options.custom"
+          }
+        ],
+        "default": "auto",
+        "visible_if": "{{ settings.product_card_swatches }}"
+      },
+      {
         "type": "text",
-        "id": "product_card_swatch_options",
-        "label": "t:settings_schema.product.settings.product_card_swatch_options.label",
-        "info": "t:settings_schema.product.settings.product_card_swatch_options.info",
-        "default": "t:settings_schema.product.settings.product_card_swatch_options.default"
+        "id": "product_card_option_names",
+        "label": "t:settings_schema.product.settings.product_card_option_names.label",
+        "info": "t:settings_schema.product.settings.product_card_option_names.info",
+        "default": "t:settings_schema.product.settings.product_card_option_names.default",
+        "visible_if": "{{ settings.product_card_swatches and settings.product_card_option == 'custom' }}"
       },
       {
         "type": "range",
@@ -477,6 +537,17 @@
         "label": "t:settings_schema.product.settings.quick_view_dynamic_checkout.label",
         "info": "t:settings_schema.product.settings.quick_view_dynamic_checkout.info",
         "default": true
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.product.settings.header_3.content"
+      },
+      {
+        "type": "text",
+        "id": "product_card_swatch_options",
+        "label": "t:settings_schema.product.settings.product_card_swatch_options.label",
+        "info": "t:settings_schema.product.settings.product_card_swatch_options.info",
+        "default": "t:settings_schema.product.settings.product_card_swatch_options.default"
       }
     ]
   },

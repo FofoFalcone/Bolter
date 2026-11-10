@@ -27,6 +27,21 @@ const missing = readdirSync(join(root, 'frontend', 'entrypoints')).filter(
   (file) => !snippet.includes(`/frontend/entrypoints/${file}"`),
 );
 
+// 3. CSS inlinato con inline_asset_content (snippets/page-transitions.liquid): Shopify lo inlina solo sotto i 15 KB.
+//    Controllo sull'ultima build disponibile (assets/ del watch o .build-check/), con margine a 14 KB.
+const INLINE_LIMIT = 14 * 1024;
+for (const dir of ['assets', '.build-check']) {
+  const file = join(root, dir, 'page-transitions.css');
+  if (!existsSync(file)) continue;
+  const size = readFileSync(file).length;
+  if (size > INLINE_LIMIT) {
+    console.warn(
+      `\n⚠️  ${dir}/page-transitions.css pesa ${(size / 1024).toFixed(1)} KB: oltre i 15 KB Shopify non lo inlina più ` +
+        "(inline_asset_content) e le transizioni tra pagine restano senza stili. Alleggeriscilo o torna a un <link>.\n",
+    );
+  }
+}
+
 if (missing.length) {
   console.warn(
     `\n⚠️  Entrypoint non presenti in snippets/vite-tag.liquid: ${missing.join(', ')}\n` +

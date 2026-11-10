@@ -32,6 +32,13 @@
 @custom-variant js (&:where(.js *));
 
 /*
+ * Modalità scura automatica (Impostazioni tema → Colori): dispositivo in modalità scura. Il Liquid stampa le classi
+ * auto-dark: solo se l'impostazione è attiva e l'elemento passa davvero allo schema scuro (es. il logo chiaro
+ * dell'header, sections/header.liquid), quindi qui basta la media query.
+ */
+@custom-variant auto-dark (@media (prefers-color-scheme: dark));
+
+/*
  * Header trasparente (sections/header.liquid, data-transparent) sopra la prima section della pagina, se questa
  * lo consente ([data-header-overlay="light|dark"]: hero a tutta larghezza con media). Tutto in CSS (:has), quindi
  * corretto dal primo rendering. header.js aggiunge [data-solid] quando l'header deve tornare pieno.

@@ -63,22 +63,59 @@
   {% endif %}
   style="--logo-width: {{ logo_width }}px;"
 >
-  <header class="page-width flex h-18 items-center gap-6 md:h-auto md:min-h-20 md:py-4">
-    {%- comment -%} Logo {%- endcomment -%}
-    {%- comment -%} Logo. Sopra una hero con testo chiaro: logo chiaro (se impostato) in dissolvenza incrociata {%- endcomment -%}
+  <header class="page-width flex h-18 items-center gap-3 md:h-auto md:min-h-20 md:gap-6 md:py-4">
+    {%- comment -%}
+      Logo. Sopra una hero con testo chiaro: logo chiaro (se impostato) in dissolvenza incrociata.
+      Sotto i 990px può restringersi (min-w-0 + max-w-full sulle immagini): la larghezza scelta dal merchant è un
+      massimo, le icone hanno la precedenza. Con un logo largo 200px a 398px la riga sbordava di ~55px, il menu finiva
+      fuori dallo schermo e la pagina si allargava (segnalato il 2026-11-10).
+    {%- endcomment -%}
     {%- liquid
-      assign light_logo = nil
-      if section.settings.transparent_header and section.settings.transparent_logo != blank and section.settings.logo != blank
-        assign light_logo = section.settings.transparent_logo
+      # Modalità scura automatica: l'header passa allo scuro se usa lo schema della pagina o uno schema chiaro e neutro
+      # (snippets/scheme-goes-dark.liquid); allora il logo chiaro sostituisce quello normale (variante auto-dark:)
+      assign header_goes_dark = false
+      if settings.dark_mode == 'auto' and settings.dark_mode_scheme != blank
+        assign header_scheme = section.settings.color_scheme
+        assign page_scheme_id = settings.color_schemes.first.id
+        for item in settings.color_schemes
+          if item.id == 'scheme-1'
+            assign page_scheme_id = item.id
+            break
+          endif
+        endfor
+        if header_scheme == blank or header_scheme.id == page_scheme_id
+          assign header_goes_dark = true
+        else
+          capture goes_dark
+            render 'scheme-goes-dark', scheme: header_scheme
+          endcapture
+          if goes_dark == 'true'
+            assign header_goes_dark = true
+          endif
+        endif
       endif
+
+      assign light_logo = nil
+      if section.settings.transparent_logo != blank and section.settings.logo != blank
+        if section.settings.transparent_header or header_goes_dark
+          assign light_logo = section.settings.transparent_logo
+        endif
+      endif
+      assign dark_logo_class = ''
+      assign light_logo_dark_class = ''
+      if light_logo and header_goes_dark
+        assign dark_logo_class = 'auto-dark:opacity-0'
+        assign light_logo_dark_class = 'auto-dark:opacity-100'
+      endif
+      assign light_logo_class = 'absolute inset-0 h-auto w-(--logo-width) max-w-full opacity-0 transition-opacity duration-300 ease-theme overlay-light:opacity-100 motion-reduce:transition-none ' | append: light_logo_dark_class
     -%}
     <a
       href="{{ routes.root_url }}"
-      class="relative shrink-0 rounded-sm text-foreground transition-colors duration-300 overlay-light:text-white overlay-light:focus-visible:outline-white"
+      class="relative min-w-0 rounded-sm text-foreground transition-colors duration-300 lg:shrink-0 overlay-light:text-white overlay-light:focus-visible:outline-white"
     >
       {%- if section.settings.logo != blank -%}
         {%- capture logo_class -%}
-          h-auto w-(--logo-width){% if light_logo %} transition-opacity duration-300 ease-theme overlay-light:opacity-0 motion-reduce:transition-none{% endif %}
+          h-auto w-(--logo-width) max-w-full{% if light_logo %} transition-opacity duration-300 ease-theme overlay-light:opacity-0 motion-reduce:transition-none {{ dark_logo_class }}{% endif %}
         {%- endcapture -%}
         {{
           section.settings.logo
@@ -99,11 +136,11 @@
               widths: logo_widths,
               sizes: logo_sizes,
               alt: '',
-              class: 'absolute inset-0 h-auto w-(--logo-width) opacity-0 transition-opacity duration-300 ease-theme overlay-light:opacity-100 motion-reduce:transition-none'
+              class: light_logo_class
           }}
         {%- endif -%}
       {%- else -%}
-        <span class="text-heading">{{ shop.name | escape }}</span>
+        <span class="block truncate text-heading">{{ shop.name | escape }}</span>
       {%- endif -%}
     </a>
 
@@ -158,7 +195,12 @@
     {%- endif -%}
 
     {%- comment -%} Azioni (SDS Header Auth + Button) {%- endcomment -%}
-    <div class="ms-auto flex items-center gap-2 md:ms-0">
+    {%- comment -%}
+      ms-auto sempre, senza varianti: da 990px il menu (flex-1) occupa lo spazio libero e il margine vale 0 da solo,
+      sotto spinge le icone a destra. Un `md:ms-0` (750px) non allineato al `lg:flex` del menu (990px) le lasciava
+      attaccate al logo tra 750 e 989px (segnalato il 2026-11-10).
+    {%- endcomment -%}
+    <div class="ms-auto flex items-center gap-2">
       {%- comment -%} Paese/valuta e lingua (da 990px; sotto sono nel cassetto) {%- endcomment -%}
       {%- if show_country -%}
         {% render 'header-localization', type: 'country', part: 'trigger' %}

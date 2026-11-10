@@ -6,8 +6,8 @@
   Ogni coppia input+label è in un contenitore proprio, così peer-checked: non tocca le altre etichette.
 
   - Swatch (campioni): per l'opzione con colori o immagini collegati in Shopify (`product_option_value.swatch`,
-    metafield di categoria) o, in mancanza, con uno dei nomi in Impostazioni tema → Card prodotto → "Nomi
-    dell'opzione colore" (immagine della variante come campione). Un valore senza campione resta un chip di testo.
+    metafield di categoria) o, in mancanza, con uno dei nomi in Impostazioni tema → Card prodotto → "Opzioni con
+    campione immagine" (immagine della variante come campione). Un valore senza campione resta un chip di testo.
   - Combined listings: il valore che appartiene a un altro prodotto porta `data-product-url`
     (`product_option_value.product_url`): product-page.js carica quel prodotto al posto di quello attuale.
   - Valori non disponibili: barrati (chip) o con una diagonale (swatch), sempre selezionabili e annunciati.
@@ -34,8 +34,10 @@
         else
           assign option_name = option.name | downcase | strip
           for color_name in color_names
-            assign color_name = color_name | strip
-            if color_name != blank and option_name == color_name
+            # Variabile diversa da quella del ciclo: con `assign color_name = color_name | strip` la variabile del
+            # ciclo (scope interno) nascondeva quella assegnata e "Color", dopo la virgola, non veniva mai trovato.
+            assign wanted = color_name | strip
+            if wanted != blank and option_name == wanted
               assign use_swatches = true
               break
             endif

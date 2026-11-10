@@ -1,8 +1,8 @@
 /**
  * Card prodotto — custom element <product-card> (snippets/product-card.liquid).
  *
- * Senza JS la card è un link alla pagina prodotto e il selettore colore non compare.
- * Con JS, scegliendo un colore:
+ * Senza JS la card è un link alla pagina prodotto e il selettore varianti non compare.
+ * Con JS, scegliendo un valore (colore, taglia o l'opzione scelta in Impostazioni tema → Card prodotto):
  * - la card si ricarica con la Section Rendering API (sections/product-card.liquid) sull'URL della
  *   variante corrispondente (`product_option_value.variant`) o, nei combined listings, sull'URL del
  *   prodotto collegato (`product_option_value.product_url`);
@@ -10,7 +10,7 @@
  *   e l'anteprima rapida: prezzi e immagini restano renderizzati in Liquid;
  * - parte lo standard event shopify:product:select, risolto con la variante del server.
  * Le risposte restano in cache per URL e vengono richieste in anticipo al passaggio del puntatore
- * o del focus su un colore.
+ * o del focus su un valore.
  *
  * Caricato da frontend/entrypoints/theme.js (import dinamico) solo se la pagina ha card con il selettore.
  */
@@ -46,7 +46,7 @@ class ProductCard extends HTMLElement {
     this.abort?.abort();
   }
 
-  /** URL della card per il colore `input`: variante del prodotto o prodotto collegato (combined listing). */
+  /** URL della card per il valore `input`: variante del prodotto o prodotto collegato (combined listing). */
   sourceUrl(input) {
     const { productUrl, variantId, optionValueId } = input.dataset;
     const url = new URL(productUrl || this.dataset.productUrl, window.location.origin);

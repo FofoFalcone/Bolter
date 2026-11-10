@@ -52,8 +52,15 @@
   endif
 -%}
 {%- if effect != 'none' and request.design_mode == false -%}
-  {%- comment -%} Effetti: CSS a parte, solo con le transizioni attive (bloccante nel <head>: serve al primo rendering) {%- endcomment -%}
-  {% render 'vite-tag', entry: 'page-transitions.css', preload_stylesheet: true %}
+  {%- comment -%}
+    Effetti: CSS a parte, solo con le transizioni attive, inlinato (serve al primo rendering della pagina d'arrivo).
+    Come <link> era una seconda richiesta che bloccava il rendering: Lighthouse mobile stimava ~560 ms persi il
+    2026-11-11. inline_asset_content vuole il nome esatto del file (Vite lo emette senza hash, vite.config.js) e
+    un file sotto i 15 KB (controllato da npm run lint, tools/ensure-build.mjs).
+  {%- endcomment -%}
+  <style>
+    {{- 'page-transitions.css' | inline_asset_content -}}
+  </style>
   <style>
     @media (prefers-reduced-motion: no-preference) {
       @view-transition {

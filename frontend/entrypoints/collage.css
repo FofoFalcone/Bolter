@@ -1,0 +1,64 @@
+/*
+ * Collage (sections/collage.liquid): animazioni guidate dallo scroll, solo CSS (animation-timeline: view(), sul
+ * compositor, nessun JS). Partono quando il collage entra nello schermo e finiscono quando esce: si muovono solo
+ * mentre la pagina scorre, quindi non c'è movimento continuo da mettere in pausa (WCAG 2.2.2).
+ * Dove le scroll timeline non sono supportate, o con movimento ridotto, il collage è statico.
+ *
+ * - collage__drift: parallasse delle tessere (--drift diverso per tessera). Su un contenitore interno: l'ingresso
+ *   (data-animate-stagger) scrive `translate` inline sulla tessera, e un'animazione CSS sullo stesso elemento lo
+ *   sostituirebbe.
+ * - collage__spin: il bollino tondo ruota di mezzo giro.
+ * - collage__sway: l'etichetta oscilla di qualche grado.
+ */
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .collage__drift,
+      .collage__spin,
+      .collage__sway {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+      }
+
+      .collage__drift {
+        animation-name: collage-drift;
+      }
+
+      .collage__spin {
+        animation-name: collage-spin;
+      }
+
+      .collage__sway {
+        animation-name: collage-sway;
+      }
+    }
+  }
+
+  @keyframes collage-drift {
+    from {
+      translate: 0 var(--drift, 0px);
+    }
+    to {
+      translate: 0 calc(var(--drift, 0px) * -1);
+    }
+  }
+
+  @keyframes collage-spin {
+    from {
+      rotate: -90deg;
+    }
+    to {
+      rotate: 90deg;
+    }
+  }
+
+  @keyframes collage-sway {
+    from {
+      rotate: -10deg;
+    }
+    to {
+      rotate: 4deg;
+    }
+  }
+}
