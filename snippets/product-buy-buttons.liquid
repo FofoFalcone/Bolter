@@ -87,8 +87,12 @@
         assign button_label = 'products.product.add_to_cart' | t
       endif
     -%}
-    {%- comment -%} Barra sticky: margini negativi pari al padding dell'anteprima rapida, così lo sfondo arriva ai bordi; la sfumatura segnala che sotto c'è altro {%- endcomment -%}
-    <div class="flex flex-col gap-3{% if sticky_actions %} sticky bottom-0 z-10 -mx-6 -mt-3 bg-background px-6 py-3 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-3 before:bg-linear-to-t before:from-background before:to-transparent md:-mx-10 md:px-10{% endif %}">
+    {%- comment -%}
+      Barra sticky: margini negativi pari al padding dell'anteprima rapida, così lo sfondo arriva ai bordi; la sfumatura
+      segnala che sotto c'è altro. Si ferma al bordo dell'area che scorre, che quindi non deve avere padding in basso
+      (sections/quick-view.liquid): lo spazio sotto il pulsante è il padding della barra, con la zona sicura dell'iPhone.
+    {%- endcomment -%}
+    <div class="flex flex-col gap-3{% if sticky_actions %} sticky bottom-0 z-10 -mx-6 -mt-3 bg-background px-6 pt-3 pb-[max(--spacing(4),env(safe-area-inset-bottom))] before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-3 before:bg-linear-to-t before:from-background before:to-transparent md:-mx-10 md:px-10 md:pt-4 md:pb-6{% endif %}">
       <p
         class="rounded-md bg-danger-surface p-3 text-body-sm text-danger-foreground"
         role="alert"

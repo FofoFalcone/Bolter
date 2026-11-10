@@ -67,7 +67,12 @@
         {%- endif -%}
       </div>
 
-      <div class="flex flex-col gap-6 p-6 md:min-h-0 md:overflow-y-auto md:p-10">
+      {%- comment -%}
+        Da 750px questa colonna è l'area che scorre: niente padding in basso, perché uno sticky si ferma al bordo
+        interno del padding e il contenuto passerebbe sotto la barra del carrello. Lo spazio finale lo dà ::after
+        (gap-6 + h-4 = i 40px degli altri lati).
+      {%- endcomment -%}
+      <div class="flex flex-col gap-6 p-6 md:min-h-0 md:overflow-y-auto md:p-10 md:pb-0 md:after:block md:after:h-4 md:after:shrink-0 md:after:content-['']">
         <div class="flex flex-col gap-2 md:pe-10">
           {%- if product.vendor != blank -%}
             <p class="text-body-sm font-semibold text-muted">{{ product.vendor | escape }}</p>
