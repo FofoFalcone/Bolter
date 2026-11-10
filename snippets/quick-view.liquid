@@ -8,6 +8,8 @@
 
   Sfondo e chiusura cliccando fuori sono gestiti dal JS ([data-quick-view-backdrop]) per animarli
   insieme al pannello; focus intrappolato, Esc e pagina inerte restano quelli nativi di showModal().
+  Colori: quelli delle card dello schema della section (card-colors), perché l'anteprima è la card che si apre: in una
+  section colorata con card bianche il pannello è bianco come le card, non del colore della section.
 
   Dialog largo 100vw (w-screen), non 100%: con lo scorrimento morbido il blocco dello scroll toglie la barra
   qualche fotogramma dopo l'apertura (transizione di Lenis, vedi frontend/styles/scroll-lock.css), e con una
@@ -31,7 +33,7 @@
     <div class="pointer-events-none relative flex size-full items-end justify-center md:items-center md:p-8">
       <div
         data-quick-view-panel
-        class="pointer-events-auto relative h-[92dvh] w-full max-w-5xl overflow-hidden rounded-t-xl bg-background shadow-600 md:h-full md:max-h-176 md:rounded-xl"
+        class="card-colors pointer-events-auto relative h-[92dvh] w-full max-w-5xl overflow-hidden rounded-t-xl bg-background text-foreground shadow-600 md:h-full md:max-h-176 md:rounded-xl"
       >
         <button
           type="button"

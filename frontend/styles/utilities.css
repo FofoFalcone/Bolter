@@ -16,8 +16,19 @@
  * della section (vuoti = quelli della section). Dentro, bordi, testi attenuati, badge e titoli si ricalcolano su
  * questi colori (.card-colors in tokens.css). Lo sfondo e il colore del testo vanno messi sull'elemento con
  * bg-background e text-foreground: tra due utility dello stesso livello non c'è un ordine garantito.
+ * I colori facoltativi dello schema (titoli, bordi, secondario, campi) arrivano da --card-scheme-*: uguali a quelli
+ * della section se la card ha il suo stesso sfondo, altrimenti vuoti e ricalcolati sulla card
+ * (snippets/color-scheme-vars.liquid).
  */
 @utility card-colors {
   --color-background: var(--color-card);
   --color-foreground: var(--color-card-foreground);
+  --scheme-headings: var(--card-scheme-headings);
+  --scheme-border: var(--card-scheme-border);
+  --scheme-secondary: var(--card-scheme-secondary);
+  --scheme-secondary-foreground: var(--card-scheme-secondary-foreground);
+  --scheme-secondary-border: var(--card-scheme-secondary-border);
+  --scheme-input: var(--card-scheme-input);
+  --scheme-input-foreground: var(--card-scheme-input-foreground);
+  --scheme-input-border: var(--card-scheme-input-border);
 }

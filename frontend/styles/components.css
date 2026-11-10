@@ -102,8 +102,8 @@
 
   &:disabled,
   &[aria-disabled='true'] {
-    --button-fg: var(--color-subtle);
-    --button-bg: var(--color-surface);
+    --button-fg: var(--button-fg-disabled, var(--color-subtle));
+    --button-bg: var(--button-bg-disabled, var(--color-surface));
     --button-border: transparent;
     --button-shadow: none;
     pointer-events: none;
@@ -153,10 +153,17 @@
   --button-shadow: var(--shadow-100);
 }
 
-/* Variant=Subtle: senza fondo né bordo (azioni secondarie, icone dell'header) */
+/*
+ * Variant=Subtle: senza fondo né bordo (azioni secondarie, icone dell'header). Hover e disabilitato sono velature del
+ * colore del testo, non --color-surface: surface è calcolato sullo sfondo della section, e dentro un campo, una card
+ * o un pannello con un altro sfondo (es. il selettore quantità bianco in una section arancione) comparirebbe come
+ * un disco del colore della section. Con lo stesso rapporto (4.5%) sullo sfondo della section il risultato è identico.
+ */
 @utility button-subtle {
   --button-fg: var(--color-foreground);
-  --button-bg-hover: var(--color-surface);
+  --button-bg-hover: color-mix(in srgb, currentColor 4.5%, transparent);
+  --button-bg-disabled: transparent;
+  --button-fg-disabled: color-mix(in srgb, currentColor 40%, transparent);
 }
 
 /*
@@ -312,6 +319,39 @@
     --shopify-accelerated-checkout-button-border-radius: var(--radius-button);
     --shopify-accelerated-checkout-button-block-size: calc(var(--spacing) * 13);
     --shopify-accelerated-checkout-skeleton-background-color: var(--color-surface);
+  }
+}
+
+/*
+ * "Compra ora" non brandizzato (quando non ci sono wallet: es. store di sviluppo, o wallet disattivati): a differenza
+ * dei wallet è un <button> nel DOM della pagina, con il blu predefinito di Shopify (#1990c6) che ignora lo schema di
+ * colori. Prende l'aspetto del pulsante secondario, sotto "Aggiungi al carrello" (primario). Fuori da ogni @layer:
+ * gli stili che Shopify inserisce non sono in un layer e vincerebbero su qualsiasi regola in un layer. Il selettore
+ * con `button` supera la specificità di quelli di Shopify (stesso approccio del tema Horizon). Proprietà scritte a
+ * mano e non con @apply button…: @apply copierebbe tutto il pulsante (3 kB in più nel CSS globale).
+ */
+button.shopify-payment-button__button--unbranded {
+  min-height: calc(var(--spacing) * 13);
+  padding: var(--spacing) calc(var(--spacing) * 7);
+  font-family: inherit;
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--color-secondary-foreground);
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-secondary-border);
+  border-radius: var(--radius-button);
+  box-shadow: var(--shadow-100);
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+@media (hover: hover) {
+  button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
+    background-color: color-mix(in srgb, var(--color-secondary-foreground) 4.5%, var(--color-secondary));
+    border-color: color-mix(in srgb, var(--color-secondary-border) 80%, var(--color-secondary-foreground));
   }
 }
 

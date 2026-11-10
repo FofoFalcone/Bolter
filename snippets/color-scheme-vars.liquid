@@ -14,9 +14,22 @@
 
   Uso: {% render 'color-scheme-vars', scheme: scheme %}
 {%- endcomment -%}
+{%- comment -%}
+  --card-scheme-*: i colori facoltativi pensati per lo sfondo della section (titoli, bordi, pulsante secondario,
+  campi) valgono anche dentro le card (utility card-colors, frontend/styles/utilities.css) solo se la card ha lo
+  stesso sfondo della section. Con una card di un altro colore (es. card bianche in una section arancione) sono
+  `initial` e dentro la card si ricalcolano dai colori della card: altrimenti un bordo arancione scuro finirebbe
+  attorno a una card bianca, o titoli chiari pensati per uno sfondo scuro su una card bianca.
+{%- endcomment -%}
 {%- liquid
   assign colors = scheme.settings
   assign brightness = colors.background | color_brightness
+  assign card_hex = colors.card | append: ''
+  assign background_hex = colors.background | append: ''
+  assign card_matches = true
+  if card_hex != blank and card_hex != background_hex
+    assign card_matches = false
+  endif
 -%}
 --color-background: {{ colors.background }};
 --color-foreground: {{ colors.foreground }};
@@ -34,4 +47,23 @@
 --scheme-input: {{ colors.input | default: 'initial' }};
 --scheme-input-foreground: {{ colors.input_foreground | default: 'initial' }};
 --scheme-input-border: {{ colors.input_border | default: 'initial' }};
+{%- if card_matches %}
+--card-scheme-headings: {{ colors.headings | default: 'initial' }};
+--card-scheme-border: {{ colors.border | default: 'initial' }};
+--card-scheme-secondary: {{ colors.secondary | default: 'initial' }};
+--card-scheme-secondary-foreground: {{ colors.secondary_foreground | default: 'initial' }};
+--card-scheme-secondary-border: {{ colors.secondary_border | default: 'initial' }};
+--card-scheme-input: {{ colors.input | default: 'initial' }};
+--card-scheme-input-foreground: {{ colors.input_foreground | default: 'initial' }};
+--card-scheme-input-border: {{ colors.input_border | default: 'initial' }};
+{%- else %}
+--card-scheme-headings: initial;
+--card-scheme-border: initial;
+--card-scheme-secondary: initial;
+--card-scheme-secondary-foreground: initial;
+--card-scheme-secondary-border: initial;
+--card-scheme-input: initial;
+--card-scheme-input-foreground: initial;
+--card-scheme-input-border: initial;
+{%- endif %}
 color-scheme: {% if brightness < 128 %}dark{% else %}light{% endif %};
