@@ -21,7 +21,9 @@
  *    Con prefers-reduced-motion: solo il cambio di testo del pulsante.
  *
  * Attributi:
- * - data-update-url="false": la variante scelta non va nell'URL (anteprima rapida: la pagina è un'altra);
+ * - data-update-url="false": la variante scelta non va nell'URL (anteprima rapida e prodotto in evidenza: la pagina è un'altra);
+ * - data-product-swap="false": un valore di un altro prodotto (combined listing) apre la sua pagina invece di
+ *   sostituire il prodotto (prodotto in evidenza: la section rende sempre il prodotto scelto nelle impostazioni);
  * - data-cart-context: contesto dello standard event shopify:cart:lines-update ('product' default,
  *   'dialog' nell'anteprima rapida).
  */
@@ -114,6 +116,11 @@ class ProductPage extends HTMLElement {
     const productUrl = changedInput.dataset.productUrl;
     const pathOf = (url) => new URL(url, window.location.origin).pathname;
     if (productUrl && pathOf(productUrl) !== pathOf(this.dataset.productUrl)) {
+      // Prodotto in evidenza: la section mostra il prodotto delle sue impostazioni, non quello dell'URL richiesto
+      if (this.dataset.productSwap === 'false') {
+        window.location.assign(productUrl);
+        return;
+      }
       try {
         await this.swapProduct(productUrl, optionValueIds, changedInput, signal);
       } catch (error) {

@@ -182,6 +182,17 @@
             "page": "Page",
             "full": "Full width"
           }
+        },
+        "header_2": {
+          "content": "Country and language"
+        },
+        "show_country": {
+          "label": "Show the country/currency selector",
+          "info": "Only if the store sells in more than one country (Settings → Markets)."
+        },
+        "show_language": {
+          "label": "Show the language selector",
+          "info": "Only if the store has more than one published language (Settings → Languages)."
         }
       },
       "blocks": {
@@ -2609,6 +2620,542 @@
         },
         "preset_3": {
           "name": "Mixed carousel"
+        }
+      }
+    },
+    "before_after": {
+      "name": "Before and after",
+      "settings": {
+        "section_width": {
+          "label": "Width",
+          "info": "Only changes on screens wider than the page (Theme settings → Layout).",
+          "options": {
+            "page": "Page",
+            "full": "Full screen"
+          }
+        },
+        "heading": {
+          "label": "Heading",
+          "default": "See the difference"
+        },
+        "intro": {
+          "label": "Intro text"
+        },
+        "align": {
+          "label": "Heading alignment",
+          "options": {
+            "start": "Left",
+            "center": "Center"
+          }
+        },
+        "header_1": {
+          "content": "Images"
+        },
+        "image_before": {
+          "label": "Before",
+          "info": "Both images should have the same proportions and framing."
+        },
+        "label_before": {
+          "label": "\"Before\" label",
+          "info": "Empty: \"Before\" in the store language."
+        },
+        "image_after": {
+          "label": "After"
+        },
+        "label_after": {
+          "label": "\"After\" label",
+          "info": "Empty: \"After\" in the store language."
+        },
+        "start_position": {
+          "label": "Initial divider position",
+          "unit": "%"
+        },
+        "header_2": {
+          "content": "Colors"
+        },
+        "color_background": {
+          "label": "Background",
+          "info": "Empty: theme colors."
+        },
+        "color_text": {
+          "label": "Text",
+          "info": "Empty: picked automatically for contrast with the background."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Before and after"
+        }
+      }
+    },
+    "comparison_table": {
+      "name": "Comparison table",
+      "settings": {
+        "section_width": {
+          "label": "Width",
+          "info": "Only changes on screens wider than the page (Theme settings → Layout). The table stays at most 896px wide.",
+          "options": {
+            "page": "Page",
+            "full": "Full screen"
+          }
+        },
+        "heading": {
+          "label": "Heading",
+          "default": "Why choose us"
+        },
+        "intro": {
+          "label": "Intro text"
+        },
+        "align": {
+          "label": "Heading alignment",
+          "options": {
+            "start": "Left",
+            "center": "Center"
+          }
+        },
+        "header_1": {
+          "content": "Columns"
+        },
+        "columns": {
+          "label": "Number of columns",
+          "options": {
+            "2": "2",
+            "3": "3",
+            "4": "4"
+          }
+        },
+        "column_1": {
+          "label": "Column 1",
+          "default": "Us"
+        },
+        "column_2": {
+          "label": "Column 2",
+          "default": "Others"
+        },
+        "column_3": {
+          "label": "Column 3"
+        },
+        "column_4": {
+          "label": "Column 4"
+        },
+        "highlight": {
+          "label": "Highlighted column",
+          "options": {
+            "0": "None",
+            "1": "Column 1",
+            "2": "Column 2",
+            "3": "Column 3",
+            "4": "Column 4"
+          }
+        },
+        "header_2": {
+          "content": "Colors"
+        },
+        "color_background": {
+          "label": "Background",
+          "info": "Empty: theme colors."
+        },
+        "color_text": {
+          "label": "Text",
+          "info": "Empty: picked automatically for contrast with the background."
+        }
+      },
+      "blocks": {
+        "row": {
+          "name": "Row",
+          "settings": {
+            "label": {
+              "label": "Feature",
+              "default": "Free shipping"
+            },
+            "paragraph_1": {
+              "content": "Type \"yes\" or \"no\" to show a check mark or a cross, or a short text (e.g. \"24 months\"). Columns beyond the chosen number aren't shown."
+            },
+            "value_1": {
+              "label": "Column 1",
+              "default": "yes"
+            },
+            "value_2": {
+              "label": "Column 2",
+              "default": "no"
+            },
+            "value_3": {
+              "label": "Column 3"
+            },
+            "value_4": {
+              "label": "Column 4"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Comparison table"
+        }
+      }
+    },
+    "countdown": {
+      "name": "Countdown",
+      "settings": {
+        "layout": {
+          "label": "Format",
+          "info": "In the header group, above the header, use the compact bar.",
+          "options": {
+            "bar": "Compact bar",
+            "banner": "Banner"
+          }
+        },
+        "heading": {
+          "label": "Heading",
+          "default": "The offer ends soon"
+        },
+        "text": {
+          "label": "Text",
+          "default": "Up to 30% off the whole collection."
+        },
+        "header_1": {
+          "content": "End"
+        },
+        "end_date": {
+          "label": "End date",
+          "info": "Format YYYY-MM-DD, e.g. 2026-12-31. Without a valid date the section doesn't appear in the store.",
+          "placeholder": "2026-12-31"
+        },
+        "end_time": {
+          "label": "End time",
+          "info": "Format HH:MM in the store's time zone (Settings → General).",
+          "default": "23:59"
+        },
+        "expired": {
+          "label": "When it ends",
+          "options": {
+            "hide": "Hide the section",
+            "message": "Show a message"
+          }
+        },
+        "expired_message": {
+          "label": "Message",
+          "default": "The offer has ended. Thank you all!"
+        },
+        "header_2": {
+          "content": "Button"
+        },
+        "button_label": {
+          "label": "Button label",
+          "default": "Shop the offers"
+        },
+        "button_link": {
+          "label": "Button link",
+          "info": "Without a link the button isn't shown."
+        },
+        "header_3": {
+          "content": "Colors"
+        },
+        "style": {
+          "label": "Style",
+          "info": "Primary color: the one in Theme settings → Colors. Section colors: background and text below.",
+          "options": {
+            "primary": "Primary color",
+            "theme": "Section colors"
+          }
+        },
+        "color_background": {
+          "label": "Background",
+          "info": "Empty: theme colors."
+        },
+        "color_text": {
+          "label": "Text",
+          "info": "Empty: picked automatically for contrast with the background."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Countdown"
+        }
+      }
+    },
+    "featured_product": {
+      "name": "Featured product",
+      "settings": {
+        "section_width": {
+          "label": "Width",
+          "info": "Only changes on screens wider than the page (Theme settings → Layout).",
+          "options": {
+            "page": "Page",
+            "full": "Full screen"
+          }
+        },
+        "product": {
+          "label": "Product"
+        },
+        "header_1": {
+          "content": "Media"
+        },
+        "media_layout": {
+          "label": "Media layout",
+          "info": "From 990px. Below that, media scroll in a carousel.",
+          "options": {
+            "thumbnails": "Large photo with thumbnails",
+            "grid": "Grid"
+          }
+        },
+        "media_position": {
+          "label": "Media position",
+          "options": {
+            "left": "Left",
+            "right": "Right"
+          }
+        },
+        "sticky_info": {
+          "label": "Keep the information in view while scrolling",
+          "info": "From 990px, when the media are taller than the information."
+        },
+        "header_2": {
+          "content": "Colors"
+        },
+        "color_background": {
+          "label": "Background",
+          "info": "Empty: theme colors."
+        },
+        "color_text": {
+          "label": "Text",
+          "info": "Empty: picked automatically for contrast with the background."
+        }
+      },
+      "blocks": {
+        "vendor": {
+          "name": "Vendor"
+        },
+        "title": {
+          "name": "Title"
+        },
+        "price": {
+          "name": "Price",
+          "settings": {
+            "show_tax_note": {
+              "label": "Show the taxes included note"
+            }
+          }
+        },
+        "variant_picker": {
+          "name": "Variant picker"
+        },
+        "quantity_selector": {
+          "name": "Quantity"
+        },
+        "buy_buttons": {
+          "name": "Buy buttons",
+          "settings": {
+            "show_dynamic_checkout": {
+              "label": "Show accelerated checkout buttons",
+              "info": "Shop Pay, PayPal, Apple Pay and the other methods active in the store."
+            }
+          }
+        },
+        "description": {
+          "name": "Description",
+          "settings": {
+            "excerpt": {
+              "label": "Only the beginning of the description",
+              "info": "The first 40 words, without formatting."
+            }
+          }
+        },
+        "text": {
+          "name": "Text",
+          "settings": {
+            "text": {
+              "label": "Text",
+              "default": "<p>Free shipping and returns within 30 days.</p>"
+            }
+          }
+        },
+        "details_link": {
+          "name": "Product page link",
+          "settings": {
+            "label": {
+              "label": "Link label",
+              "default": "View full details"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Featured product"
+        }
+      }
+    },
+    "testimonials": {
+      "name": "Testimonials",
+      "settings": {
+        "section_width": {
+          "label": "Width",
+          "info": "Only changes on screens wider than the page (Theme settings → Layout).",
+          "options": {
+            "page": "Page",
+            "full": "Full screen"
+          }
+        },
+        "heading": {
+          "label": "Heading",
+          "default": "What our customers say"
+        },
+        "intro": {
+          "label": "Intro text"
+        },
+        "align": {
+          "label": "Alignment",
+          "options": {
+            "start": "Left",
+            "center": "Center"
+          }
+        },
+        "header_1": {
+          "content": "Cards"
+        },
+        "columns_desktop": {
+          "label": "Columns from 990px",
+          "info": "From 750px to 989px at most 2. Below 750px the cards scroll horizontally."
+        },
+        "style": {
+          "label": "Style",
+          "options": {
+            "surface": "Colored box",
+            "border": "Border",
+            "plain": "No box"
+          }
+        },
+        "show_rating": {
+          "label": "Show stars"
+        },
+        "header_2": {
+          "content": "Colors"
+        },
+        "color_background": {
+          "label": "Background",
+          "info": "Empty: theme colors."
+        },
+        "color_text": {
+          "label": "Text",
+          "info": "Empty: picked automatically for contrast with the background."
+        }
+      },
+      "blocks": {
+        "testimonial": {
+          "name": "Testimonial",
+          "settings": {
+            "quote": {
+              "label": "Quote",
+              "default": "Outstanding quality and super fast shipping. I've already ordered again."
+            },
+            "author": {
+              "label": "Name",
+              "default": "Giulia R."
+            },
+            "detail": {
+              "label": "Detail",
+              "info": "E.g. city or \"Customer since 2023\".",
+              "default": "Milan"
+            },
+            "image": {
+              "label": "Photo",
+              "info": "Square, at least 96 × 96 px. Only use photos the customer has allowed you to publish."
+            },
+            "rating": {
+              "label": "Rating",
+              "info": "0: no stars."
+            },
+            "product": {
+              "label": "Purchased product",
+              "info": "Optional: shows a link to the product."
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Testimonials"
+        }
+      }
+    },
+    "video": {
+      "name": "Video",
+      "settings": {
+        "section_width": {
+          "label": "Width",
+          "info": "Only changes on screens wider than the page (Theme settings → Layout).",
+          "options": {
+            "page": "Page",
+            "full": "Full screen"
+          }
+        },
+        "heading": {
+          "label": "Heading",
+          "default": "See how it's made"
+        },
+        "intro": {
+          "label": "Intro text"
+        },
+        "align": {
+          "label": "Heading alignment",
+          "options": {
+            "start": "Left",
+            "center": "Center"
+          }
+        },
+        "header_1": {
+          "content": "Video"
+        },
+        "video": {
+          "label": "Video uploaded to Shopify",
+          "info": "Takes priority over the YouTube or Vimeo link."
+        },
+        "video_url": {
+          "label": "YouTube or Vimeo link"
+        },
+        "cover": {
+          "label": "Cover",
+          "info": "Optional for Shopify videos (their preview is used), recommended for YouTube and Vimeo: without it, the frame stays black until the video starts."
+        },
+        "description": {
+          "label": "Video description",
+          "info": "Read by people using a screen reader, e.g. \"Our workshop in Florence\". Empty: the heading is used."
+        },
+        "mode": {
+          "label": "Playback",
+          "info": "Autoplay only applies to videos uploaded to Shopify, and doesn't start for people who asked to reduce motion or data usage.",
+          "options": {
+            "click": "On click, with sound and controls",
+            "ambient": "Background: autoplay, muted and looping"
+          }
+        },
+        "ratio": {
+          "label": "Aspect ratio",
+          "options": {
+            "16_9": "16:9 (landscape)",
+            "21_9": "21:9 (widescreen)",
+            "4_3": "4:3",
+            "1_1": "1:1 (square)",
+            "9_16": "9:16 (portrait)",
+            "auto": "The video's own"
+          }
+        },
+        "header_2": {
+          "content": "Colors"
+        },
+        "color_background": {
+          "label": "Background",
+          "info": "Empty: theme colors."
+        },
+        "color_text": {
+          "label": "Text",
+          "info": "Empty: picked automatically for contrast with the background."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Video"
         }
       }
     }

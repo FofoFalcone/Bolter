@@ -40,7 +40,8 @@
       "country_label": "Country/region",
       "language_label": "Language",
       "search": "Search for a country",
-      "no_results": "No countries found"
+      "no_results": "No countries found",
+      "submit": "Update"
     },
     "predictive_search": {
       "placeholder": "Search products, collections…",
@@ -415,6 +416,46 @@
       "view_all": "View all: {{ name }}",
       "open_link": "Learn more",
       "editor_empty": "Add a collection, a product or an image block to see the carousel."
+    },
+    "featured_product": {
+      "placeholder_title": "Your product",
+      "placeholder_text": "Choose a product in the section settings: its photos, variants and buy button will appear here."
+    },
+    "video": {
+      "play": "Play video",
+      "play_named": "Play video: {{ name }}",
+      "pause": "Pause video",
+      "resume": "Resume video",
+      "editor_empty": "Choose a video uploaded to Shopify or paste a YouTube or Vimeo link: without a video the section doesn't appear in the store."
+    },
+    "testimonials": {
+      "list_label": "Testimonials",
+      "rating": "Rating: {{ rating }} out of {{ max }}",
+      "purchased": "Purchased"
+    },
+    "before_after": {
+      "before": "Before",
+      "after": "After",
+      "slider_label": "Compare {{ before }} and {{ after }}",
+      "value": "{{ before }}: {{ percent }}%",
+      "editor_empty": "Choose both images: in the store the section only appears when both are set."
+    },
+    "comparison_table": {
+      "caption": "Comparison table",
+      "column": "Column {{ number }}",
+      "yes": "Yes",
+      "no": "No",
+      "empty": "Not specified"
+    },
+    "countdown": {
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Min",
+      "seconds": "Sec",
+      "ends_at": "The offer ends on {{ date }} at {{ time }}.",
+      "pause": "Pause the countdown",
+      "resume": "Resume the countdown",
+      "editor_invalid": "Enter the end date as YYYY-MM-DD (e.g. 2026-12-31) and the time as HH:MM: without a valid date the section doesn't appear in the store."
     }
   },
   "date_formats": {

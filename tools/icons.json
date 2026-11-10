@@ -41,5 +41,8 @@
   "heart": "24/outline/heart",
   "globe-alt": "24/outline/globe-alt",
   "check-badge": "24/outline/check-badge",
-  "tag": "24/outline/tag"
+  "tag": "24/outline/tag",
+  "star-solid": "20/solid/star",
+  "chevron-up-down": "20/solid/chevron-up-down",
+  "arrows-right-left": "20/solid/arrows-right-left"
 }

@@ -20,6 +20,16 @@
       assign has_social = true
     endif
   endfor
+
+  assign show_country = false
+  if section.settings.show_country and localization.available_countries.size > 1
+    assign show_country = true
+  endif
+  assign show_language = false
+  if section.settings.show_language and localization.available_languages.size > 1
+    assign show_language = true
+  endif
+  assign select_class = 'h-11 w-full max-w-64 appearance-none truncate rounded-button border border-border-strong bg-background ps-3 pe-9 text-body text-foreground hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
 -%}
 
 <footer class="border-t border-border bg-background">
@@ -111,6 +121,68 @@
         &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}
       </p>
 
+      {%- comment -%}
+        Paese/valuta e lingua: form 'localization' nativo, funziona senza JS. Si conferma con il pulsante: cambiare
+        paese alla sola scelta dell'opzione sarebbe un cambio di contesto inatteso (WCAG 3.2.2), e con le frecce alcuni
+        browser lo farebbero a ogni opzione. Solo i selettori con più di un'opzione.
+      {%- endcomment -%}
+      {%- if show_country or show_language -%}
+        {%- form 'localization', id: 'FooterLocalizationForm', class: 'flex flex-wrap items-end gap-3' -%}
+          {%- if show_country -%}
+            <div class="flex min-w-0 flex-col gap-1">
+              <label for="FooterCountry" class="text-body-sm text-muted">{{ 'general.localization.country_label' | t }}</label>
+              <div class="relative">
+                <select
+                  id="FooterCountry"
+                  name="country_code"
+                  class="{{ select_class }}"
+                >
+                  {%- for country in localization.available_countries -%}
+                    <option
+                      value="{{ country.iso_code }}"
+                      {% if country.iso_code == localization.country.iso_code %}
+                        selected
+                      {% endif %}
+                    >
+                      {{- country.name | escape }} ({{ country.currency.iso_code }}
+                      {%- if country.currency.symbol != country.currency.iso_code %} {{ country.currency.symbol }}{% endif -%}
+                      )
+                    </option>
+                  {%- endfor -%}
+                </select>
+                {% render 'icon', name: 'chevron-up-down', class: 'pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted' %}
+              </div>
+            </div>
+          {%- endif -%}
+          {%- if show_language -%}
+            <div class="flex min-w-0 flex-col gap-1">
+              <label for="FooterLanguage" class="text-body-sm text-muted">{{ 'general.localization.language_label' | t }}</label>
+              <div class="relative">
+                <select
+                  id="FooterLanguage"
+                  name="language_code"
+                  class="{{ select_class }}"
+                >
+                  {%- for language in localization.available_languages -%}
+                    <option
+                      value="{{ language.iso_code }}"
+                      lang="{{ language.iso_code }}"
+                      {% if language.iso_code == localization.language.iso_code %}
+                        selected
+                      {% endif %}
+                    >
+                      {{- language.endonym_name | capitalize -}}
+                    </option>
+                  {%- endfor -%}
+                </select>
+                {% render 'icon', name: 'chevron-up-down', class: 'pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted' %}
+              </div>
+            </div>
+          {%- endif -%}
+          <button type="submit" class="button button-neutral">{{ 'general.localization.submit' | t }}</button>
+        {%- endform -%}
+      {%- endif -%}
+
       {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
           <span class="sr-only">{{ 'sections.footer.payment_methods' | t }}</span>
@@ -178,6 +250,24 @@
       "label": "t:sections.footer.settings.enable_follow_on_shop.label",
       "info": "t:sections.footer.settings.enable_follow_on_shop.info",
       "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_2.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country",
+      "label": "t:sections.footer.settings.show_country.label",
+      "info": "t:sections.footer.settings.show_country.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_language",
+      "label": "t:sections.footer.settings.show_language.label",
+      "info": "t:sections.footer.settings.show_language.info",
+      "default": true
     },
     {
       "type": "header",

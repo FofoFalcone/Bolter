@@ -1,0 +1,438 @@
+{%- comment -%}
+  Prodotto in evidenza: un prodotto scelto dal merchant, con galleria, varianti e acquisto, in qualsiasi pagina.
+
+  Riusa la pagina prodotto: galleria (snippets/product-gallery.liquid), selettore varianti, quantità e pulsanti
+  d'acquisto (stessi snippet di main-product) dentro <product-page> (frontend/scripts/product-page.js).
+  - Varianti con la Section Rendering API: la section si richiede all'URL del prodotto con il suo id dinamico
+    (template--…__…), che Shopify rende con le impostazioni salvate nel template. La variante non va nell'URL
+    (data-update-url="false"); un valore di un altro prodotto (combined listing) apre la sua pagina (data-product-swap).
+  - Standard events: shopify:product:view quando entra nello schermo (nessun contesto ammesso descrive una section
+    di contenuto, quindi omesso), shopify:cart:lines-update all'aggiunta (contesto "product").
+  - Senza JS: <select name="id"> e form verso /cart/add, come nella pagina prodotto.
+  - Senza prodotto scelto: segnaposto solo nel theme editor, nel negozio la section non stampa nulla.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  assign s = section.settings
+  assign featured = s.product
+  # Richiesta della Section Rendering API all'URL del prodotto: è lo stesso prodotto, con la variante scelta
+  if request.page_type == 'product' and product.id == featured.id
+    assign featured = product
+  endif
+
+  # sizes: metà della pagina meno margini (2 × 1,5rem) e spazio tra le colonne (4rem); non accettano var()
+  assign page_max = settings.layout_page_width | append: 'px'
+  if s.section_width == 'full'
+    assign page_max = '100vw'
+  endif
+  capture sizes_wide
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 7rem) / 2), 85vw'
+  endcapture
+  capture sizes_narrow
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 9rem) / 4), 85vw'
+  endcapture
+  capture sizes_single
+    echo '(min-width: 990px) calc((min(100vw, ' | append: page_max | append: ') - 7rem) / 2), 100vw'
+  endcapture
+
+  assign media_order = ''
+  if s.media_position == 'right'
+    assign media_order = 'lg:order-last'
+  endif
+  assign animate = true
+  if section.index == 1 or request.visual_preview_mode
+    assign animate = false
+  endif
+-%}
+
+{%- if featured != blank -%}
+  {%- liquid
+    assign current_variant = featured.selected_or_first_available_variant
+    assign featured_media = current_variant.featured_media | default: featured.featured_media
+    assign product_form_id = 'ProductForm-' | append: section.id
+    assign eager = false
+    if section.index == 1
+      assign eager = true
+    endif
+  -%}
+  <s-view-event
+    class="contents"
+    view-event-trigger="intersect"
+    view-event-payload='{{ featured | standard_event_data: "view" | escape }}'
+  >
+    <product-page
+      class="page-width grid items-start gap-8 py-8 md:py-16 lg:grid-cols-2 lg:gap-16"
+      data-section-id="{{ section.id }}"
+      data-product-url="{{ featured.url }}"
+      data-variant-id="{{ current_variant.id }}"
+      data-product-gid="gid://shopify/Product/{{ featured.id }}"
+      data-product-title="{{ featured.title | escape }}"
+      data-product-handle="{{ featured.handle }}"
+      data-update-url="false"
+      data-product-swap="false"
+    >
+      <script type="application/json" data-product-part="event-data" data-product-event-data>
+        {{ featured | standard_event_data: "view" }}
+      </script>
+      {%- comment -%} Regione live stabile: prezzo e disponibilità dopo il cambio variante (product-page.js) {%- endcomment -%}
+      <p class="sr-only" aria-live="polite" data-product-status></p>
+
+      <div class="min-w-0 {{ media_order }}">
+        {% render 'product-gallery',
+          product: featured,
+          featured_media: featured_media,
+          layout: s.media_layout,
+          eager: eager,
+          sizes_wide: sizes_wide,
+          sizes_narrow: sizes_narrow,
+          sizes_single: sizes_single
+        %}
+      </div>
+
+      <div
+        class="flex min-w-0 flex-col gap-6{% if s.sticky_info %} lg:sticky lg:top-8 lg:self-start{% endif %}"
+        {% if animate %}
+          data-animate="fade-up"
+        {% endif %}
+      >
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              {% render block %}
+
+            {%- when 'vendor' -%}
+              {%- if featured.vendor != blank -%}
+                <p class="text-body-sm font-semibold text-muted" {{ block.shopify_attributes }}>
+                  {{- featured.vendor | escape -}}
+                </p>
+              {%- endif -%}
+
+            {%- when 'title' -%}
+              <h2 class="text-heading text-balance text-foreground md:text-subtitle" {{ block.shopify_attributes }}>
+                <a href="{{ featured.url }}" class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                  {{- featured.title | escape -}}
+                </a>
+              </h2>
+
+            {%- when 'price' -%}
+              <div class="flex flex-col gap-1" {{ block.shopify_attributes }}>
+                <div data-product-part="price">
+                  {% render 'price', product: featured, variant: current_variant, size: 'lg' %}
+                </div>
+                {%- if block.settings.show_tax_note and shop.taxes_included -%}
+                  <p class="text-body-sm text-muted">{{ 'products.product.include_taxes' | t }}</p>
+                {%- endif -%}
+              </div>
+
+            {%- when 'variant_picker' -%}
+              {% render 'product-variant-picker',
+                product: featured,
+                section_id: section.id,
+                attributes: block.shopify_attributes
+              %}
+
+            {%- when 'quantity_selector' -%}
+              {% render 'product-quantity',
+                product: featured,
+                variant: current_variant,
+                section_id: section.id,
+                form_id: product_form_id,
+                attributes: block.shopify_attributes
+              %}
+
+            {%- when 'buy_buttons' -%}
+              {% render 'product-buy-buttons',
+                product: featured,
+                variant: current_variant,
+                section_id: section.id,
+                form_id: product_form_id,
+                show_dynamic_checkout: block.settings.show_dynamic_checkout,
+                attributes: block.shopify_attributes
+              %}
+
+            {%- when 'description' -%}
+              {%- if featured.description != blank -%}
+                {%- if block.settings.excerpt -%}
+                  <p class="max-w-2xl text-body text-pretty text-foreground/80" {{ block.shopify_attributes }}>
+                    {{- featured.description | strip_html | truncatewords: 40 -}}
+                  </p>
+                {%- else -%}
+                  <div class="prose prose-theme max-w-none text-body" {{ block.shopify_attributes }}>
+                    {{ featured.description }}
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.text != blank -%}
+                <div class="prose prose-theme max-w-none text-body" {{ block.shopify_attributes }}>
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'details_link' -%}
+              {%- if block.settings.label != blank -%}
+                {%- comment -%} Pagina completa con la variante scelta: l'URL segue la parte aggiornata al cambio variante {%- endcomment -%}
+                <div data-product-part="details-link-{{ block.id }}" {{ block.shopify_attributes }}>
+                  <a
+                    href="{{ current_variant.url | default: featured.url }}"
+                    class="group/link inline-flex items-center gap-1.5 rounded-sm text-body font-semibold text-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    {{- block.settings.label | escape -}}
+                    <span class="sr-only">: {{ featured.title | escape }}</span>
+                    {% render 'icon',
+                      name: 'arrow-right',
+                      class: 'size-5 shrink-0 transition-transform duration-200 ease-theme motion-safe:group-hover/link:translate-x-1'
+                    %}
+                  </a>
+                </div>
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </product-page>
+  </s-view-event>
+
+  {% render 'vite-tag', entry: 'product.js' %}
+
+{%- elsif request.design_mode -%}
+  {%- comment -%} Segnaposto solo nel theme editor: nel negozio pubblicato niente prodotti finti {%- endcomment -%}
+  <div class="page-width grid items-start gap-8 py-8 md:py-16 lg:grid-cols-2 lg:gap-16">
+    <div class="aspect-square overflow-hidden rounded-lg bg-surface {{ media_order }}">
+      {{ 'product-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
+    </div>
+    <div class="flex flex-col gap-6">
+      <h2 class="text-heading text-foreground md:text-subtitle">{{ 'sections.featured_product.placeholder_title' | t }}</h2>
+      <p class="text-subheading text-foreground">{{ 4999 | money }}</p>
+      <p class="max-w-2xl text-body text-pretty text-foreground/80">{{ 'sections.featured_product.placeholder_text' | t }}</p>
+      <span class="button button-primary button-lg pointer-events-none w-full opacity-60">
+        {{- 'products.product.add_to_cart' | t -}}
+      </span>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.featured_product.name",
+  "tag": "section",
+  "class": "section-featured-product",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.featured_product.settings.section_width.label",
+      "info": "t:sections.featured_product.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.featured_product.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.featured_product.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:sections.featured_product.settings.product.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_product.settings.header_1.content"
+    },
+    {
+      "type": "select",
+      "id": "media_layout",
+      "label": "t:sections.featured_product.settings.media_layout.label",
+      "info": "t:sections.featured_product.settings.media_layout.info",
+      "options": [
+        {
+          "value": "thumbnails",
+          "label": "t:sections.featured_product.settings.media_layout.options.thumbnails"
+        },
+        {
+          "value": "grid",
+          "label": "t:sections.featured_product.settings.media_layout.options.grid"
+        }
+      ],
+      "default": "thumbnails"
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "t:sections.featured_product.settings.media_position.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.featured_product.settings.media_position.options.left"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.featured_product.settings.media_position.options.right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_info",
+      "label": "t:sections.featured_product.settings.sticky_info.label",
+      "info": "t:sections.featured_product.settings.sticky_info.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_product.settings.header_2.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.featured_product.settings.color_background.label",
+      "info": "t:sections.featured_product.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.featured_product.settings.color_text.label",
+      "info": "t:sections.featured_product.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "vendor",
+      "name": "t:sections.featured_product.blocks.vendor.name",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "title",
+      "name": "t:sections.featured_product.blocks.title.name",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "price",
+      "name": "t:sections.featured_product.blocks.price.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_tax_note",
+          "label": "t:sections.featured_product.blocks.price.settings.show_tax_note.label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "t:sections.featured_product.blocks.variant_picker.name",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "quantity_selector",
+      "name": "t:sections.featured_product.blocks.quantity_selector.name",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "buy_buttons",
+      "name": "t:sections.featured_product.blocks.buy_buttons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "t:sections.featured_product.blocks.buy_buttons.settings.show_dynamic_checkout.label",
+          "info": "t:sections.featured_product.blocks.buy_buttons.settings.show_dynamic_checkout.info",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "t:sections.featured_product.blocks.description.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "excerpt",
+          "label": "t:sections.featured_product.blocks.description.settings.excerpt.label",
+          "info": "t:sections.featured_product.blocks.description.settings.excerpt.info",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.featured_product.blocks.text.name",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.featured_product.blocks.text.settings.text.label",
+          "default": "t:sections.featured_product.blocks.text.settings.text.default"
+        }
+      ]
+    },
+    {
+      "type": "details_link",
+      "name": "t:sections.featured_product.blocks.details_link.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.featured_product.blocks.details_link.settings.label.label",
+          "default": "t:sections.featured_product.blocks.details_link.settings.label.default"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured_product.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "vendor"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "quantity_selector"
+        },
+        {
+          "type": "buy_buttons"
+        },
+        {
+          "type": "description"
+        },
+        {
+          "type": "details_link"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

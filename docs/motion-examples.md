@@ -49,6 +49,12 @@ Nessun codice dagli esempi: `data-animate-stagger` e `data-animate` (`frontend/s
 | Elenco collezioni | card in sequenza (`fade-up`), zoom all'hover | ✅ `sections/collection-list.liquid` |
 | Newsletter | ingresso `fade-up`, tre puntini durante l'invio, comparsa della conferma con `starting:` | ✅ `sections/newsletter.liquid` |
 | Punti sull'immagine | punti in sequenza (`pop`), tre impulsi all'ingresso (`motion/mini` con `repeat`), volo verso l'anteprima rapida | ✅ `sections/shop-the-look.liquid`, `frontend/entrypoints/shop-the-look.js` |
+| Prodotto in evidenza | informazioni `fade-up`, "vola nel carrello" della pagina prodotto | ✅ `sections/featured-product.liquid` |
+| Video | riquadro `fade-up`, pulsante play che cresce all'hover, video di sfondo in dissolvenza quando parte | ✅ `sections/video.liquid`, `frontend/entrypoints/video-section.js` |
+| Testimonianze | card in sequenza (`fade-up`) | ✅ `sections/testimonials.liquid` |
+| Prima/dopo | riquadro `fade-up`; divisore animato (200ms, `ease-theme`) con clic e tastiera, diretto trascinando; maniglia che si stringe alla pressione | ✅ `sections/before-after.liquid`, `frontend/entrypoints/before-after.js` |
+| Tabella di confronto | tabella `fade-up` | ✅ `sections/comparison-table.liquid` |
+| Conto alla rovescia | nessun movimento: solo le cifre che cambiano, con pausa | ✅ `sections/countdown.liquid`, `frontend/entrypoints/countdown.js` |
 
 > Nota: `js-scroll-pinning`, nonostante il nome, è una galleria orizzontale (non uno storytelling con immagine fissa e paragrafi). Uno storytelling di quel tipo non ha un esempio gratuito: andrebbe scritto da zero con `scroll()` di Motion.
 

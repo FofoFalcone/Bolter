@@ -173,6 +173,17 @@
             "page": "Pagina",
             "full": "Tutta larghezza"
           }
+        },
+        "show_country": {
+          "label": "Mostra il selettore di paese/valuta",
+          "info": "Solo se il negozio vende in più paesi (Impostazioni → Mercati)."
+        },
+        "show_language": {
+          "label": "Mostra il selettore della lingua",
+          "info": "Solo se il negozio ha più lingue pubblicate (Impostazioni → Lingue)."
+        },
+        "header_2": {
+          "content": "Paese e lingua"
         }
       },
       "blocks": {
@@ -2600,6 +2611,542 @@
         },
         "preset_3": {
           "name": "Carosello misto"
+        }
+      }
+    },
+    "before_after": {
+      "name": "Prima e dopo",
+      "settings": {
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Cambia solo sugli schermi più larghi della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutto lo schermo"
+          }
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Guarda la differenza"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "align": {
+          "label": "Allineamento del titolo",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "header_1": {
+          "content": "Immagini"
+        },
+        "image_before": {
+          "label": "Prima",
+          "info": "Le due immagini devono avere le stesse proporzioni e la stessa inquadratura."
+        },
+        "label_before": {
+          "label": "Etichetta di \"prima\"",
+          "info": "Vuota: \"Prima\" nella lingua del negozio."
+        },
+        "image_after": {
+          "label": "Dopo"
+        },
+        "label_after": {
+          "label": "Etichetta di \"dopo\"",
+          "info": "Vuota: \"Dopo\" nella lingua del negozio."
+        },
+        "start_position": {
+          "label": "Posizione iniziale del divisore",
+          "unit": "%"
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Prima e dopo"
+        }
+      }
+    },
+    "comparison_table": {
+      "name": "Tabella di confronto",
+      "settings": {
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Cambia solo sugli schermi più larghi della pagina (Impostazioni tema → Layout). La tabella resta al massimo di 896px.",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutto lo schermo"
+          }
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Perché sceglierci"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "align": {
+          "label": "Allineamento del titolo",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "header_1": {
+          "content": "Colonne"
+        },
+        "columns": {
+          "label": "Numero di colonne",
+          "options": {
+            "2": "2",
+            "3": "3",
+            "4": "4"
+          }
+        },
+        "column_1": {
+          "label": "Colonna 1",
+          "default": "Noi"
+        },
+        "column_2": {
+          "label": "Colonna 2",
+          "default": "Gli altri"
+        },
+        "column_3": {
+          "label": "Colonna 3"
+        },
+        "column_4": {
+          "label": "Colonna 4"
+        },
+        "highlight": {
+          "label": "Colonna in evidenza",
+          "options": {
+            "0": "Nessuna",
+            "1": "Colonna 1",
+            "2": "Colonna 2",
+            "3": "Colonna 3",
+            "4": "Colonna 4"
+          }
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        }
+      },
+      "blocks": {
+        "row": {
+          "name": "Riga",
+          "settings": {
+            "label": {
+              "label": "Caratteristica",
+              "default": "Spedizione gratuita"
+            },
+            "paragraph_1": {
+              "content": "Scrivi \"sì\" o \"no\" per mostrare una spunta o una croce, oppure un testo breve (es. \"24 mesi\"). Le colonne oltre il numero scelto non si mostrano."
+            },
+            "value_1": {
+              "label": "Colonna 1",
+              "default": "sì"
+            },
+            "value_2": {
+              "label": "Colonna 2",
+              "default": "no"
+            },
+            "value_3": {
+              "label": "Colonna 3"
+            },
+            "value_4": {
+              "label": "Colonna 4"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Tabella di confronto"
+        }
+      }
+    },
+    "countdown": {
+      "name": "Conto alla rovescia",
+      "settings": {
+        "layout": {
+          "label": "Formato",
+          "info": "Nel gruppo dell'header, sopra l'header, usa la barra compatta.",
+          "options": {
+            "bar": "Barra compatta",
+            "banner": "Banner"
+          }
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "L'offerta finisce tra poco"
+        },
+        "text": {
+          "label": "Testo",
+          "default": "Sconti fino al 30% su tutta la collezione."
+        },
+        "header_1": {
+          "content": "Scadenza"
+        },
+        "end_date": {
+          "label": "Data di fine",
+          "info": "Formato AAAA-MM-GG, es. 2026-12-31. Senza una data valida la section non compare nel negozio.",
+          "placeholder": "2026-12-31"
+        },
+        "end_time": {
+          "label": "Ora di fine",
+          "info": "Formato HH:MM nel fuso orario del negozio (Impostazioni → Generali).",
+          "default": "23:59"
+        },
+        "expired": {
+          "label": "Alla scadenza",
+          "options": {
+            "hide": "Nascondi la section",
+            "message": "Mostra un messaggio"
+          }
+        },
+        "expired_message": {
+          "label": "Messaggio",
+          "default": "L'offerta è terminata. Grazie a tutti!"
+        },
+        "header_2": {
+          "content": "Pulsante"
+        },
+        "button_label": {
+          "label": "Testo del pulsante",
+          "default": "Scopri le offerte"
+        },
+        "button_link": {
+          "label": "Link del pulsante",
+          "info": "Senza link il pulsante non si mostra."
+        },
+        "header_3": {
+          "content": "Colori"
+        },
+        "style": {
+          "label": "Stile",
+          "info": "Colore principale: quello di Impostazioni tema → Colori. Colori della section: sfondo e testo qui sotto.",
+          "options": {
+            "primary": "Colore principale",
+            "theme": "Colori della section"
+          }
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Conto alla rovescia"
+        }
+      }
+    },
+    "featured_product": {
+      "name": "Prodotto in evidenza",
+      "settings": {
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Cambia solo sugli schermi più larghi della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutto lo schermo"
+          }
+        },
+        "product": {
+          "label": "Prodotto"
+        },
+        "header_1": {
+          "content": "Media"
+        },
+        "media_layout": {
+          "label": "Disposizione dei media",
+          "info": "Da 990px. Sotto i media scorrono in un carosello.",
+          "options": {
+            "thumbnails": "Foto grande con miniature",
+            "grid": "Griglia"
+          }
+        },
+        "media_position": {
+          "label": "Posizione dei media",
+          "options": {
+            "left": "A sinistra",
+            "right": "A destra"
+          }
+        },
+        "sticky_info": {
+          "label": "Informazioni fisse durante lo scorrimento",
+          "info": "Da 990px, quando i media sono più alti delle informazioni."
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        }
+      },
+      "blocks": {
+        "vendor": {
+          "name": "Marca"
+        },
+        "title": {
+          "name": "Titolo"
+        },
+        "price": {
+          "name": "Prezzo",
+          "settings": {
+            "show_tax_note": {
+              "label": "Mostra la nota sulle imposte incluse"
+            }
+          }
+        },
+        "variant_picker": {
+          "name": "Selettore varianti"
+        },
+        "quantity_selector": {
+          "name": "Quantità"
+        },
+        "buy_buttons": {
+          "name": "Pulsanti d'acquisto",
+          "settings": {
+            "show_dynamic_checkout": {
+              "label": "Mostra i pulsanti di pagamento rapido",
+              "info": "Shop Pay, PayPal, Apple Pay e gli altri metodi attivi nel negozio."
+            }
+          }
+        },
+        "description": {
+          "name": "Descrizione",
+          "settings": {
+            "excerpt": {
+              "label": "Solo l'inizio della descrizione",
+              "info": "Le prime 40 parole, senza formattazione."
+            }
+          }
+        },
+        "text": {
+          "name": "Testo",
+          "settings": {
+            "text": {
+              "label": "Testo",
+              "default": "<p>Spedizione gratuita e reso entro 30 giorni.</p>"
+            }
+          }
+        },
+        "details_link": {
+          "name": "Link alla pagina prodotto",
+          "settings": {
+            "label": {
+              "label": "Testo del link",
+              "default": "Vedi tutti i dettagli"
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Prodotto in evidenza"
+        }
+      }
+    },
+    "testimonials": {
+      "name": "Testimonianze",
+      "settings": {
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Cambia solo sugli schermi più larghi della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutto lo schermo"
+          }
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Cosa dicono di noi"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "align": {
+          "label": "Allineamento",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "header_1": {
+          "content": "Card"
+        },
+        "columns_desktop": {
+          "label": "Colonne da 990px",
+          "info": "Da 750px a 989px al massimo 2. Sotto i 750px le card scorrono in orizzontale."
+        },
+        "style": {
+          "label": "Stile",
+          "options": {
+            "surface": "Riquadro colorato",
+            "border": "Bordo",
+            "plain": "Senza riquadro"
+          }
+        },
+        "show_rating": {
+          "label": "Mostra le stelle"
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        }
+      },
+      "blocks": {
+        "testimonial": {
+          "name": "Testimonianza",
+          "settings": {
+            "quote": {
+              "label": "Citazione",
+              "default": "Qualità altissima e spedizione velocissima. Ho già ordinato di nuovo."
+            },
+            "author": {
+              "label": "Nome",
+              "default": "Giulia R."
+            },
+            "detail": {
+              "label": "Dettaglio",
+              "info": "Es. città o \"Cliente dal 2023\".",
+              "default": "Milano"
+            },
+            "image": {
+              "label": "Foto",
+              "info": "Quadrata, almeno 96 × 96 px. Usa solo foto che il cliente ti ha autorizzato a pubblicare."
+            },
+            "rating": {
+              "label": "Valutazione",
+              "info": "0: nessuna stella."
+            },
+            "product": {
+              "label": "Prodotto acquistato",
+              "info": "Facoltativo: mostra un link al prodotto."
+            }
+          }
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Testimonianze"
+        }
+      }
+    },
+    "video": {
+      "name": "Video",
+      "settings": {
+        "section_width": {
+          "label": "Larghezza",
+          "info": "Cambia solo sugli schermi più larghi della pagina (Impostazioni tema → Layout).",
+          "options": {
+            "page": "Pagina",
+            "full": "Tutto lo schermo"
+          }
+        },
+        "heading": {
+          "label": "Titolo",
+          "default": "Guarda come nasce"
+        },
+        "intro": {
+          "label": "Testo introduttivo"
+        },
+        "align": {
+          "label": "Allineamento del titolo",
+          "options": {
+            "start": "A sinistra",
+            "center": "Al centro"
+          }
+        },
+        "header_1": {
+          "content": "Video"
+        },
+        "video": {
+          "label": "Video caricato su Shopify",
+          "info": "Ha la precedenza sul link YouTube o Vimeo."
+        },
+        "video_url": {
+          "label": "Link YouTube o Vimeo"
+        },
+        "cover": {
+          "label": "Copertina",
+          "info": "Facoltativa per i video Shopify (si usa la loro anteprima), consigliata per YouTube e Vimeo: senza, il riquadro resta nero finché il video non parte."
+        },
+        "description": {
+          "label": "Descrizione del video",
+          "info": "Letta da chi usa un lettore di schermo, es. \"Il nostro laboratorio a Firenze\". Vuota: si usa il titolo."
+        },
+        "mode": {
+          "label": "Riproduzione",
+          "info": "La riproduzione automatica vale solo per i video caricati su Shopify, e non parte per chi ha chiesto di ridurre il movimento o il consumo di dati.",
+          "options": {
+            "click": "Al clic, con audio e controlli",
+            "ambient": "Sfondo: automatica, muta e in loop"
+          }
+        },
+        "ratio": {
+          "label": "Proporzioni",
+          "options": {
+            "16_9": "16:9 (orizzontale)",
+            "21_9": "21:9 (panoramico)",
+            "4_3": "4:3",
+            "1_1": "1:1 (quadrato)",
+            "9_16": "9:16 (verticale)",
+            "auto": "Quelle del video"
+          }
+        },
+        "header_2": {
+          "content": "Colori"
+        },
+        "color_background": {
+          "label": "Sfondo",
+          "info": "Vuoto: colori del tema."
+        },
+        "color_text": {
+          "label": "Testo",
+          "info": "Vuoto: scelto in automatico per il contrasto con lo sfondo."
+        }
+      },
+      "presets": {
+        "preset_1": {
+          "name": "Video"
         }
       }
     }

@@ -40,7 +40,8 @@
       "country_label": "Paese/regione",
       "language_label": "Lingua",
       "search": "Cerca un paese",
-      "no_results": "Nessun paese trovato"
+      "no_results": "Nessun paese trovato",
+      "submit": "Aggiorna"
     },
     "predictive_search": {
       "placeholder": "Cerca prodotti, collezioni…",
@@ -415,6 +416,46 @@
       "view_all": "Vedi tutto: {{ name }}",
       "open_link": "Scopri di più",
       "editor_empty": "Aggiungi una collezione, un prodotto o un'immagine ai blocchi per vedere il carosello."
+    },
+    "featured_product": {
+      "placeholder_title": "Il tuo prodotto",
+      "placeholder_text": "Scegli un prodotto nelle impostazioni della section: qui compariranno foto, varianti e pulsante d'acquisto."
+    },
+    "video": {
+      "play": "Riproduci il video",
+      "play_named": "Riproduci il video: {{ name }}",
+      "pause": "Metti in pausa il video",
+      "resume": "Riprendi il video",
+      "editor_empty": "Scegli un video caricato su Shopify o incolla un link YouTube o Vimeo: senza video la section non compare nel negozio."
+    },
+    "testimonials": {
+      "list_label": "Testimonianze",
+      "rating": "Valutazione: {{ rating }} su {{ max }}",
+      "purchased": "Ha acquistato"
+    },
+    "before_after": {
+      "before": "Prima",
+      "after": "Dopo",
+      "slider_label": "Confronto tra {{ before }} e {{ after }}",
+      "value": "{{ before }}: {{ percent }}%",
+      "editor_empty": "Scegli entrambe le immagini: nel negozio la section compare solo con tutte e due."
+    },
+    "comparison_table": {
+      "caption": "Tabella di confronto",
+      "column": "Colonna {{ number }}",
+      "yes": "Sì",
+      "no": "No",
+      "empty": "Non indicato"
+    },
+    "countdown": {
+      "days": "Giorni",
+      "hours": "Ore",
+      "minutes": "Min",
+      "seconds": "Sec",
+      "ends_at": "L'offerta termina il {{ date }} alle {{ time }}.",
+      "pause": "Ferma il conto alla rovescia",
+      "resume": "Riprendi il conto alla rovescia",
+      "editor_invalid": "Inserisci la data di fine nel formato AAAA-MM-GG (es. 2026-12-31) e l'ora nel formato HH:MM: senza una data valida la section non compare nel negozio."
     }
   },
   "date_formats": {

@@ -1,0 +1,305 @@
+{%- comment -%}
+  Testimonianze: citazioni di clienti con nome, dettaglio (città, da quanto sono clienti…), foto, valutazione e
+  prodotto acquistato facoltativi. Solo Liquid, nessun JS.
+
+  - Ogni citazione è un <figure> con <blockquote> e <figcaption>; la valutazione ha un testo per i lettori di schermo,
+    le stelle sono decorative.
+  - Sotto i 750px le card scorrono in orizzontale (la successiva si intravede); da 750px griglia a 2-4 colonne.
+  - Niente dati strutturati Review/AggregateRating: Google non li mostra per recensioni scelte e pubblicate dal
+    negozio stesso su di sé ("self-serving"). Le recensioni dei prodotti arrivano dalle app, nel metafield reviews.rating.
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  assign s = section.settings
+  assign columns = s.columns_desktop | at_most: section.blocks.size | at_least: 1
+  assign columns_md = columns | at_most: 2
+
+  case s.style
+    when 'border'
+      assign card_class = 'rounded-lg border border-border bg-background p-6 md:p-8'
+    when 'plain'
+      assign card_class = 'py-2'
+    else
+      assign card_class = 'rounded-lg bg-surface p-6 md:p-8'
+  endcase
+
+  if s.align == 'center'
+    assign align_class = 'items-center text-center'
+  else
+    assign align_class = 'items-start text-start'
+  endif
+
+  assign list_label = 'sections.testimonials.list_label' | t
+  if s.heading != blank
+    assign list_label = s.heading
+  endif
+  assign animate = true
+  if section.index == 1 or request.visual_preview_mode
+    assign animate = false
+  endif
+-%}
+
+<div class="page-width flex flex-col gap-8 py-8 md:gap-12 md:py-16">
+  {% render 'section-header', heading: s.heading, intro: s.intro, align: s.align %}
+
+  {%- if section.blocks.size > 0 -%}
+    {%- comment -%} data-scroll-region: sotto i 750px la lista scorre e diventa focusabile (frontend/scripts/scroll-regions.js) {%- endcomment -%}
+    <ul
+      class="-mx-(--page-gutter) flex snap-x snap-mandatory scroll-px-(--page-gutter) gap-4 overflow-x-auto px-(--page-gutter) pb-2 [scrollbar-width:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary md:mx-0 md:grid md:grid-cols-[repeat(var(--columns-md),minmax(0,1fr))] md:gap-6 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-[repeat(var(--columns),minmax(0,1fr))]"
+      style="--columns: {{ columns }}; --columns-md: {{ columns_md }};"
+      role="list"
+      aria-label="{{ list_label | escape }}"
+      data-scroll-region
+      {% if animate %}
+        data-animate-stagger="fade-up"
+      {% endif %}
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign b = block.settings
+          assign rating = b.rating | plus: 0
+        -%}
+        <li
+          class="flex w-[85%] max-w-sm shrink-0 snap-center md:w-auto md:max-w-none"
+          {{ block.shopify_attributes }}
+        >
+          <figure class="flex w-full flex-col gap-6 {{ card_class }} {{ align_class }}">
+            {%- if s.show_rating and rating > 0 -%}
+              <p class="flex items-center gap-0.5 text-foreground">
+                <span class="sr-only">{{ 'sections.testimonials.rating' | t: rating: rating, max: 5 }}</span>
+                {%- for i in (1..5) -%}
+                  {%- if i <= rating -%}
+                    {% render 'icon', name: 'star-solid', class: 'size-5' %}
+                  {%- else -%}
+                    {% render 'icon', name: 'star-solid', class: 'size-5 text-foreground/20' %}
+                  {%- endif -%}
+                {%- endfor -%}
+              </p>
+            {%- endif -%}
+
+            {%- if b.quote != blank -%}
+              <blockquote class="max-w-2xl text-subheading text-pretty text-foreground">
+                <p>{{ b.quote | escape | newline_to_br }}</p>
+              </blockquote>
+            {%- endif -%}
+
+            <figcaption class="mt-auto flex items-center gap-3{% if s.align == 'center' %} flex-col{% endif %}">
+              {%- if b.image != blank -%}
+                <div class="media-loading relative size-12 shrink-0 overflow-hidden rounded-full bg-surface">
+                  {{
+                    b.image
+                    | image_url: width: 96
+                    | image_tag: loading: 'lazy', widths: '48, 96', sizes: '48px', alt: '', class: 'size-full object-cover'
+                  }}
+                </div>
+              {%- endif -%}
+              <span class="flex flex-col gap-0.5">
+                {%- if b.author != blank -%}
+                  <cite class="text-body font-semibold text-foreground not-italic">{{ b.author | escape }}</cite>
+                {%- endif -%}
+                {%- if b.detail != blank -%}
+                  <span class="text-body-sm text-foreground/80">{{ b.detail | escape }}</span>
+                {%- endif -%}
+                {%- if b.product != blank -%}
+                  <span class="text-body-sm text-foreground/80">
+                    {{- 'sections.testimonials.purchased' | t -}}
+                    {{ ' ' }}
+                    <a
+                      href="{{ b.product.url }}"
+                      class="rounded-sm font-semibold text-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      {{- b.product.title | escape -}}
+                    </a>
+                  </span>
+                {%- endif -%}
+              </span>
+            </figcaption>
+          </figure>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.testimonials.name",
+  "tag": "section",
+  "class": "section-testimonials",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.testimonials.settings.section_width.label",
+      "info": "t:sections.testimonials.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.testimonials.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.testimonials.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.testimonials.settings.heading.label",
+      "default": "t:sections.testimonials.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.testimonials.settings.intro.label"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "t:sections.testimonials.settings.align.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.testimonials.settings.align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.testimonials.settings.align.options.center"
+        }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header_1.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:sections.testimonials.settings.columns_desktop.label",
+      "info": "t:sections.testimonials.settings.columns_desktop.info",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:sections.testimonials.settings.style.label",
+      "options": [
+        {
+          "value": "surface",
+          "label": "t:sections.testimonials.settings.style.options.surface"
+        },
+        {
+          "value": "border",
+          "label": "t:sections.testimonials.settings.style.options.border"
+        },
+        {
+          "value": "plain",
+          "label": "t:sections.testimonials.settings.style.options.plain"
+        }
+      ],
+      "default": "surface"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "t:sections.testimonials.settings.show_rating.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header_2.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.testimonials.settings.color_background.label",
+      "info": "t:sections.testimonials.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.testimonials.settings.color_text.label",
+      "info": "t:sections.testimonials.settings.color_text.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "t:sections.testimonials.blocks.testimonial.name",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.quote.label",
+          "default": "t:sections.testimonials.blocks.testimonial.settings.quote.default"
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.author.label",
+          "default": "t:sections.testimonials.blocks.testimonial.settings.author.default"
+        },
+        {
+          "type": "text",
+          "id": "detail",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.detail.label",
+          "info": "t:sections.testimonials.blocks.testimonial.settings.detail.info",
+          "default": "t:sections.testimonials.blocks.testimonial.settings.detail.default"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.image.label",
+          "info": "t:sections.testimonials.blocks.testimonial.settings.image.info"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.rating.label",
+          "info": "t:sections.testimonials.blocks.testimonial.settings.rating.info",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.product.label",
+          "info": "t:sections.testimonials.blocks.testimonial.settings.product.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonials.presets.preset_1.name",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

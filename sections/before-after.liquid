@@ -1,0 +1,266 @@
+{%- comment -%}
+  Prima/dopo: due immagini sovrapposte con un divisore. A sinistra "prima", a destra "dopo".
+
+  - Controllo: <input type="range"> visivamente nascosto (tastiera, lettori di schermo); il focus si vede sulla maniglia.
+  - Puntatore (frontend/entrypoints/before-after.js, <before-after>): un clic o un tocco sposta il divisore in quel
+    punto (WCAG 2.5.7, niente trascinamento obbligatorio), trascinando lo segue. touch-action: pan-y → sopra
+    l'immagine la pagina scorre ancora in verticale.
+  - Posizione in --position sul riquadro: "prima" ritagliata con clip-path (aggiornato a ogni movimento, mai nei
+    keyframe), divisore spostato con left. Con clic e tastiera il cambio è animato (data-easing), trascinando no.
+  - Senza JS: immagine ferma alla posizione iniziale, il cursore non si mostra.
+  - Le due immagini dovrebbero avere le stesse proporzioni: il riquadro usa quelle di "prima".
+{%- endcomment -%}
+{% render 'section-colors', section_id: section.id, background: section.settings.color_background, text: section.settings.color_text %}
+{% render 'section-width', section_id: section.id, width: section.settings.section_width %}
+{%- liquid
+  assign s = section.settings
+  assign before = s.image_before
+  assign after = s.image_after
+  assign ratio = before.aspect_ratio | default: after.aspect_ratio | default: 1.5
+  assign frame_class = ''
+  if ratio < 1
+    assign frame_class = 'md:mx-auto md:w-full md:max-w-2xl'
+  endif
+
+  assign page_max = settings.layout_page_width | append: 'px'
+  assign image_max = 1600
+  assign image_widths = '400, 600, 800, 1000, 1200, 1600'
+  if s.section_width == 'full'
+    assign page_max = '100vw'
+    assign image_max = 2400
+    assign image_widths = image_widths | append: ', 2000, 2400'
+  endif
+  capture sizes
+    if ratio < 1
+      echo '(min-width: 750px) 42rem, 100vw'
+    else
+      echo '(min-width: 750px) calc(min(100vw, ' | append: page_max | append: ') - 3rem), 100vw'
+    endif
+  endcapture
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  if section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+
+  assign label_before = 'sections.before_after.before' | t
+  if s.label_before != blank
+    assign label_before = s.label_before
+  endif
+  assign label_after = 'sections.before_after.after' | t
+  if s.label_after != blank
+    assign label_after = s.label_after
+  endif
+  # Nel negozio la section compare solo con entrambe le immagini; nell'editor anche prima, con un avviso
+  assign show_section = request.design_mode
+  if before != blank and after != blank
+    assign show_section = true
+  endif
+  assign image_class = 'absolute inset-0 size-full object-cover'
+  assign label_class = 'pointer-events-none absolute top-4 rounded-sm bg-black/60 px-2 py-1 text-body-sm font-semibold text-white'
+-%}
+
+{%- if show_section -%}
+  <before-after class="page-width flex flex-col gap-8 py-8 md:gap-12 md:py-16">
+    {% render 'section-header', heading: s.heading, intro: s.intro, align: s.align %}
+
+    <div
+      class="group/ba relative -mx-(--page-gutter) touch-pan-y overflow-hidden bg-surface select-none md:mx-0 md:rounded-lg js:cursor-ew-resize {{ frame_class }}"
+      style="aspect-ratio: {{ ratio }}; --position: {{ s.start_position }}%;"
+      {% unless section.index == 1 or request.visual_preview_mode %}
+        data-animate="fade-up"
+      {% endunless %}
+      data-before-after-frame
+    >
+      {%- comment -%} "Dopo": sotto, intera {%- endcomment -%}
+      {%- if after != blank -%}
+        {{
+          after
+          | image_url: width: image_max
+          | image_tag:
+            loading: loading,
+            sizes: sizes,
+            widths: image_widths,
+            alt: after.alt,
+            class: image_class
+        }}
+      {%- else -%}
+        {{ 'lifestyle-2' | placeholder_svg_tag: 'absolute inset-0 size-full bg-surface fill-subtle' }}
+      {%- endif -%}
+      <span class="{{ label_class }} end-4">{{ label_after | escape }}</span>
+
+      {%- comment -%} "Prima": sopra, ritagliata fino al divisore {%- endcomment -%}
+      <div
+        class="absolute inset-0 [clip-path:inset(0_calc(100%-var(--position))_0_0)] group-data-easing/ba:transition-[clip-path] group-data-easing/ba:duration-200 group-data-easing/ba:ease-theme motion-reduce:transition-none!"
+        data-before-after-before
+      >
+        {%- if before != blank -%}
+          {{
+            before
+            | image_url: width: image_max
+            | image_tag:
+              loading: loading,
+              fetchpriority: fetchpriority,
+              sizes: sizes,
+              widths: image_widths,
+              alt: before.alt,
+              class: image_class
+          }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'absolute inset-0 size-full bg-surface-hover fill-subtle' }}
+        {%- endif -%}
+        <span class="{{ label_class }} start-4">{{ label_before | escape }}</span>
+      </div>
+
+      {%- comment -%} Divisore e maniglia, decorativi: il controllo è il cursore nascosto {%- endcomment -%}
+      <div
+        class="pointer-events-none absolute inset-y-0 left-(--position) w-0.5 -translate-x-1/2 bg-white shadow-[0_0_0_1px_rgb(0_0_0/0.15)] group-data-easing/ba:transition-[left] group-data-easing/ba:duration-200 group-data-easing/ba:ease-theme motion-reduce:transition-none!"
+        aria-hidden="true"
+      >
+        <span class="absolute top-1/2 left-1/2 hidden size-11 -translate-1/2 place-items-center rounded-full bg-white text-black shadow-400 outline-offset-2 transition-transform duration-150 ease-theme group-active/ba:scale-95 group-has-[input:focus-visible]/ba:outline-2 group-has-[input:focus-visible]/ba:outline-white group-has-[input:focus-visible]/ba:ring-4 group-has-[input:focus-visible]/ba:ring-black js:grid motion-reduce:transition-none">
+          {% render 'icon', name: 'arrows-right-left', class: 'size-5' %}
+        </span>
+      </div>
+
+      <label class="sr-only">
+        {{ 'sections.before_after.slider_label' | t: before: label_before, after: label_after }}
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="{{ s.start_position }}"
+          class="hidden js:block"
+          aria-valuetext="{{ 'sections.before_after.value' | t: before: label_before, percent: s.start_position }}"
+          data-value-template="{{ 'sections.before_after.value' | t: before: label_before, percent: '[percent]' | escape }}"
+          data-before-after-input
+        >
+      </label>
+    </div>
+
+    {%- if before == blank or after == blank -%}
+      <p class="text-body-sm text-foreground/80">{{ 'sections.before_after.editor_empty' | t }}</p>
+    {%- endif -%}
+  </before-after>
+
+  {% render 'vite-tag', entry: 'before-after.js' %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.before_after.name",
+  "tag": "section",
+  "class": "section-before-after",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:sections.before_after.settings.section_width.label",
+      "info": "t:sections.before_after.settings.section_width.info",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:sections.before_after.settings.section_width.options.page"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.before_after.settings.section_width.options.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.before_after.settings.heading.label",
+      "default": "t:sections.before_after.settings.heading.default"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.before_after.settings.intro.label"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "t:sections.before_after.settings.align.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.before_after.settings.align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.before_after.settings.align.options.center"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.before_after.settings.header_1.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_before",
+      "label": "t:sections.before_after.settings.image_before.label",
+      "info": "t:sections.before_after.settings.image_before.info"
+    },
+    {
+      "type": "text",
+      "id": "label_before",
+      "label": "t:sections.before_after.settings.label_before.label",
+      "info": "t:sections.before_after.settings.label_before.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_after",
+      "label": "t:sections.before_after.settings.image_after.label"
+    },
+    {
+      "type": "text",
+      "id": "label_after",
+      "label": "t:sections.before_after.settings.label_after.label",
+      "info": "t:sections.before_after.settings.label_after.info"
+    },
+    {
+      "type": "range",
+      "id": "start_position",
+      "label": "t:sections.before_after.settings.start_position.label",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "unit": "t:sections.before_after.settings.start_position.unit",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "t:sections.before_after.settings.header_2.content"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.before_after.settings.color_background.label",
+      "info": "t:sections.before_after.settings.color_background.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.before_after.settings.color_text.label",
+      "info": "t:sections.before_after.settings.color_text.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.before_after.presets.preset_1.name"
+    }
+  ]
+}
+{% endschema %}
