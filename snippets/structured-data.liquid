@@ -1,9 +1,13 @@
 {%- comment -%}
   Dati strutturati JSON-LD del sito, resi nel <head> del layout (quelli del prodotto restano in main-product con il
   filtro `structured_data` di Shopify):
-  - home: WebSite (nome del sito nei risultati di Google) e Organization (logo da Impostazioni → Brand del negozio,
-    profili social da Impostazioni tema → Social media, politica di reso standard con il solo link alla policy di
-    rimborso, la forma minima ammessa da Google: i dettagli restano nella policy, e Merchant Center ha la precedenza);
+  - home: WebSite (nome del sito nei risultati di Google) e OnlineStore (il sottotipo di Organization che Google
+    consiglia per l'e-commerce: logo da Impostazioni → Brand del negozio, descrizione dalle preferenze del negozio,
+    email, telefono e indirizzo da Impostazioni → Dettagli del negozio, profili social da Impostazioni tema → Social
+    media, politica di reso standard con il solo link alla policy di rimborso, la forma minima ammessa da Google: i
+    dettagli restano nella policy, e Merchant Center ha la precedenza). Il telefono si stampa solo in formato
+    internazionale (inizia con "+"): Google chiede il prefisso del paese e il campo di Shopify è testo libero.
+    Niente spedizioni (hasShippingService): Liquid non espone zone e tariffe, restano a Merchant Center;
   - prodotto, collezione, elenco collezioni, pagina, blog e articolo: BreadcrumbList da snippets/breadcrumbs.liquid, lo
     stesso snippet del percorso visibile nelle section main-* (l'Article stesso è in main-article con il filtro
     structured_data). Il prodotto ha la collezione nel percorso solo se è stato aperto da una collezione
@@ -27,6 +31,12 @@
       endif
     endfor
     assign same_as = social_links | split: '|'
+    assign store_phone = shop.phone | strip
+    assign store_phone_first = store_phone | slice: 0
+    if store_phone_first != '+'
+      assign store_phone = ''
+    endif
+    assign store_address = shop.address
   -%}
   <script type="application/ld+json">
     {
@@ -40,12 +50,35 @@
           "publisher": { "@id": {{ home_url | append: '#organization' | json }} }
         },
         {
-          "@type": "Organization",
+          "@type": "OnlineStore",
           "@id": {{ home_url | append: '#organization' | json }},
           "name": {{ shop.name | json }},
           "url": {{ home_url | json }}
           {%- if shop.brand.logo %},
           "logo": {{ shop.brand.logo | image_url: width: 600 | prepend: 'https:' | json }}
+          {%- endif %}
+          {%- if shop.description != blank %},
+          "description": {{ shop.description | strip_html | strip | json }}
+          {%- endif %}
+          {%- if shop.email != blank %},
+          "email": {{ shop.email | json }}
+          {%- endif %}
+          {%- if store_phone != blank %},
+          "telephone": {{ store_phone | json }}
+          {%- endif %}
+          {%- if store_address.address1 != blank and store_address.city != blank and store_address.country_code != blank %},
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": {{ store_address.street | json }},
+            "addressLocality": {{ store_address.city | json }}
+            {%- if store_address.province != blank %},
+            "addressRegion": {{ store_address.province | json }}
+            {%- endif %}
+            {%- if store_address.zip != blank %},
+            "postalCode": {{ store_address.zip | json }}
+            {%- endif %},
+            "addressCountry": {{ store_address.country_code | json }}
+          }
           {%- endif %}
           {%- if same_as.size > 0 %},
           "sameAs": {{ same_as | json }}

@@ -23,10 +23,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {%- comment -%}
-      SEO: titolo unico per ogni pagina (tag filtrati, numero di pagina, nome del negozio), description, canonical
-      (varianti, filtri e paginazione puntano all'URL principale scelto da Shopify), Open Graph/Twitter, favicon.
+      SEO: titolo unico per ogni pagina (tag filtrati, numero di pagina, nome del negozio), description, canonical,
+      Open Graph/Twitter, favicon.
+      Canonical: varianti, filtri e ordinamento puntano all'URL principale scelto da Shopify; le pagine 2, 3… di una
+      sequenza paginata hanno invece il proprio (Google: "give each page its own canonical URL", altrimenti i prodotti
+      delle pagine successive possono non essere scoperti). La documentazione di canonical_url non dice se tiene
+      `page`: si aggiunge solo se manca, così vale in entrambi i casi.
+      max-image-preview:large: anteprime grandi in Google Discover (si somma ad altre regole robots, es. il noindex
+      che Shopify aggiunge ai prodotti nascosti dai motori di ricerca).
     {%- endcomment -%}
-    {%- assign meta_tags = current_tags | join: ', ' -%}
+    {%- liquid
+      assign meta_tags = current_tags | join: ', '
+      assign seo_canonical = canonical_url
+      if current_page > 1
+        unless seo_canonical contains '?page=' or seo_canonical contains '&page='
+          assign canonical_separator = '?'
+          if seo_canonical contains '?'
+            assign canonical_separator = '&'
+          endif
+          assign seo_canonical = seo_canonical | append: canonical_separator | append: 'page=' | append: current_page
+        endunless
+      endif
+    -%}
     <title>
       {{- page_title -}}
       {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif -%}
@@ -36,8 +54,9 @@
     {%- if page_description %}
       <meta name="description" content="{{ page_description | escape }}">
     {%- endif %}
-    <link rel="canonical" href="{{ canonical_url }}">
-    {% render 'meta-tags' %}
+    <link rel="canonical" href="{{ seo_canonical }}">
+    <meta name="robots" content="max-image-preview:large">
+    {% render 'meta-tags', canonical: seo_canonical %}
     {% render 'structured-data' %}
     {%- if settings.favicon != blank %}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 96, height: 96 }}">

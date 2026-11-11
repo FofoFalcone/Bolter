@@ -2,14 +2,15 @@
   Anteprime per social e app di messaggistica: Open Graph (Facebook, LinkedIn, WhatsApp, iMessage…) e Twitter/X.
   Reso nel <head> del layout. Titolo, description e immagine dagli oggetti SEO di Shopify (page_title,
   page_description, page_image: immagine del prodotto, della collezione, dell'articolo o quella di condivisione
-  impostata in Preferenze del negozio); URL = canonical_url.
+  impostata in Preferenze del negozio); URL = canonical della pagina (parametro `canonical`, quello calcolato dal
+  layout con il numero di pagina), altrimenti canonical_url.
 
-  Uso: {% render 'meta-tags' %}
+  Uso: {% render 'meta-tags', canonical: seo_canonical %}
 {%- endcomment -%}
 {%- liquid
   assign og_title = page_title | default: shop.name
   assign og_description = page_description | default: shop.description | default: shop.name
-  assign og_url = canonical_url | default: request.origin
+  assign og_url = canonical | default: canonical_url | default: request.origin
   assign og_type = 'website'
   if request.page_type == 'product'
     assign og_type = 'product'
