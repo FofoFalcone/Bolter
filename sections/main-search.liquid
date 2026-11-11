@@ -193,44 +193,13 @@
               </p>
 
               {%- if s.enable_sorting and search.sort_options.size > 0 and search.results_count > 0 -%}
-                <form action="{{ routes.search_url }}" method="get" class="flex items-center gap-2" data-facets-sort-form>
-                  <input type="hidden" name="q" value="{{ terms | escape }}">
-                  <input type="hidden" name="options[prefix]" value="last">
-                  {%- for filter in search.filters -%}
-                    {%- if filter.type == 'price_range' -%}
-                      {%- if filter.min_value.value != nil -%}
-                        <input type="hidden" name="{{ filter.min_value.param_name }}" value="{% render 'facets-price-value', amount: filter.min_value.value %}">
-                      {%- endif -%}
-                      {%- if filter.max_value.value != nil -%}
-                        <input type="hidden" name="{{ filter.max_value.param_name }}" value="{% render 'facets-price-value', amount: filter.max_value.value %}">
-                      {%- endif -%}
-                    {%- else -%}
-                      {%- for filter_value in filter.active_values -%}
-                        <input type="hidden" name="{{ filter_value.param_name }}" value="{{ filter_value.value | escape }}">
-                      {%- endfor -%}
-                    {%- endif -%}
-                  {%- endfor -%}
-                  <label for="SortBy-{{ section.id }}" class="text-body-sm text-muted max-md:sr-only">
-                    {{- 'sections.collection.sort_by' | t -}}
-                  </label>
-                  <div class="relative">
-                    <select
-                      id="SortBy-{{ section.id }}"
-                      name="sort_by"
-                      class="h-9 cursor-pointer appearance-none rounded-button border border-input-border bg-input ps-3 pe-9 text-body-sm text-input-foreground transition-colors duration-150 hover:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
-                      data-facets-sort
-                      data-default="{{ search.default_sort_by | escape }}"
-                    >
-                      {%- for option in search.sort_options -%}
-                        <option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>
-                          {{- option.name | escape -}}
-                        </option>
-                      {%- endfor -%}
-                    </select>
-                    {% render 'icon', name: 'chevron-down', size: 16, class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto text-input-foreground/65' %}
-                  </div>
-                  <button type="submit" class="button button-neutral button-sm js:hidden">{{ 'sections.collection.apply' | t }}</button>
-                </form>
+                {% render 'facets-sort',
+                  results: search,
+                  section_id: section.id,
+                  action: routes.search_url,
+                  sort_by: sort_by,
+                  terms: terms
+                %}
               {%- endif -%}
             </div>
 

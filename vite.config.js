@@ -1,7 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { defineConfig } from 'vite';
 import shopify from 'vite-plugin-shopify';
 import tailwindcss from '@tailwindcss/vite';
 import pruneStaleAssets from './tools/prune-stale-assets.mjs';
+
+// Cartella del progetto con la lettera del disco nella forma reale ("C:\"), non come l'ha scritta il terminale.
+// Aperta come "c:\" (VS Code, Git Bash), lo stesso file arrivava al bundler con due id (radice e alias "@/" di
+// vite-plugin-shopify da process.cwd(), import risolti in "C:\"): moduli duplicati in più chunk, misurato il
+// 2026-11-11 (55 file JS e 86,8 KiB gzip contro 54 e 78,5 KiB). Radice e alias usano quindi questo percorso.
+const ROOT = fs.realpathSync.native(process.cwd());
+const SOURCE_DIR = path.join(ROOT, 'frontend');
 
 const PUBLIC_DIR = 'frontend/public';
 // CSS inlinato nel Liquid con inline_asset_content: nome stabile (vedi assetFileNames). Tutti i CSS degli
@@ -22,6 +31,12 @@ export default defineConfig(({ mode }) => {
   const isDebug = mode === 'development';
 
   return {
+    root: ROOT,
+    // Stessi alias di vite-plugin-shopify (che li unisce ai suoi dando la precedenza a questi), sul percorso normalizzato
+    resolve: {
+      alias: { '@': SOURCE_DIR, '~': SOURCE_DIR },
+    },
+
     // File copiati così come sono in assets/ (es. favicon, immagini richiamate con asset_url dal Liquid).
     // Il plugin lo disattiva di default: lo riattiviamo puntando a frontend/public.
     publicDir: PUBLIC_DIR,

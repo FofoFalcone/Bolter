@@ -8,8 +8,6 @@
  * Così il markup resta tutto in Liquid: qui si sostituisce solo l'HTML ricevuto.
  */
 
-export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 const cartRoot = () => `${window.Shopify?.routes?.root ?? '/'}cart/`;
 
 export function getHeaderSection() {

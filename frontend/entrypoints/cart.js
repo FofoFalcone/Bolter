@@ -27,8 +27,8 @@ import {
   postCart,
   refreshCartSections,
   renderCartSections,
-  prefersReducedMotion,
 } from '../scripts/cart-api.js';
+import { prefersReducedMotion } from '../scripts/reduced-motion.js';
 import { syncQuantitySteps } from '../scripts/quantity-steps.js';
 import { withCartEvent } from '../scripts/standard-events.js';
 import { showToast } from '../scripts/toast.js';

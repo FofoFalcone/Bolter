@@ -17,7 +17,7 @@
  */
 
 import { animate } from 'motion/mini';
-import { prefersReducedMotion } from './cart-api.js';
+import { prefersReducedMotion } from './reduced-motion.js';
 import { watchCenteredItem } from './centered-item.js';
 
 const FLIGHT = { duration: 0.45, ease: [0.22, 1, 0.36, 1] };

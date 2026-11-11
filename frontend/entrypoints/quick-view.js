@@ -25,7 +25,7 @@
 
 import { animate } from 'motion/mini';
 import { spring } from 'motion';
-import { prefersReducedMotion } from '@/scripts/cart-api.js';
+import { prefersReducedMotion } from '@/scripts/reduced-motion.js';
 import '@/scripts/product-page.js';
 
 const SECTION_ID = 'quick-view';

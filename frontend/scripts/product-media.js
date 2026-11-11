@@ -15,7 +15,7 @@
  * Senza JS i pulsanti non si vedono (js:…), i video sono in <noscript> e la galleria si scorre comunque.
  */
 
-import { prefersReducedMotion } from './cart-api.js';
+import { prefersReducedMotion } from './reduced-motion.js';
 import { watchCenteredItem } from './centered-item.js';
 
 const MODEL_VIEWER_UI_CSS = 'https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css';

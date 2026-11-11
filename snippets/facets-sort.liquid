@@ -1,0 +1,55 @@
+{%- comment -%}
+  Form di ordinamento dei risultati. Condiviso da collezione e ricerca.
+  Form a parte dal pannello dei filtri: funziona anche senza filtri. Senza JS mantiene i filtri attivi con campi
+  nascosti e mostra il pulsante "Applica"; con JS <product-facets> legge solo la select (data-facets-sort).
+  La condizione per mostrarlo (ordinamento attivo, risultati presenti) resta nella section.
+
+  Parametri:
+  - results: collection o search
+  - section_id: id della section (id univoco della select)
+  - action: URL del form (collection.url o routes.search_url)
+  - sort_by: ordinamento attuale
+  - terms: termini di ricerca (solo nella ricerca: input nascosti q e options[prefix])
+
+  Uso: {% render 'facets-sort', results: collection, section_id: section.id, action: collection.url, sort_by: sort_by %}
+{%- endcomment -%}
+<form action="{{ action }}" method="get" class="flex items-center gap-2" data-facets-sort-form>
+  {%- if terms != blank -%}
+    <input type="hidden" name="q" value="{{ terms | escape }}">
+    <input type="hidden" name="options[prefix]" value="last">
+  {%- endif -%}
+  {%- for filter in results.filters -%}
+    {%- if filter.type == 'price_range' -%}
+      {%- if filter.min_value.value != nil -%}
+        <input type="hidden" name="{{ filter.min_value.param_name }}" value="{% render 'facets-price-value', amount: filter.min_value.value %}">
+      {%- endif -%}
+      {%- if filter.max_value.value != nil -%}
+        <input type="hidden" name="{{ filter.max_value.param_name }}" value="{% render 'facets-price-value', amount: filter.max_value.value %}">
+      {%- endif -%}
+    {%- else -%}
+      {%- for filter_value in filter.active_values -%}
+        <input type="hidden" name="{{ filter_value.param_name }}" value="{{ filter_value.value | escape }}">
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+  <label for="SortBy-{{ section_id }}" class="text-body-sm text-muted max-md:sr-only">
+    {{- 'sections.collection.sort_by' | t -}}
+  </label>
+  <div class="relative">
+    <select
+      id="SortBy-{{ section_id }}"
+      name="sort_by"
+      class="h-9 cursor-pointer appearance-none rounded-button border border-input-border bg-input ps-3 pe-9 text-body-sm text-input-foreground transition-colors duration-150 hover:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+      data-facets-sort
+      data-default="{{ results.default_sort_by | escape }}"
+    >
+      {%- for option in results.sort_options -%}
+        <option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>
+          {{- option.name | escape -}}
+        </option>
+      {%- endfor -%}
+    </select>
+    {% render 'icon', name: 'chevron-down', size: 16, class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto text-input-foreground/65' %}
+  </div>
+  <button type="submit" class="button button-neutral button-sm js:hidden">{{ 'sections.collection.apply' | t }}</button>
+</form>

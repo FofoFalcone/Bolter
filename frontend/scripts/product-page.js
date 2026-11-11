@@ -29,7 +29,8 @@
  */
 
 import { animate } from 'motion/mini';
-import { getHeaderSection, postCart, renderCartSections, prefersReducedMotion } from './cart-api.js';
+import { getHeaderSection, postCart, renderCartSections } from './cart-api.js';
+import { prefersReducedMotion } from './reduced-motion.js';
 import { quantityBounds, syncQuantitySteps } from './quantity-steps.js';
 import { fetchAjaxCart, withCartEvent, withProductSelectEvent } from './standard-events.js';
 import { showCartAddedToast } from './toast.js';
