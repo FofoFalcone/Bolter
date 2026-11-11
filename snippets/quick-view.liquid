@@ -18,8 +18,15 @@
 
   Parametri:
   - id: id dell'elemento <quick-view>, letto dai trigger (es. data-quick-view su <animated-gallery>)
+  - section_index: section.index della section (opzionale). Se presente, quick-view.js si carica quando la section
+    si avvicina alla vista (snippets/vite-tag-deferred.liquid): per le section di contenuto, non per le pagine
+    collezione e ricerca, dove la griglia è già in vista. Finché manca, i trigger restano link alla pagina prodotto.
+  - when: 'idle' per le pagine collezione e ricerca: quick-view.js (con product-page.js e Motion) si carica a pagina
+    caricata invece che insieme all'immagine LCP. Prima, il clic sulla card apre la pagina prodotto
+    (frontend/entrypoints/collection.js). Lighthouse mobile del 2026-11-11: una decina di moduli ad alta priorità
+    in meno prima del primo disegno.
 
-  Uso: {% render 'quick-view', id: quick_view_id %} (carica da sé quick-view.js)
+  Uso: {% render 'quick-view', id: quick_view_id, section_index: section.index %} (carica da sé quick-view.js)
 {%- endcomment -%}
 <quick-view
   id="{{ id }}"
@@ -64,4 +71,8 @@
   </dialog>
 </quick-view>
 
-{% render 'vite-tag', entry: 'quick-view.js' %}
+{%- if section_index != blank or when != blank -%}
+  {% render 'vite-tag-deferred', entry: 'quick-view.js', section_index: section_index, when: when %}
+{%- else -%}
+  {% render 'vite-tag', entry: 'quick-view.js' %}
+{%- endif -%}

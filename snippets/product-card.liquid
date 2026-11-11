@@ -32,8 +32,10 @@
 {%- liquid
   assign image_max = 1000
   # 500: tra 400 e 600 il salto era il più largo (1,5×). Card da 280px con DPR 1,75 (490px, galleria su Lighthouse
-  # mobile) o da ~175px con DPR 2,6 (455px, due colonne su mobile): prima 600, ora 500 (circa il 30% di pixel in meno)
-  assign image_widths = '200, 300, 400, 500, 600, 800, 1000'
+  # mobile) o da ~175px con DPR 2,6 (455px, due colonne su mobile): prima 600, ora 500 (circa il 30% di pixel in meno).
+  # 350: card da ~174px su due colonne con DPR 1,75 (305px, griglia della collezione su Lighthouse mobile) o DPR 2
+  # (348px): prima 400 (circa il 25% di pixel in meno, 2026-11-11)
+  assign image_widths = '200, 300, 350, 400, 500, 600, 800, 1000'
   if full_width
     assign image_max = 2000
     assign image_widths = image_widths | append: ', 1200, 1600, 2000'
@@ -361,7 +363,7 @@
         <a
           href="{{ url }}"
           class="shrink-0 pe-1 text-body-sm text-foreground underline-offset-4 hover:underline"
-          aria-label="{{ 'products.product_card.more_values' | t: count: hidden_values, option: swatch_option.name | escape }}"
+          aria-label="{{ 'products.product_card.more_values' | t: count: hidden_values, option: swatch_option.name, product: title | escape }}"
         >
           +{{ hidden_values }}
         </a>

@@ -9,7 +9,7 @@
   JS: frontend/entrypoints/scroll-gallery.js — CSS: frontend/entrypoints/scroll-gallery.css
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
-{% render 'vite-tag', entry: 'scroll-gallery.css' %}
+{% render 'inline-css', entry: 'scroll-gallery.css' %}
 {%- assign scroll_region_label = 'accessibility.scroll_region' | t -%}
 
 {%- comment -%}
@@ -70,7 +70,11 @@
                     sizes: '(min-width: 750px) 40vw, 80vw',
                     class: 'size-full object-cover transition-[scale] duration-700 motion-safe:group-hover:scale-105'
                 }}
-              {%- else -%}
+              {%- elsif request.design_mode -%}
+                {%- comment -%}
+                  Segnaposto solo nel theme editor: nel negozio la card resta sul fondo bg-surface con il velo del
+                  titolo (ogni SVG segnaposto pesava qualche KB di HTML, quattro sulla home del 2026-11-11).
+                {%- endcomment -%}
                 {{ 'lifestyle-1' | placeholder_svg_tag: 'size-full fill-subtle' }}
               {%- endif -%}
 
@@ -107,7 +111,7 @@
   {%- endif -%}
 </div>
 
-{% render 'vite-tag', entry: 'scroll-gallery.js' %}
+{% render 'vite-tag-deferred', entry: 'scroll-gallery.js', section_index: section.index %}
 
 {% schema %}
 {

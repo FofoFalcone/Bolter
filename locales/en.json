@@ -160,8 +160,8 @@
     },
     "product_card": {
       "more_values": {
-        "one": "{{ option }}: 1 more value",
-        "other": "{{ option }}: {{ count }} more values"
+        "one": "{{ product }}, {{ option }}: 1 more value",
+        "other": "{{ product }}, {{ option }}: {{ count }} more values"
       }
     },
     "pickup": {

@@ -13,8 +13,24 @@
   assign body_font_italic = body_font | font_modify: 'style', 'italic'
 -%}
 
+{%- comment -%}
+  Preload dei pesi usati in prima schermata: testo (400), pulsanti e barra annunci (600), titoli (peso scelto).
+  Il 600 senza preload veniva scoperto dal CSS con priorità massima: Lighthouse lo contava tra le risorse che
+  bloccano il primo disegno (report mobile del 2026-11-11). Ogni file una volta sola (gli URL si confrontano).
+{%- endcomment -%}
 {%- unless body_font.system? -%}
-  {{ body_font | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+  {%- liquid
+    assign body_url = body_font | font_url
+    assign heading_url = heading_font | font_url
+    assign semibold_url = ''
+    if body_font_semibold
+      assign semibold_url = body_font_semibold | font_url
+    endif
+  -%}
+  {{ body_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+  {%- if semibold_url != blank and semibold_url != body_url and semibold_url != heading_url %}
+    {{ semibold_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+  {%- endif -%}
 {%- endunless -%}
 {%- unless heading_font.system? or heading_font == body_font -%}
   {{ heading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}

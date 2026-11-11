@@ -27,18 +27,34 @@ const missing = readdirSync(join(root, 'frontend', 'entrypoints')).filter(
   (file) => !snippet.includes(`/frontend/entrypoints/${file}"`),
 );
 
-// 3. CSS inlinato con inline_asset_content (snippets/page-transitions.liquid): Shopify lo inlina solo sotto i 15 KB.
-//    Controllo sull'ultima build disponibile (assets/ del watch o .build-check/), con margine a 14 KB.
+// 3. CSS inlinati con inline_asset_content (tutti gli entrypoint CSS tranne theme.css, vite.config.js):
+//    snippets/page-transitions.liquid e snippets/inline-css.liquid. Shopify li inlina solo sotto i 15 KB, e solo
+//    se il file senza hash esiste: un watch avviato prima di una modifica a vite.config.js produce ancora i nomi
+//    con hash e la section resta senza stili. Controllo sull'ultima build disponibile, con margine a 14 KB.
 const INLINE_LIMIT = 14 * 1024;
+const inlineCss = readdirSync(join(root, 'frontend', 'entrypoints')).filter(
+  (file) => file.endsWith('.css') && file !== 'theme.css',
+);
 for (const dir of ['assets', '.build-check']) {
-  const file = join(root, dir, 'page-transitions.css');
-  if (!existsSync(file)) continue;
-  const size = readFileSync(file).length;
-  if (size > INLINE_LIMIT) {
-    console.warn(
-      `\n⚠️  ${dir}/page-transitions.css pesa ${(size / 1024).toFixed(1)} KB: oltre i 15 KB Shopify non lo inlina più ` +
-        "(inline_asset_content) e le transizioni tra pagine restano senza stili. Alleggeriscilo o torna a un <link>.\n",
-    );
+  if (!existsSync(join(root, dir))) continue;
+  for (const name of inlineCss) {
+    const file = join(root, dir, name);
+    if (!existsSync(file)) {
+      if (dir === 'assets') {
+        console.warn(
+          `\n⚠️  assets/${name} mancante: inline_asset_content non trova il file e la section resta senza stili. ` +
+            'Riavvia `npm run start:watch` (o esegui `npm run build`).\n',
+        );
+      }
+      continue;
+    }
+    const size = readFileSync(file).length;
+    if (size > INLINE_LIMIT) {
+      console.warn(
+        `\n⚠️  ${dir}/${name} pesa ${(size / 1024).toFixed(1)} KB: oltre i 15 KB Shopify non lo inlina più ` +
+          '(inline_asset_content) e la parte che lo usa resta senza stili. Alleggeriscilo.\n',
+      );
+    }
   }
 }
 

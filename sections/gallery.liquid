@@ -16,7 +16,7 @@
   CSS: frontend/entrypoints/gallery.css
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
-{% render 'vite-tag', entry: 'gallery.css' %}
+{% render 'inline-css', entry: 'gallery.css' %}
 
 {%- liquid
   assign s = section.settings
@@ -363,7 +363,7 @@
 
     {%- comment -%} Fuori da <animated-gallery>: frecce ed Esc nel dialog non devono muovere la galleria {%- endcomment -%}
     {%- if has_quick_view -%}
-      {% render 'quick-view', id: quick_view_id %}
+      {% render 'quick-view', id: quick_view_id, section_index: section.index %}
     {%- endif -%}
 
     {%- comment -%}
@@ -371,8 +371,8 @@
       la importa senza nuove richieste. I valori di "arrangement" nello schema coincidono con i nomi dei file.
     {%- endcomment -%}
     {%- assign arrangement_entry = 'gallery-' | append: s.arrangement | append: '.js' -%}
-    {% render 'vite-tag', entry: arrangement_entry %}
-    {% render 'vite-tag', entry: 'gallery.js' %}
+    {% render 'vite-tag-deferred', entry: arrangement_entry, section_index: section.index %}
+    {% render 'vite-tag-deferred', entry: 'gallery.js', section_index: section.index %}
   {%- endif -%}
 </div>
 

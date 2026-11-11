@@ -50,7 +50,7 @@
 -%}
 
 {%- unless recommendations.performed? -%}
-  {% render 'vite-tag', entry: 'product-recommendations.js' %}
+  {% render 'vite-tag-deferred', entry: 'product-recommendations.js', when: 'idle' %}
 {%- endunless -%}
 
 <product-recommendations

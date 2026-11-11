@@ -16,9 +16,11 @@
     default quelli della pagina prodotto
 {%- endcomment -%}
 {%- liquid
-  assign sizes_wide = sizes_wide | default: '(min-width: 990px) 55vw, 85vw'
-  assign sizes_narrow = sizes_narrow | default: '(min-width: 990px) 28vw, 85vw'
-  assign sizes_single = sizes_single | default: '(min-width: 990px) 55vw, 100vw'
+  # Sotto i 990px: slide all'85% della lista, larga quanto lo schermo meno i margini (2 × 1,5rem). Con "85vw" il
+  # telefono scaricava un formato in più per l'immagine LCP (Lighthouse mobile del 2026-11-11: 800px per 309px mostrati)
+  assign sizes_wide = sizes_wide | default: '(min-width: 990px) 55vw, calc((100vw - 3rem) * 0.85)'
+  assign sizes_narrow = sizes_narrow | default: '(min-width: 990px) 28vw, calc((100vw - 3rem) * 0.85)'
+  assign sizes_single = sizes_single | default: '(min-width: 990px) 55vw, calc(100vw - 3rem)'
 
   # Prima l'immagine della variante selezionata, poi le altre
   assign gallery = product.media | where: 'id', featured_media.id

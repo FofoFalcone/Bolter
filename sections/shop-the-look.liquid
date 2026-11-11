@@ -236,10 +236,10 @@
   </shop-the-look>
 
   {%- if use_quick_view -%}
-    {% render 'quick-view', id: quick_view_id %}
+    {% render 'quick-view', id: quick_view_id, section_index: section.index %}
   {%- endif -%}
 
-  {% render 'vite-tag', entry: 'shop-the-look.js' %}
+  {% render 'vite-tag-deferred', entry: 'shop-the-look.js', section_index: section.index %}
 {%- endif -%}
 
 {% schema %}

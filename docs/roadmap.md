@@ -33,7 +33,10 @@ Ordine di lavoro concordato il 2026-11-05. Lo stato delle singole funzionalità 
   - un foglio per section: home 19,76 kB con 10 richieste, prodotto 16,00 kB con 3, collezione 15,08 kB con 2, oltre al problema dell'ordine della cascata;
   - famiglie di fogli ordinate con cascade layer: servono 91 layer e un plugin di build, `theme.css` resta a 14,29 kB, home 18,20 kB, percorso home → collezione → prodotto 21,59 kB con 4 richieste invece di 17,35 kB con 1;
   - solo `button-glass` e `skeleton` fuori dal file: 0,14 kB in meno e una richiesta in più sulla pagina prodotto.
-- [ ] Lighthouse sul tema di sviluppo: richiede `npm run shopify:push:dev`, da chiedere all'utente
+- [x] Lighthouse sul tema di sviluppo (2026-11-11, home `/en-it`, mobile, simulazione): Performance 75, FCP 2,9 s e LCP 5,0 s stimati contro 0,54 s e 0,59 s misurati, TBT 45 ms, CLS 0. Il divario veniva dai 26 script del tema con priorità alta prima del primo disegno → JS delle section con `snippets/vite-tag-deferred.liquid`.
+- [x] Rimisurato dopo `vite-tag-deferred` (2026-11-11, una esecuzione): Performance 79 (da 75), FCP 3,0 s e LCP 4,5 s stimati contro 0,48 s misurati, TBT 50 ms, CLS 0. HTML della home 444 KB (84 KB trasferiti): nella simulazione ogni risorsa parte solo a documento scaricato.
+- [x] Interventi dello stesso giorno: preload del font 600 (pulsanti, barra annunci; scoperto dal CSS con priorità massima, contato come bloccante); CSS delle section inlinato (`snippets/inline-css.liquid`, `gallery.css` da 115 byte era tra le risorse bloccanti); `hero.js` dopo il load con il solo effetto allo scroll (`when: 'idle'`, via tre moduli ad alta priorità dalla prima ondata); segnaposto SVG di `scroll-gallery` solo nel theme editor; link del carosello senza titolo con il nome del prodotto o della collezione invece di "Scopri di più".
+- [ ] Da rimisurare (mediana di 3-5 esecuzioni, tema caricato con `npm run shopify:push:dev`). Aperti: peso dell'HTML della home (12 card nelle tab di `collection-tabs` più 6 nella galleria, da misurare sull'HTML reale), contrasto di `scroll-text-reveal` per axe (parole a opacità 15%: scelta di design), meta description della home (Preferenze del negozio, non il tema), foto hero con sorgente PNG e ritaglio mobile non impostato, `theme.css` a 18,94 KiB Brotli (sopra la soglia di ~18).
 
 ## Galleria prodotto
 

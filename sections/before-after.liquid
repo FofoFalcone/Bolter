@@ -144,7 +144,7 @@
     {%- endif -%}
   </before-after>
 
-  {% render 'vite-tag', entry: 'before-after.js' %}
+  {% render 'vite-tag-deferred', entry: 'before-after.js', section_index: section.index %}
 {%- endif -%}
 
 {% schema %}

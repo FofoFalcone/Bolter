@@ -4,8 +4,10 @@ import tailwindcss from '@tailwindcss/vite';
 import pruneStaleAssets from './tools/prune-stale-assets.mjs';
 
 const PUBLIC_DIR = 'frontend/public';
-// CSS inlinato nel Liquid con inline_asset_content: nome stabile (vedi assetFileNames)
-const INLINE_CSS = 'page-transitions.css';
+// CSS inlinato nel Liquid con inline_asset_content: nome stabile (vedi assetFileNames). Tutti i CSS degli
+// entrypoint tranne theme.css (page-transitions.css nel <head>, quelli delle section con snippets/inline-css.liquid).
+const GLOBAL_CSS = 'theme.css';
+const isInlineCss = (name) => name.endsWith('.css') && name !== GLOBAL_CSS;
 
 export default defineConfig(({ mode }) => {
   // Modalità:
@@ -51,11 +53,12 @@ export default defineConfig(({ mode }) => {
 
       rollupOptions: {
         output: {
-          // page-transitions.css senza hash: snippets/page-transitions.liquid lo inlina nel <head> con
-          // inline_asset_content (nome fisso, massimo 15 KB, controllato da tools/ensure-build.mjs). Come <link>
-          // era una richiesta in più che bloccava il primo rendering (Lighthouse mobile: ~560 ms stimati).
+          // CSS inlinati senza hash: inline_asset_content vuole il nome esatto (massimo 15 KB, controllato da
+          // tools/ensure-build.mjs). Come <link> ognuno era una richiesta in più che bloccava il rendering:
+          // page-transitions.css nel <head> (~560 ms stimati da Lighthouse mobile), quelli delle section (sotto
+          // 1 KB ciascuno) nel <body>, dove un foglio blocca il disegno di tutto ciò che lo segue.
           assetFileNames: ({ names = [] }) =>
-            names.includes(INLINE_CSS) ? '[name][extname]' : '[name].[hash][extname]',
+            names.some(isInlineCss) ? '[name][extname]' : '[name].[hash][extname]',
           chunkFileNames: '[name].[hash].js',
           entryFileNames: '[name].[hash].js',
         },

@@ -108,6 +108,16 @@
         assign light_logo_dark_class = 'auto-dark:opacity-100'
       endif
       assign light_logo_class = 'absolute inset-0 h-auto w-(--logo-width) max-w-full opacity-0 transition-opacity duration-300 ease-theme overlay-light:opacity-100 motion-reduce:transition-none ' | append: light_logo_dark_class
+
+      # Logo chiaro: <img> solo sulla home con l'header trasparente, dove la hero sotto l'header è il caso tipico e il
+      # logo deve arrivare insieme al resto della prima schermata. Altrove è uno sfondo CSS: il browser lo scarica solo
+      # se la pagina ha davvero una hero chiara (overlay-light-page:) o è in modalità scura (auto-dark:). Come <img>
+      # si scaricava su ogni pagina con priorità alta anche se restava invisibile (Lighthouse mobile, collezione,
+      # 2026-11-11). L'header non può sapere quale section viene dopo: il controllo lo fa il CSS con :has().
+      assign light_logo_as_image = false
+      if template.name == 'index' and section.settings.transparent_header
+        assign light_logo_as_image = true
+      endif
     -%}
     <a
       href="{{ routes.root_url }}"
@@ -127,7 +137,17 @@
             alt: shop.name,
             class: logo_class
         }}
-        {%- if light_logo -%}
+        {%- if light_logo and light_logo_as_image == false -%}
+          {%- liquid
+            assign light_logo_1x = light_logo | image_url: width: logo_width | escape
+            assign light_logo_2x = light_logo | image_url: width: logo_width_2x | escape
+          -%}
+          <span
+            aria-hidden="true"
+            class="{{ light_logo_class }} bg-contain bg-left bg-no-repeat overlay-light-page:bg-(image:--logo-light){% if header_goes_dark %} auto-dark:bg-(image:--logo-light){% endif %}"
+            style="--logo-light: image-set(url('{{ light_logo_1x }}') 1x, url('{{ light_logo_2x }}') 2x);"
+          ></span>
+        {%- elsif light_logo -%}
           {{
             light_logo
             | image_url: width: logo_width_2x

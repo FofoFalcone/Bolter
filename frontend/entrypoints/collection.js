@@ -428,13 +428,18 @@ class ProductFacets extends HTMLElement {
     }
 
     const trigger = event.target.closest('[data-quick-view-url]');
-    if (trigger && this.quickView) {
-      this.quickView.show({
-        url: trigger.dataset.quickViewUrl,
-        origin: trigger.closest('product-card')?.querySelector('[data-card-media]'),
-        label: trigger.getAttribute('aria-label'),
-      });
+    if (!trigger) return;
+    // quick-view.js arriva a pagina caricata (snippets/quick-view.liquid, when: 'idle'): prima si apre la pagina
+    // prodotto, come senza JS, invece di un clic che non fa nulla
+    if (!this.quickView) {
+      window.location.assign(trigger.dataset.quickViewUrl);
+      return;
     }
+    this.quickView.show({
+      url: trigger.dataset.quickViewUrl,
+      origin: trigger.closest('product-card')?.querySelector('[data-card-media]'),
+      label: trigger.getAttribute('aria-label'),
+    });
   };
 
   /** Puntatore o focus su una card: il contenuto dell'anteprima rapida parte in anticipo. */

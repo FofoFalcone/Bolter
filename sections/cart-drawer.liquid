@@ -5,7 +5,7 @@
   Senza JS il cassetto non si apre: il link al carrello dell'header porta alla pagina carrello.
   JS: frontend/entrypoints/cart.js (<cart-drawer>, <cart-items>) — CSS: frontend/entrypoints/cart.css
 {%- endcomment -%}
-{% render 'vite-tag', entry: 'cart.css' %}
+{% render 'inline-css', entry: 'cart.css' %}
 
 <cart-drawer>
   <dialog
@@ -73,7 +73,7 @@
   </dialog>
 </cart-drawer>
 
-{% render 'vite-tag', entry: 'cart.js' %}
+{% render 'vite-tag-deferred', entry: 'cart.js', when: 'idle' %}
 
 {% schema %}
 {

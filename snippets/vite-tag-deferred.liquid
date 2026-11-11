@@ -1,0 +1,33 @@
+{%- comment -%}
+  JS di una section caricato quando serve, invece che all'avvio della pagina.
+  Stampa l'output di vite-tag dentro un <template data-deferred-script>: frontend/scripts/deferred-scripts.js (in
+  theme.js) lo inserisce nel documento con fetchpriority="low" quando la section si avvicina alla vista (near) o a
+  pagina caricata (idle). Così gli script delle section sotto la piega non competono con CSS, font e immagine LCP.
+
+  Stampa vite-tag direttamente (caricamento normale):
+  - nel theme editor (request.design_mode), dove le section si aggiungono e ricaricano di continuo;
+  - per la prima section della pagina (section_index == 1), che è già in vista, salvo when: 'idle': lo usa chi
+    in prima schermata non ha nulla da far funzionare prima del load (es. la hero con il solo effetto allo
+    scroll). Altrimenti i suoi moduli partono con priorità alta insieme a CSS, font e immagine LCP.
+
+  Solo per entrypoint JS: il CSS delle section resta con vite-tag (differirlo farebbe cambiare l'aspetto dopo il
+  primo disegno).
+
+  Parametri:
+  - entry: entrypoint JS (es. 'carousel.js')
+  - section_index: section.index della section (opzionale)
+  - when: 'near' (default) o 'idle' (es. carrello a cassetto: deve essere pronto prima del primo clic, ovunque sia)
+
+  Uso: {% render 'vite-tag-deferred', entry: 'carousel.js', section_index: section.index %}
+{%- endcomment -%}
+{%- liquid
+  assign load_now = request.design_mode
+  if section_index == 1 and when != 'idle'
+    assign load_now = true
+  endif
+-%}
+{%- if load_now -%}
+  {% render 'vite-tag', entry: entry %}
+{%- else -%}
+  <template data-deferred-script="{{ when | default: 'near' }}">{% render 'vite-tag', entry: entry %}</template>
+{%- endif -%}

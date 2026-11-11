@@ -82,6 +82,12 @@ Nel layout lo usi così (sintassi compatibile con il parser Liquid strict di Sho
 {% render 'vite-tag', entry: 'theme.js' %}
 ```
 
+Il JS delle section passa invece da `snippets/vite-tag-deferred.liquid` (scritto a mano, non generato): mette i tag di `vite-tag` in un `<template>` che `frontend/scripts/deferred-scripts.js` inserisce a priorità bassa quando la section si avvicina alla vista, o a pagina caricata con `when: 'idle'`. Così gli script delle section sotto la piega non competono con CSS, font e immagine LCP.
+
+```liquid
+{% render 'vite-tag-deferred', entry: 'carousel.js', section_index: section.index %}
+```
+
 ### 3. Modalità sviluppo vs produzione
 
 | Modalità                      | Comportamento                                                                                              |
@@ -287,7 +293,7 @@ frontend/entrypoints/
 
 ```liquid
 {% if template.name == 'product' %}
-  {% render 'vite-tag', entry: 'product.css' %}
+  {% render 'inline-css', entry: 'product.css' %}
   {% render 'vite-tag', entry: 'product.js' %}
 {% endif %}
 ```

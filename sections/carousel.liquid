@@ -358,6 +358,15 @@
                     # esplicito, perché con un valore nil image_tag non scrive l'attributo (segnalato da Lighthouse)
                     assign slide_alt = b.image.alt | default: ''
                     assign link_label = b.heading | default: b.image.alt
+                    # Senza titolo né alt: nome del prodotto o della collezione a cui punta il link. "Scopri di più"
+                    # da solo è un testo di link generico (Lighthouse SEO, link-text, 2026-11-11).
+                    if link_label == blank and b.link contains '/products/'
+                      assign link_handle = b.link | split: '/products/' | last | split: '?' | first | split: '/' | first
+                      assign link_label = all_products[link_handle].title
+                    elsif link_label == blank and b.link contains '/collections/'
+                      assign link_handle = b.link | split: '/collections/' | last | split: '?' | first | split: '/' | first
+                      assign link_label = collections[link_handle].title
+                    endif
                     if link_label == blank
                       assign link_label = 'sections.carousel.open_link' | t
                     endif
@@ -527,13 +536,13 @@
   </carousel-slider>
 
   {%- if use_quick_view -%}
-    {% render 'quick-view', id: quick_view_id %}
+    {% render 'quick-view', id: quick_view_id, section_index: section.index %}
   {%- endif -%}
 
   {%- if effect != 'none' or s.pagination == 'progress' -%}
-    {% render 'vite-tag', entry: 'carousel-effects.js' %}
+    {% render 'vite-tag-deferred', entry: 'carousel-effects.js', section_index: section.index %}
   {%- endif -%}
-  {% render 'vite-tag', entry: 'carousel.js' %}
+  {% render 'vite-tag-deferred', entry: 'carousel.js', section_index: section.index %}
 {%- endif -%}
 
 {% schema %}

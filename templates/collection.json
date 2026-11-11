@@ -12,6 +12,7 @@
     "main": {
       "type": "main-collection",
       "settings": {
+        "section_width": "page",
         "show_description": true,
         "show_image": true,
         "products_per_page": 24,
@@ -21,7 +22,8 @@
         "enable_filtering": true,
         "filter_layout": "sidebar",
         "show_filter_label": false,
-        "enable_sorting": true
+        "enable_sorting": true,
+        "color_scheme": ""
       }
     }
   },

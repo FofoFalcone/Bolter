@@ -38,7 +38,7 @@ Struttura:
   </ul>
 </div>
 
-{% render 'vite-tag', entry: '<nome>.js' %}    {# solo se ha JS dedicato #}
+{% render 'vite-tag-deferred', entry: '<nome>.js', section_index: section.index %}    {# solo se ha JS dedicato: si carica quando la section si avvicina alla vista #}
 
 {% schema %}
 {
@@ -71,7 +71,7 @@ Regole:
 - **Design**: se esiste un componente corrispondente nel file Figma Simple Design System (vedi `CLAUDE.md` → Design system), usalo come riferimento di layout e token: Figma MCP `create_session`, poi `get_design_context` sul nodo del componente (carica prima la guida `figma-design-to-code`). Non scaricare icone o asset da Figma.
 - **Stili con Tailwind nel Liquid**: solo token SDS (`text-heading`, `text-body`, `bg-surface`, `text-muted`, `border-border`, `rounded-md`, `shadow-300`…), componenti `button*` e `prose prose-theme`, varianti `js:` / `js-motion:` per gli stati legati al JS. Niente nomi di classe composti dinamicamente (vedi `CLAUDE.md`).
 - **Icone**: `{% render 'icon', name: '…' %}` (Heroicons); se manca, aggiungila a `tools/icons.json` e lancia `npm run icons`.
-- CSS dedicato `frontend/entrypoints/<nome>.css` **solo** se le utility non bastano (stati `:not(:defined)`, `[data-state]`, variabili calcolate): dentro `@layer components { … }`, classi con prefisso `<nome>__` come hook. Altrimenti niente file CSS né `vite-tag` CSS.
+- CSS dedicato `frontend/entrypoints/<nome>.css` **solo** se le utility non bastano (stati `:not(:defined)`, `[data-state]`, variabili calcolate): dentro `@layer components { … }`, classi con prefisso `<nome>__` come hook. Si carica inline con `{% render 'inline-css', entry: '<nome>.css' %}` (mai `vite-tag`: un `<link>` nel body blocca il rendering; dopo un nuovo entrypoint il watch si riavvia da solo). Altrimenti niente file CSS.
 - JS dedicato: `frontend/entrypoints/<nome>.js` che definisce un custom element:
 
   ```js

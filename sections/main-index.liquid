@@ -310,8 +310,15 @@
   </div>
 </hero-banner>
 
-{%- if load_js -%}
-  {% render 'vite-tag', entry: 'hero.js' %}
+{%- comment -%}
+  Con un video lo script serve subito (riproduzione e pulsante di pausa). Con la sola profondità allo scroll arriva
+  dopo il load: la hero è già visibile senza JS, e i suoi moduli (Motion) non competono più con CSS, font e
+  immagine LCP (Lighthouse mobile del 2026-11-11: tre script con priorità alta nella prima ondata).
+{%- endcomment -%}
+{%- if video != blank -%}
+  {% render 'vite-tag-deferred', entry: 'hero.js', section_index: section.index %}
+{%- elsif load_js -%}
+  {% render 'vite-tag-deferred', entry: 'hero.js', section_index: section.index, when: 'idle' %}
 {%- endif -%}
 
 {% schema %}

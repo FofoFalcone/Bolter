@@ -1,0 +1,21 @@
+{%- comment -%}
+  CSS di una section inlinato in un <style>, al posto di un <link> a un file in assets/.
+  Un foglio nel <body> blocca il disegno di tutto ciò che lo segue e costa una richiesta: per file sotto 1 KB
+  (Lighthouse mobile del 2026-11-11: gallery.css da 115 byte tra le risorse che bloccavano il rendering) il
+  testo inline costa meno della richiesta. Se la section compare due volte, il CSS si ripete: pochi byte.
+
+  Vite emette questi file senza hash (vite.config.js, tutti gli entrypoint CSS tranne theme.css): il filtro
+  inline_asset_content vuole il nome esatto e un file sotto i 15 KB (controllati da npm run lint,
+  tools/ensure-build.mjs). Nuovo CSS di section: entrypoint in frontend/entrypoints/ e questo snippet, non vite-tag.
+
+  <style> semplice, non {% style %}: quello stampa data-shopify, e .shopify-section:has(> style[data-shopify])
+  riconosce le section con un proprio schema di colori (frontend/styles/tokens.css, snippets/section-colors.liquid).
+
+  Parametri:
+  - entry: nome dell'entrypoint CSS (es. 'gallery.css')
+
+  Uso: {% render 'inline-css', entry: 'gallery.css' %}
+{%- endcomment -%}
+<style>
+  {{- entry | inline_asset_content -}}
+</style>

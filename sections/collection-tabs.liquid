@@ -7,7 +7,7 @@
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
-{% render 'vite-tag', entry: 'collection-tabs.css' %}
+{% render 'inline-css', entry: 'collection-tabs.css' %}
 
 {%- liquid
   # Base dei sizes: non accetta var() (snippets/section-width.liquid)
@@ -173,7 +173,7 @@
   {%- endif -%}
 </div>
 
-{% render 'vite-tag', entry: 'collection-tabs.js' %}
+{% render 'vite-tag-deferred', entry: 'collection-tabs.js', section_index: section.index %}
 {%- endif -%}
 
 {% schema %}

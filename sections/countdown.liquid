@@ -146,7 +146,7 @@
   </countdown-timer>
 
   {%- if state != 'invalid' -%}
-    {% render 'vite-tag', entry: 'countdown.js' %}
+    {% render 'vite-tag-deferred', entry: 'countdown.js', section_index: section.index %}
   {%- endif -%}
 {%- endif -%}
 

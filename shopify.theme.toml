@@ -5,9 +5,9 @@ store = "bolter-development.myshopify.com"
 
 [environments.development]      # tema condiviso: riceve solo build
 store = "bolter-development.myshopify.com"
-# theme = "208388129108"
+theme = "208388129108"
 
 [environments.production]
 store = "bolter-development.myshopify.com"
-# theme = "208388260180"
+theme = "208388260180"
 ignore = ["config/settings_data.json"]

@@ -85,7 +85,13 @@
     if sidebar
       echo ' - 18rem'
     endif
-    echo ') / ' | append: columns_lg | append: '), (min-width: 750px) calc((100vw - 4rem) / ' | append: columns_md | append: '), calc((100vw - 2rem) / ' | append: columns_mobile | append: ')'
+    # Sotto i 750px: margini della pagina (2 × 1,5rem) e spazio tra le colonne (1rem). Con "100vw - 2rem" la card
+    # risultava 16px più larga del vero e il telefono di Lighthouse mobile scaricava un formato in più (2026-11-11)
+    if columns_mobile == 1
+      echo ') / ' | append: columns_lg | append: '), (min-width: 750px) calc((100vw - 4rem) / ' | append: columns_md | append: '), calc(100vw - 3rem)'
+    else
+      echo ') / ' | append: columns_lg | append: '), (min-width: 750px) calc((100vw - 4rem) / ' | append: columns_md | append: '), calc((100vw - 4rem) / 2)'
+    endif
   endcapture
 
   # LCP: immagine della collezione se mostrata, altrimenti la prima card (solo se la section è la prima della pagina)
@@ -326,10 +332,10 @@
 </div>
 
 {%- if s.quick_view -%}
-  {% render 'quick-view', id: quick_view_id %}
+  {% render 'quick-view', id: quick_view_id, when: 'idle' %}
 {%- endif -%}
 
-{% render 'vite-tag', entry: 'collection.css' %}
+{% render 'inline-css', entry: 'collection.css' %}
 
 {% schema %}
 {

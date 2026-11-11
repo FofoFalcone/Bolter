@@ -431,8 +431,9 @@ class ProductPage extends HTMLElement {
       // L'anteprima rapida si chiude prima che si apra il carrello a cassetto (cart.js), se attivo
       await quickView?.afterAddToCart?.();
       document.dispatchEvent(new CustomEvent('cart:item-added', { detail: data }));
-      // Senza cassetto nulla mostrerebbe l'aggiunta: dopo la chiusura dell'anteprima rapida il pulsante non si vede più
-      if (!document.querySelector('cart-drawer')) showCartAddedToast();
+      // Senza cassetto nulla mostrerebbe l'aggiunta: dopo la chiusura dell'anteprima rapida il pulsante non si vede più.
+      // Vale anche per il cassetto non ancora definito (cart.js arriva a pagina caricata, vite-tag-deferred)
+      if (!customElements.get('cart-drawer')) showCartAddedToast();
     } catch (error) {
       errorBox.textContent = error.data ? error.message : errorBox.dataset.genericError;
       errorBox.hidden = false;

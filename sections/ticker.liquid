@@ -168,7 +168,7 @@
         </ul>
       </div>
     </ticker-rows>
-    {% render 'vite-tag', entry: 'ticker-rows.js' %}
+    {% render 'vite-tag-deferred', entry: 'ticker-rows.js', section_index: section.index %}
   {%- else -%}
     {%- capture toggle -%}
       {%- unless s.drive == 'scroll' -%}
@@ -308,7 +308,7 @@
         </div>
       {%- endif -%}
     </ticker-section>
-    {% render 'vite-tag', entry: 'ticker.js' %}
+    {% render 'vite-tag-deferred', entry: 'ticker.js', section_index: section.index %}
   {%- endif -%}
 
   {%- if has_items == false and request.design_mode -%}
