@@ -172,6 +172,32 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "logo_width": {
+          "label": "Larghezza del logo",
+          "unit": "px"
+        },
+        "brand_text": {
+          "label": "Descrizione",
+          "info": "Una o due frasi sotto il logo: chi sei e cosa vendi."
+        },
+        "show_copyright": {
+          "label": "Mostra il copyright",
+          "info": "© con l'anno in corso e il nome del negozio."
+        },
+        "company_info": {
+          "label": "Dati aziendali",
+          "info": "Ragione sociale, sede legale, partita IVA, numero REA, PEC. In Italia la partita IVA va indicata sul sito."
+        },
+        "show_policies": {
+          "label": "Mostra i link alle policy",
+          "info": "Privacy, termini di servizio, rimborsi, spedizioni… Si scrivono in Impostazioni → Policy."
+        },
+        "header_3": {
+          "content": "Marchio"
+        },
+        "header_4": {
+          "content": "Riga finale"
         }
       },
       "blocks": {
@@ -197,6 +223,19 @@
             "text": {
               "label": "Testo",
               "default": "<p>Racconta in poche righe chi sei e cosa vendi.</p>"
+            }
+          }
+        },
+        "newsletter": {
+          "settings": {
+            "layout": {
+              "options": {
+                "band": "Fascia sopra le colonne",
+                "column": "Colonna"
+              }
+            },
+            "tags": {
+              "default": "newsletter, footer"
             }
           }
         }

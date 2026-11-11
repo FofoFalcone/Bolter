@@ -1,46 +1,13 @@
 {%- comment -%}
-  Iscrizione alla newsletter: {% form 'customer' %} nativo (crea il cliente con accepts_marketing), funziona senza JS e
-  mantiene il controllo hCaptcha. L'esito arriva dopo il ricaricamento con il messaggio che prende il focus.
-  Stato di invio: <contact-form> (frontend/entrypoints/contact-form.js).
-  Si può aggiungere anche al gruppo footer. Per provare la conferma senza iscriversi: ?customer_posted=true.
-  Probabile limite, non verificato su uno store: con due form 'customer' nella stessa pagina (es. questa section anche
-  nel footer) la conferma compare in entrambi, perché l'esito sembra dipendere dalla pagina e non dal singolo form.
-
-  Il consenso è una casella senza name: blocca l'invio finché non è spuntata e non aggiunge campi al cliente.
+  Iscrizione alla newsletter: titolo, testo e form 'customer' nativo (snippets/newsletter-form.liquid, condiviso con
+  il blocco "Newsletter" del footer). Funziona senza JS; stato di invio con <contact-form>
+  (frontend/entrypoints/contact-form.js). Per provare la conferma senza iscriversi: ?customer_posted=true.
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
   assign s = section.settings
   assign form_id = 'Newsletter-' | append: section.id
-  assign error_id = form_id | append: '-error'
-
-  # Testi svuotati dal merchant: quelli predefiniti, tradotti
-  assign button_label = s.button_label
-  if button_label == blank
-    assign button_label = 'sections.newsletter.submit' | t
-  endif
-  assign success_message = s.success_message
-  if success_message == blank
-    assign success_message = 'sections.newsletter.success' | t
-  endif
-
-  assign consent_notice = 'sections.password.newsletter_consent_no_policy' | t
-  assign consent_label = 'sections.newsletter.consent_label_no_policy' | t
-  assign policy_missing = true
-  if shop.privacy_policy != blank
-    assign policy_missing = false
-  endif
 -%}
-{%- if policy_missing == false -%}
-  {%- capture privacy_link -%}
-    <a href="{{ shop.privacy_policy.url }}" target="_blank" rel="noopener">{{ 'sections.password.privacy_policy' | t }}</a>
-  {%- endcapture -%}
-  {%- assign consent_notice = 'sections.password.newsletter_consent_html' | t: link: privacy_link -%}
-  {%- assign consent_label = 'sections.newsletter.consent_label_html' | t: link: privacy_link -%}
-{%- endif -%}
-{%- capture field_class -%}
-  block min-h-11 w-full min-w-0 flex-1 rounded-md border border-input-border bg-input px-4 py-2.5 text-body text-input-foreground transition-colors duration-150 placeholder:text-input-foreground/65 hover:border-input-foreground focus-visible:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-invalid:border-danger motion-reduce:transition-none
-{%- endcapture -%}
 
 <div class="page-width py-8 md:py-16">
   <contact-form
@@ -63,70 +30,14 @@
       </div>
     {%- endif -%}
 
-    {%- form 'customer', id: form_id, class: 'flex w-full max-w-lg flex-col gap-3 text-start' -%}
-      <input type="hidden" name="contact[tags]" value="{{ s.tags | escape }}">
-
-      {%- if form.posted_successfully? -%}
-        <p
-          class="flex items-start gap-2 rounded-md bg-positive-surface p-3 text-body text-positive-foreground transition-[opacity,translate] duration-300 ease-theme starting:translate-y-1 starting:opacity-0 motion-reduce:transition-none"
-          role="status"
-          tabindex="-1"
-          autofocus
-        >
-          {% render 'icon', name: 'check-circle', size: 20, class: 'mt-0.5 shrink-0' %}
-          {{ success_message | escape }}
-        </p>
-      {%- else -%}
-        <label for="{{ form_id }}-email" class="text-body-sm font-semibold text-foreground">
-          {{- 'sections.newsletter.email_label' | t -}}
-        </label>
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <input
-            id="{{ form_id }}-email"
-            class="{{ field_class }}"
-            type="email"
-            name="contact[email]"
-            value="{{ form.email | escape }}"
-            autocomplete="email"
-            autocapitalize="off"
-            spellcheck="false"
-            required
-            {% if form.errors %}
-              autofocus
-              aria-invalid="true"
-              aria-describedby="{{ error_id }}"
-            {% endif %}
-          >
-          <button type="submit" class="button button-primary shrink-0" data-contact-submit>
-            <span data-contact-label>{{ button_label | escape }}</span>
-          </button>
-        </div>
-
-        {%- if form.errors -%}
-          <p id="{{ error_id }}" class="text-body-sm text-danger-foreground">
-            {%- for error in form.errors -%}
-              {%- unless error == 'form' -%}
-                {{- form.errors.translated_fields[error] | capitalize }}{{ ' ' }}
-              {%- endunless -%}
-              {{- form.errors.messages[error] }}{{ ' ' }}
-            {%- endfor -%}
-          </p>
-        {%- endif -%}
-
-        {%- if s.consent == 'checkbox' -%}
-          {% render 'contact-form-checkbox',
-            id: form_id,
-            key: 'consent',
-            text: consent_label,
-            policy_missing: policy_missing
-          %}
-        {%- else -%}
-          <p class="text-body-sm text-pretty text-foreground/80 [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-foreground">
-            {{- consent_notice -}}
-          </p>
-        {%- endif -%}
-      {%- endif -%}
-    {%- endform -%}
+    {% render 'newsletter-form',
+      form_id: form_id,
+      tags: s.tags,
+      button_label: s.button_label,
+      success_message: s.success_message,
+      consent: s.consent,
+      class: 'w-full max-w-lg'
+    %}
   </contact-form>
 </div>
 

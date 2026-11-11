@@ -185,7 +185,9 @@
     },
     "footer": {
       "social": "Seguici sui social",
-      "payment_methods": "Metodi di pagamento accettati"
+      "payment_methods": "Metodi di pagamento accettati",
+      "policies": "Informazioni legali",
+      "company_info_missing": "Aggiungi i dati aziendali (ragione sociale, sede, partita IVA) nelle impostazioni del footer. Questo avviso si vede solo nell’editor."
     },
     "collection_tabs": {
       "view_all": "Vedi tutti",

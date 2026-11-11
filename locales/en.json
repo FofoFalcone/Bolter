@@ -185,7 +185,9 @@
     },
     "footer": {
       "social": "Follow us on social media",
-      "payment_methods": "Accepted payment methods"
+      "payment_methods": "Accepted payment methods",
+      "policies": "Legal information",
+      "company_info_missing": "Add your company details (company name, address, VAT number) in the footer settings. This notice is only visible in the editor."
     },
     "collection_tabs": {
       "view_all": "View all",

@@ -14,6 +14,10 @@
     "footer": {
       "type": "footer",
       "blocks": {
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {}
+        },
         "menu_shop": {
           "type": "link_list",
           "settings": {
@@ -27,21 +31,21 @@
             "heading": "Informazioni",
             "menu": "footer"
           }
-        },
-        "about": {
-          "type": "text",
-          "settings": {
-            "heading": "Chi siamo",
-            "text": "<p>Racconta in poche righe chi sei e cosa vendi.</p>"
-          }
         }
       },
-      "block_order": ["menu_shop", "menu_info", "about"],
+      "block_order": [
+        "newsletter",
+        "menu_shop",
+        "menu_info"
+      ],
       "settings": {
+        "brand_text": "<p>Racconta in poche righe chi sei e cosa vendi.</p>",
         "show_social": true,
         "show_payment_icons": true
       }
     }
   },
-  "order": ["footer"]
+  "order": [
+    "footer"
+  ]
 }

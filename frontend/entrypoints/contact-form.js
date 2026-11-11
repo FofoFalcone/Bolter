@@ -1,5 +1,6 @@
 /**
- * Modulo di contatto — custom element <contact-form> (sections/contact-form.liquid, sections/newsletter.liquid).
+ * Modulo di contatto — custom element <contact-form> (sections/contact-form.liquid, sections/newsletter.liquid e
+ * blocco "Newsletter" di sections/footer.liquid, form in snippets/newsletter-form.liquid).
  *
  * Il form resta quello nativo di Shopify (invio con ricaricamento: serve anche al controllo hCaptcha, che può
  * reindirizzare a /challenge). Il componente aggiunge solo lo stato di invio: pulsante "Invio in corso…" con

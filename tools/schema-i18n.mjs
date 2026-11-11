@@ -59,7 +59,20 @@ function translate(value, key) {
 function convertSettings(settings = [], base) {
   const counters = {};
   for (const setting of settings) {
-    const id = setting.id ?? `${setting.type}_${(counters[setting.type] = (counters[setting.type] ?? 0) + 1)}`;
+    let id = setting.id;
+    if (!id) {
+      // Setting senza id (header, paragraph): numerati per tipo. Un testo nuovo salta le chiavi che contengono già un
+      // altro testo: un header inserito sopra quelli esistenti prenderebbe la loro chiave, e quindi il loro testo.
+      const isNew = TEXT_FIELDS.some((field) => typeof setting[field] === 'string' && setting[field] && !setting[field].startsWith('t:'));
+      const taken = () =>
+        TEXT_FIELDS.some((field) => {
+          const existing = getKey(it, `${base}.${id}.${field}`);
+          return field in setting && existing !== undefined && existing !== setting[field];
+        });
+      do {
+        id = `${setting.type}_${(counters[setting.type] = (counters[setting.type] ?? 0) + 1)}`;
+      } while (isNew && taken());
+    }
     const key = `${base}.${id}`;
     for (const field of TEXT_FIELDS) if (field in setting) setting[field] = translate(setting[field], `${key}.${field}`);
     if (TEXT_DEFAULT_TYPES.has(setting.type) && 'default' in setting) {

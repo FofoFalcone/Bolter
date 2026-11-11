@@ -2,14 +2,21 @@
   Footer del negozio (section group "footer-group").
   Riferimento: Simple Design System (Figma) → Sections / Footer (colonna brand + liste di link "Text Link List").
 
-  - Colonna brand: logo (o nome del negozio) e link ai social (Impostazioni tema → Social media).
-  - Colonne: blocchi "Menu" (link_list Shopify) o "Testo".
-  - Riga finale: copyright e icone dei metodi di pagamento attivi.
-  Stile: solo utility Tailwind, nessun JS.
+  - Newsletter (blocco, al massimo uno): fascia sopra le colonne oppure una colonna. Form condiviso con la section
+    newsletter (snippets/newsletter-form.liquid), stato di invio con <contact-form> (contact-form.js, solo se c'è).
+  - Colonna brand: logo (o nome del negozio), breve descrizione, link ai social (Impostazioni tema → Social media),
+    "Segui su Shop".
+  - Colonne: blocchi "Menu" (link_list Shopify), "Testo", "Newsletter" in colonna. Da 990px un binario per blocco,
+    in proporzione al contenuto (--footer-columns): funziona con qualsiasi numero di blocchi.
+  - Riga finale: copyright, dati aziendali (ragione sociale, sede, P.IVA: in Italia la partita IVA va indicata sul
+    sito), link alle policy del negozio, paese/lingua, icone dei metodi di pagamento attivi.
+  Stile: solo utility Tailwind.
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {% render 'section-width', section_id: section.id, width: section.settings.section_width %}
 {%- liquid
+  assign s = section.settings
+
   # Social: id usato nelle impostazioni tema (social_<id>_link) e nome del brand da mostrare
   assign social_ids = 'instagram,facebook,tiktok,youtube,x,linkedin' | split: ','
   assign social_names = 'Instagram,Facebook,TikTok,YouTube,X,LinkedIn' | split: ','
@@ -22,46 +29,147 @@
   endfor
 
   assign show_country = false
-  if section.settings.show_country and localization.available_countries.size > 1
+  if s.show_country and localization.available_countries.size > 1
     assign show_country = true
   endif
   assign show_language = false
-  if section.settings.show_language and localization.available_languages.size > 1
+  if s.show_language and localization.available_languages.size > 1
     assign show_language = true
   endif
+
+  assign has_policies = false
+  if s.show_policies
+    for policy in shop.policies
+      if policy != blank
+        assign has_policies = true
+        break
+      endif
+    endfor
+  endif
+
+  # Binari della griglia da 990px: brand più largo, newsletter e testo più larghi dei menu.
+  # La newsletter "a fascia" sta sopra la griglia e non ha un binario.
+  assign footer_columns = 'minmax(0,1.5fr)'
+  assign newsletter_band = nil
+  assign has_newsletter = false
+  for block in section.blocks
+    case block.type
+      when 'newsletter'
+        assign has_newsletter = true
+        if block.settings.layout == 'band'
+          assign newsletter_band = block
+        else
+          assign footer_columns = footer_columns | append: ' minmax(0,1.75fr)'
+        endif
+      when 'text'
+        assign footer_columns = footer_columns | append: ' minmax(0,1.25fr)'
+      else
+        assign footer_columns = footer_columns | append: ' minmax(0,1fr)'
+    endcase
+  endfor
+
+  assign logo_width = s.logo_width
+  assign logo_width_2x = logo_width | times: 2
+  assign logo_widths = logo_width | append: ', ' | append: logo_width_2x
+  assign logo_sizes = logo_width | append: 'px'
+
+  assign link_class = 'rounded-sm text-muted underline-offset-4 transition-colors duration-150 hover:text-foreground hover:underline aria-[current=page]:font-semibold aria-[current=page]:text-foreground motion-reduce:transition-none'
+  assign heading_class = 'text-body font-semibold text-balance text-headings'
   assign select_class = 'h-11 w-full max-w-64 appearance-none truncate rounded-button border border-input-border bg-input ps-3 pe-9 text-body text-input-foreground hover:border-input-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
 -%}
 
 <footer class="border-t border-border bg-background">
-  {%- comment -%} Sotto i 750px i menu stanno affiancati su due colonne, brand e testi occupano la riga intera {%- endcomment -%}
-  <div class="page-width grid grid-cols-2 gap-x-6 gap-y-10 pt-8 pb-12 md:gap-12 md:pb-16 lg:grid-cols-4 lg:gap-4">
+  {%- comment -%} Newsletter a fascia: titolo a sinistra, form a destra da 990px {%- endcomment -%}
+  {%- if newsletter_band -%}
+    {%- assign block = newsletter_band -%}
+    {%- assign form_id = 'FooterNewsletter-' | append: block.id -%}
+    <div class="page-width">
+      <contact-form
+        class="grid gap-6 border-b border-border py-10 md:py-12 lg:grid-cols-2 lg:items-center lg:gap-12"
+        data-sending-label="{{ 'sections.newsletter.sending' | t | escape }}"
+        {{ block.shopify_attributes }}
+      >
+        {%- if block.settings.heading != blank or block.settings.text != blank -%}
+          <div class="flex flex-col gap-2">
+            {%- if block.settings.heading != blank -%}
+              <h2 class="text-heading text-balance text-headings">{{ block.settings.heading | escape }}</h2>
+            {%- endif -%}
+            {%- if block.settings.text != blank -%}
+              <div class="prose prose-theme max-w-xl text-body text-pretty [--tw-prose-body:var(--color-muted)]">
+                {{ block.settings.text }}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {% render 'newsletter-form',
+          form_id: form_id,
+          tags: block.settings.tags,
+          button_label: block.settings.button_label,
+          success_message: block.settings.success_message,
+          consent: block.settings.consent,
+          class: 'w-full lg:max-w-lg lg:justify-self-end'
+        %}
+      </contact-form>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%}
+    Sotto i 750px i menu stanno affiancati su due colonne, brand, testi e newsletter occupano la riga intera.
+    Tra 750 e 990px quattro colonne (brand su due); da 990px un binario per blocco.
+  {%- endcomment -%}
+  <div
+    class="page-width grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:grid-cols-4 md:gap-x-8 md:py-16 lg:grid-cols-(--footer-columns) lg:gap-x-12"
+    style="--footer-columns: {{ footer_columns }};"
+  >
     {%- comment -%} Colonna brand {%- endcomment -%}
-    <div class="col-span-2 flex flex-col gap-6 md:col-span-1">
-      <a href="{{ routes.root_url }}" class="w-fit rounded-sm text-foreground">
-        {%- if section.settings.logo != blank -%}
+    <div class="col-span-2 flex flex-col items-start gap-5 lg:col-span-1 lg:pe-6">
+      <a
+        href="{{ routes.root_url }}"
+        class="block max-w-full rounded-sm text-headings"
+        {% if s.logo != blank %}
+          style="--footer-logo-width: {{ logo_width }}px;"
+        {% endif %}
+      >
+        {%- if s.logo != blank -%}
           {{
-            section.settings.logo
-            | image_url: width: 240
-            | image_tag: loading: 'lazy', widths: '120, 240', sizes: '120px', alt: shop.name, class: 'h-auto w-30'
+            s.logo
+            | image_url: width: logo_width_2x
+            | image_tag:
+              loading: 'lazy',
+              widths: logo_widths,
+              sizes: logo_sizes,
+              alt: shop.name,
+              class: 'h-auto w-(--footer-logo-width) max-w-full'
           }}
         {%- else -%}
-          <span class="text-heading">{{ shop.name | escape }}</span>
+          <span class="font-heading text-heading">{{ shop.name | escape }}</span>
         {%- endif -%}
       </a>
 
-      {%- if section.settings.show_social and has_social -%}
-        <ul class="flex flex-wrap gap-x-4 gap-y-2" role="list" aria-label="{{ 'sections.footer.social' | t }}">
+      {%- if s.brand_text != blank -%}
+        <div class="prose prose-theme max-w-sm text-body-sm text-pretty [--tw-prose-body:var(--color-muted)]">
+          {{ s.brand_text }}
+        </div>
+      {%- endif -%}
+
+      {%- if s.show_social and has_social -%}
+        <ul class="flex flex-wrap gap-x-5 gap-y-2" role="list" aria-label="{{ 'sections.footer.social' | t }}">
           {%- for id in social_ids -%}
             {%- assign setting_key = 'social_' | append: id | append: '_link' -%}
             {%- if settings[setting_key] != blank -%}
               <li>
                 <a
                   href="{{ settings[setting_key] }}"
-                  class="text-body-sm text-muted underline-offset-4 hover:text-foreground hover:underline"
+                  class="group/social inline-flex min-h-6 items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground transition-colors duration-150 hover:text-muted motion-reduce:transition-none"
                   target="_blank"
                   rel="noopener"
                 >
                   {{- social_names[forloop.index0] -}}
+                  {% render 'icon',
+                    name: 'arrow-up-right',
+                    size: 16,
+                    class: 'shrink-0 transition-transform duration-150 ease-theme group-hover/social:translate-x-0.5 group-hover/social:-translate-y-0.5 motion-reduce:transition-none'
+                  %}
                   <span class="sr-only"> ({{ 'accessibility.new_window' | t }})</span>
                 </a>
               </li>
@@ -71,131 +179,212 @@
       {%- endif -%}
 
       {%- comment -%} Segui su Shop: i colori del pulsante li decide Shopify e non vanno modificati {%- endcomment -%}
-      {%- if section.settings.enable_follow_on_shop and shop.features.follow_on_shop? -%}
+      {%- if s.enable_follow_on_shop and shop.features.follow_on_shop? -%}
         <div>{{ shop | login_button: action: 'follow' }}</div>
       {%- endif -%}
     </div>
 
     {%- comment -%} Colonne (SDS Text Link List) {%- endcomment -%}
     {%- for block in section.blocks -%}
-      <div class="flex flex-col gap-3{% if block.type == 'text' %} col-span-2 md:col-span-1{% endif %}" {{ block.shopify_attributes }}>
-        {%- if block.settings.heading != blank -%}
-          <h2 class="pb-4 text-body font-semibold text-headings">{{ block.settings.heading | escape }}</h2>
-        {%- endif -%}
+      {%- if block.type == 'newsletter' and block.settings.layout == 'band' -%}
+        {%- continue -%}
+      {%- endif -%}
+      {%- liquid
+        case block.type
+          when 'link_list'
+            assign column_class = 'col-span-1'
+          when 'text'
+            assign column_class = 'col-span-2 lg:col-span-1'
+          when 'newsletter'
+            assign column_class = 'col-span-2 md:col-span-4 lg:col-span-1'
+        endcase
+      -%}
 
-        {%- case block.type -%}
-          {%- when 'link_list' -%}
-            {%- assign links = block.settings.menu.links -%}
-            {%- if links.size > 0 -%}
-              <ul class="flex flex-col gap-3" role="list">
-                {%- for link in links -%}
-                  <li>
-                    <a
-                      href="{{ link.url }}"
-                      class="text-body text-foreground underline-offset-4 hover:underline"
-                      {% if link.current %}
-                        aria-current="page"
-                      {% endif %}
-                    >
-                      {{- link.title | escape -}}
-                      {%- comment -%} Link "Your Privacy Choices" aggiunto da Shopify: l'icona ufficiale è un obbligo di legge negli USA {%- endcomment -%}
-                      {%- if link.data_sharing_opt_out_icon -%}
-                        {{ ' ' }}{{ link.data_sharing_opt_out_icon }}
-                      {%- endif -%}
-                    </a>
-                  </li>
-                {%- endfor -%}
-              </ul>
-            {%- endif -%}
-          {%- when 'text' -%}
-            <div class="prose prose-theme max-w-none text-body">{{ block.settings.text }}</div>
-        {%- endcase -%}
-      </div>
+      {%- if block.type == 'newsletter' -%}
+        {%- assign form_id = 'FooterNewsletter-' | append: block.id -%}
+        <contact-form
+          class="{{ column_class }} flex flex-col gap-4"
+          data-sending-label="{{ 'sections.newsletter.sending' | t | escape }}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.heading != blank -%}
+            <h2 class="{{ heading_class }}">{{ block.settings.heading | escape }}</h2>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <div class="prose prose-theme max-w-md text-body-sm text-pretty [--tw-prose-body:var(--color-muted)]">
+              {{ block.settings.text }}
+            </div>
+          {%- endif -%}
+          {% render 'newsletter-form',
+            form_id: form_id,
+            tags: block.settings.tags,
+            button_label: block.settings.button_label,
+            success_message: block.settings.success_message,
+            consent: block.settings.consent,
+            class: 'w-full md:max-w-lg'
+          %}
+        </contact-form>
+      {%- else -%}
+        <div class="{{ column_class }} flex flex-col gap-4" {{ block.shopify_attributes }}>
+          {%- if block.settings.heading != blank -%}
+            <h2 class="{{ heading_class }}">{{ block.settings.heading | escape }}</h2>
+          {%- endif -%}
+
+          {%- case block.type -%}
+            {%- when 'link_list' -%}
+              {%- assign links = block.settings.menu.links -%}
+              {%- if links.size > 0 -%}
+                <ul class="flex flex-col gap-3 text-body" role="list">
+                  {%- for link in links -%}
+                    <li>
+                      <a
+                        href="{{ link.url }}"
+                        class="{{ link_class }}"
+                        {% if link.current %}
+                          aria-current="page"
+                        {% endif %}
+                      >
+                        {{- link.title | escape -}}
+                        {%- comment -%} Link "Your Privacy Choices" aggiunto da Shopify: l'icona ufficiale è un obbligo di legge negli USA {%- endcomment -%}
+                        {%- if link.data_sharing_opt_out_icon -%}
+                          {{ ' ' }}{{ link.data_sharing_opt_out_icon }}
+                        {%- endif -%}
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            {%- when 'text' -%}
+              <div class="prose prose-theme max-w-md text-body-sm text-pretty [--tw-prose-body:var(--color-muted)]">
+                {{ block.settings.text }}
+              </div>
+          {%- endcase -%}
+        </div>
+      {%- endif -%}
     {%- endfor -%}
   </div>
 
-  {%- comment -%} Riga finale {%- endcomment -%}
+  {%- comment -%} Riga finale: copyright e dati aziendali a sinistra, paese/lingua e pagamenti a destra da 990px {%- endcomment -%}
   <div class="border-t border-border">
-    <div class="page-width flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
-      <p class="text-body-sm text-muted">
-        &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}
-      </p>
-
-      {%- comment -%}
-        Paese/valuta e lingua: form 'localization' nativo, funziona senza JS. Si conferma con il pulsante: cambiare
-        paese alla sola scelta dell'opzione sarebbe un cambio di contesto inatteso (WCAG 3.2.2), e con le frecce alcuni
-        browser lo farebbero a ogni opzione. Solo i selettori con più di un'opzione.
-      {%- endcomment -%}
-      {%- if show_country or show_language -%}
-        {%- form 'localization', id: 'FooterLocalizationForm', class: 'flex flex-wrap items-end gap-3' -%}
-          {%- if show_country -%}
-            <div class="flex min-w-0 flex-col gap-1">
-              <label for="FooterCountry" class="text-body-sm text-muted">{{ 'general.localization.country_label' | t }}</label>
-              <div class="relative">
-                <select
-                  id="FooterCountry"
-                  name="country_code"
-                  class="{{ select_class }}"
-                >
-                  {%- for country in localization.available_countries -%}
-                    <option
-                      value="{{ country.iso_code }}"
-                      {% if country.iso_code == localization.country.iso_code %}
-                        selected
-                      {% endif %}
-                    >
-                      {{- country.name | escape }} ({{ country.currency.iso_code }}
-                      {%- if country.currency.symbol != country.currency.iso_code %} {{ country.currency.symbol }}{% endif -%}
-                      )
-                    </option>
-                  {%- endfor -%}
-                </select>
-                {% render 'icon', name: 'chevron-up-down', size: 16, class: 'pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-input-foreground/65' %}
+    <div class="page-width flex flex-col gap-6 py-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+      <div class="flex min-w-0 flex-col gap-3 text-body-sm text-muted">
+        {%- if s.show_copyright or s.company_info != blank -%}
+          <div class="flex flex-col gap-1">
+            {%- if s.show_copyright -%}
+              <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}</p>
+            {%- endif -%}
+            {%- if s.company_info != blank -%}
+              <div class="prose prose-theme max-w-2xl text-body-sm text-pretty [--tw-prose-body:var(--color-muted)] [--tw-prose-links:var(--color-muted)] prose-p:my-1">
+                {{ s.company_info }}
               </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if s.company_info == blank and request.design_mode -%}
+          <p class="flex items-center gap-1.5 text-warning-foreground">
+            {% render 'icon', name: 'exclamation-triangle', size: 16, class: 'shrink-0' %}
+            {{- 'sections.footer.company_info_missing' | t -}}
+          </p>
+        {%- endif -%}
+
+        {%- if has_policies -%}
+          <nav aria-label="{{ 'sections.footer.policies' | t }}">
+            <ul class="flex flex-wrap gap-x-5 gap-y-2" role="list">
+              {%- for policy in shop.policies -%}
+                {%- if policy != blank -%}
+                  <li>
+                    <a href="{{ policy.url }}" class="{{ link_class }}">{{ policy.title | escape }}</a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      </div>
+
+      {%- if show_country or show_language or s.show_payment_icons -%}
+        <div class="flex flex-col gap-6 lg:items-end">
+          {%- comment -%}
+            Paese/valuta e lingua: form 'localization' nativo, funziona senza JS. Si conferma con il pulsante: cambiare
+            paese alla sola scelta dell'opzione sarebbe un cambio di contesto inatteso (WCAG 3.2.2), e con le frecce alcuni
+            browser lo farebbero a ogni opzione. Solo i selettori con più di un'opzione.
+          {%- endcomment -%}
+          {%- if show_country or show_language -%}
+            {%- form 'localization', id: 'FooterLocalizationForm', class: 'flex flex-wrap items-end gap-3' -%}
+              {%- if show_country -%}
+                <div class="flex min-w-0 flex-col gap-1">
+                  <label for="FooterCountry" class="text-body-sm text-muted">{{ 'general.localization.country_label' | t }}</label>
+                  <div class="relative">
+                    <select
+                      id="FooterCountry"
+                      name="country_code"
+                      class="{{ select_class }}"
+                    >
+                      {%- for country in localization.available_countries -%}
+                        <option
+                          value="{{ country.iso_code }}"
+                          {% if country.iso_code == localization.country.iso_code %}
+                            selected
+                          {% endif %}
+                        >
+                          {{- country.name | escape }} ({{ country.currency.iso_code }}
+                          {%- if country.currency.symbol != country.currency.iso_code %} {{ country.currency.symbol }}{% endif -%}
+                          )
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                    {% render 'icon', name: 'chevron-up-down', size: 16, class: 'pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-input-foreground/65' %}
+                  </div>
+                </div>
+              {%- endif -%}
+              {%- if show_language -%}
+                <div class="flex min-w-0 flex-col gap-1">
+                  <label for="FooterLanguage" class="text-body-sm text-muted">{{ 'general.localization.language_label' | t }}</label>
+                  <div class="relative">
+                    <select
+                      id="FooterLanguage"
+                      name="language_code"
+                      class="{{ select_class }}"
+                    >
+                      {%- for language in localization.available_languages -%}
+                        <option
+                          value="{{ language.iso_code }}"
+                          lang="{{ language.iso_code }}"
+                          {% if language.iso_code == localization.language.iso_code %}
+                            selected
+                          {% endif %}
+                        >
+                          {{- language.endonym_name | capitalize -}}
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                    {% render 'icon', name: 'chevron-up-down', size: 16, class: 'pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-input-foreground/65' %}
+                  </div>
+                </div>
+              {%- endif -%}
+              <button type="submit" class="button button-neutral">{{ 'general.localization.submit' | t }}</button>
+            {%- endform -%}
+          {%- endif -%}
+
+          {%- if s.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+            <div>
+              <span class="sr-only">{{ 'sections.footer.payment_methods' | t }}</span>
+              <ul class="flex flex-wrap gap-2 lg:justify-end" role="list">
+                {%- for type in shop.enabled_payment_types -%}
+                  <li>{{ type | payment_type_svg_tag: class: 'h-6 w-auto' }}</li>
+                {%- endfor -%}
+              </ul>
             </div>
           {%- endif -%}
-          {%- if show_language -%}
-            <div class="flex min-w-0 flex-col gap-1">
-              <label for="FooterLanguage" class="text-body-sm text-muted">{{ 'general.localization.language_label' | t }}</label>
-              <div class="relative">
-                <select
-                  id="FooterLanguage"
-                  name="language_code"
-                  class="{{ select_class }}"
-                >
-                  {%- for language in localization.available_languages -%}
-                    <option
-                      value="{{ language.iso_code }}"
-                      lang="{{ language.iso_code }}"
-                      {% if language.iso_code == localization.language.iso_code %}
-                        selected
-                      {% endif %}
-                    >
-                      {{- language.endonym_name | capitalize -}}
-                    </option>
-                  {%- endfor -%}
-                </select>
-                {% render 'icon', name: 'chevron-up-down', size: 16, class: 'pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-input-foreground/65' %}
-              </div>
-            </div>
-          {%- endif -%}
-          <button type="submit" class="button button-neutral">{{ 'general.localization.submit' | t }}</button>
-        {%- endform -%}
-      {%- endif -%}
-
-      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
-        <div class="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
-          <span class="sr-only">{{ 'sections.footer.payment_methods' | t }}</span>
-          <ul class="flex flex-wrap gap-2" role="list">
-            {%- for type in shop.enabled_payment_types -%}
-              <li>{{ type | payment_type_svg_tag: class: 'h-6 w-auto' }}</li>
-            {%- endfor -%}
-          </ul>
         </div>
       {%- endif -%}
     </div>
   </div>
 </footer>
+
+{%- if has_newsletter -%}
+  {% render 'vite-tag-deferred', entry: 'contact-form.js', section_index: section.index %}
+{%- endif -%}
 
 {% schema %}
 {
@@ -226,10 +415,30 @@
       "default": "page"
     },
     {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_3.content"
+    },
+    {
       "type": "image_picker",
       "id": "logo",
       "label": "t:sections.footer.settings.logo.label",
       "info": "t:sections.footer.settings.logo.info"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "t:sections.footer.settings.logo_width.label",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "unit": "t:sections.footer.settings.logo_width.unit",
+      "default": 120
+    },
+    {
+      "type": "richtext",
+      "id": "brand_text",
+      "label": "t:sections.footer.settings.brand_text.label",
+      "info": "t:sections.footer.settings.brand_text.info"
     },
     {
       "type": "checkbox",
@@ -240,16 +449,40 @@
     },
     {
       "type": "checkbox",
-      "id": "show_payment_icons",
-      "label": "t:sections.footer.settings.show_payment_icons.label",
-      "default": true
-    },
-    {
-      "type": "checkbox",
       "id": "enable_follow_on_shop",
       "label": "t:sections.footer.settings.enable_follow_on_shop.label",
       "info": "t:sections.footer.settings.enable_follow_on_shop.info",
       "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_4.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_copyright",
+      "label": "t:sections.footer.settings.show_copyright.label",
+      "info": "t:sections.footer.settings.show_copyright.info",
+      "default": true
+    },
+    {
+      "type": "richtext",
+      "id": "company_info",
+      "label": "t:sections.footer.settings.company_info.label",
+      "info": "t:sections.footer.settings.company_info.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_policies",
+      "label": "t:sections.footer.settings.show_policies.label",
+      "info": "t:sections.footer.settings.show_policies.info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "t:sections.footer.settings.show_payment_icons.label",
+      "default": true
     },
     {
       "type": "header",
@@ -317,8 +550,83 @@
           "default": "t:sections.footer.blocks.text.settings.text.default"
         }
       ]
+    },
+    {
+      "type": "newsletter",
+      "name": "t:sections.newsletter.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.newsletter.settings.heading.label",
+          "default": "t:sections.newsletter.settings.heading.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.newsletter.settings.text.label",
+          "default": "t:sections.newsletter.settings.text.default"
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "t:sections.newsletter.settings.layout.label",
+          "options": [
+            {
+              "value": "band",
+              "label": "t:sections.footer.blocks.newsletter.settings.layout.options.band"
+            },
+            {
+              "value": "column",
+              "label": "t:sections.footer.blocks.newsletter.settings.layout.options.column"
+            }
+          ],
+          "default": "band"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.newsletter.settings.header_1.content"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.newsletter.settings.button_label.label",
+          "default": "t:sections.newsletter.settings.button_label.default"
+        },
+        {
+          "type": "text",
+          "id": "success_message",
+          "label": "t:sections.newsletter.settings.success_message.label",
+          "default": "t:sections.newsletter.settings.success_message.default"
+        },
+        {
+          "type": "select",
+          "id": "consent",
+          "label": "t:sections.newsletter.settings.consent.label",
+          "info": "t:sections.newsletter.settings.consent.info",
+          "options": [
+            {
+              "value": "checkbox",
+              "label": "t:sections.newsletter.settings.consent.options.checkbox"
+            },
+            {
+              "value": "notice",
+              "label": "t:sections.newsletter.settings.consent.options.notice"
+            }
+          ],
+          "default": "checkbox"
+        },
+        {
+          "type": "text",
+          "id": "tags",
+          "label": "t:sections.newsletter.settings.tags.label",
+          "info": "t:sections.newsletter.settings.tags.info",
+          "default": "t:sections.footer.blocks.newsletter.settings.tags.default"
+        }
+      ]
     }
   ],
-  "max_blocks": 3
+  "max_blocks": 5
 }
 {% endschema %}

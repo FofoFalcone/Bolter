@@ -181,6 +181,32 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "logo_width": {
+          "label": "Logo width",
+          "unit": "px"
+        },
+        "brand_text": {
+          "label": "Description",
+          "info": "One or two sentences below the logo: who you are and what you sell."
+        },
+        "show_copyright": {
+          "label": "Show copyright",
+          "info": "© with the current year and the store name."
+        },
+        "company_info": {
+          "label": "Company details",
+          "info": "Company name, registered office, VAT number, registration numbers. In Italy the VAT number must be shown on the website."
+        },
+        "show_policies": {
+          "label": "Show policy links",
+          "info": "Privacy, terms of service, refunds, shipping… Write them in Settings → Policies."
+        },
+        "header_3": {
+          "content": "Brand"
+        },
+        "header_4": {
+          "content": "Bottom bar"
         }
       },
       "blocks": {
@@ -206,6 +232,19 @@
             "text": {
               "label": "Text",
               "default": "<p>Tell customers in a few lines who you are and what you sell.</p>"
+            }
+          }
+        },
+        "newsletter": {
+          "settings": {
+            "layout": {
+              "options": {
+                "band": "Band above the columns",
+                "column": "Column"
+              }
+            },
+            "tags": {
+              "default": "newsletter, footer"
             }
           }
         }
