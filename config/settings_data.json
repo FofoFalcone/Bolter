@@ -12,6 +12,7 @@
     "favicon": "shopify://shop_images/A_Cubo_di_voxel-selection_1.png",
     "layout_page_width": 1440,
     "cart_type": "drawer",
+    "product_card_swatch_options": "Format, Formato",
     "page_transition": "clip_wipe",
     "page_transition_duration": 800,
     "sections": {

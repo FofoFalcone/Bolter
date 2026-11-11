@@ -703,6 +703,10 @@
           "info": "Coverflow and card stack don't use it: they have their own settings.",
           "unit": "px"
         },
+        "full_height": {
+          "label": "Full screen height",
+          "info": "The area fills the screen below the header. Heading and intro, if any, stay above it."
+        },
         "stage_height": {
           "label": "Area height",
           "info": "On mobile, capped at 80% of the screen height.",

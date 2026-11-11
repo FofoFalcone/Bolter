@@ -28,7 +28,8 @@
         "button_label": "Shop now",
         "button_link": "",
         "secondary_button_label": "Learn more",
-        "secondary_button_link": ""
+        "secondary_button_link": "",
+        "color_scheme": ""
       }
     },
     "statement": {
@@ -97,17 +98,18 @@
       ],
       "name": "t:sections.gallery.presets.preset_1.name",
       "settings": {
-        "heading": "Gallery",
+        "heading": "Scopri i nostri migliori prodotti",
         "intro": "",
-        "arrangement": "coverflow",
+        "arrangement": "helix",
         "loop": true,
         "axis": "x",
         "radius": 0,
         "camera_tilt": -8,
-        "item_width": 280,
+        "item_width": 320,
         "item_ratio": "0.667",
-        "gap": 64,
-        "stage_height": 560,
+        "gap": 28,
+        "full_height": false,
+        "stage_height": 420,
         "list_angle": 0,
         "list_curl": 0,
         "list_depth": 100,
@@ -115,11 +117,11 @@
         "list_turn": 0,
         "list_wave": 0,
         "grid_columns": 0,
-        "grid_fill": "sequence",
-        "grid_rotate_x": 18,
-        "grid_rotate_y": -16,
-        "grid_rotate_z": 11,
-        "grid_bulge": 0,
+        "grid_fill": "offset",
+        "grid_rotate_x": 2,
+        "grid_rotate_y": -10,
+        "grid_rotate_z": 6,
+        "grid_bulge": 30,
         "coverflow_turn": 15,
         "coverflow_spread": 100,
         "coverflow_depth": 80,
@@ -132,12 +134,12 @@
         "ring_flip": false,
         "helix_axis": "y",
         "helix_per_turn": 10,
-        "helix_pitch": 0,
+        "helix_pitch": 200,
         "sphere_face": "camera",
         "enable_open": true,
         "open_room": 24,
         "show_controls": true,
-        "color_scheme": "scheme-4"
+        "color_scheme": "scheme-1"
       }
     },
     "carousel_4hX3Pw": {
@@ -146,38 +148,13 @@
         "image_eLPyn6": {
           "type": "image",
           "settings": {
+            "image": "shopify://shop_images/photo-1739607153664-e0cc95671ffc_8e901604-0df8-4eaf-be6a-116392095dc2.jpg",
             "overlay": 30,
-            "text_tone": "light",
-            "heading": "The new collection",
+            "text_tone": "dark",
+            "heading": "Automated Collection",
             "text": "",
             "button_label": "Discover",
-            "link": "",
-            "content_position": "bottom_start",
-            "wide": true
-          }
-        },
-        "image_rBQED6": {
-          "type": "image",
-          "settings": {
-            "overlay": 30,
-            "text_tone": "light",
-            "heading": "The new collection",
-            "text": "",
-            "button_label": "Discover",
-            "link": "",
-            "content_position": "bottom_start",
-            "wide": true
-          }
-        },
-        "image_JazGHF": {
-          "type": "image",
-          "settings": {
-            "overlay": 30,
-            "text_tone": "light",
-            "heading": "The new collection",
-            "text": "",
-            "button_label": "Discover",
-            "link": "",
+            "link": "shopify://collections/automated-collection",
             "content_position": "bottom_start",
             "wide": true
           }
@@ -185,17 +162,45 @@
         "collection_nWmna4": {
           "type": "collection",
           "settings": {
-            "collection": "viso",
+            "collection": "automated-collection",
             "limit": 8,
             "show_view_all": true
+          }
+        },
+        "image_rBQED6": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/d79ee9c7-34be-45a4-b0d6-c1d88b1e16ab_4464b5e3-9441-457c-8c58-e32f0385796b.png",
+            "overlay": 30,
+            "text_tone": "dark",
+            "heading": "Lumen",
+            "text": "",
+            "button_label": "Discover",
+            "link": "shopify://collections/hydrogen",
+            "content_position": "bottom_start",
+            "wide": true
+          }
+        },
+        "image_JazGHF": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/be95cce3-70dc-430c-b84f-692c58334a1d.png",
+            "overlay": 30,
+            "text_tone": "dark",
+            "heading": "Atlas",
+            "text": "",
+            "button_label": "Discover",
+            "link": "",
+            "content_position": "bottom_start",
+            "wide": true
           }
         }
       },
       "block_order": [
         "image_eLPyn6",
+        "collection_nWmna4",
         "image_rBQED6",
-        "image_JazGHF",
-        "collection_nWmna4"
+        "image_JazGHF"
       ],
       "name": "t:sections.carousel.presets.preset_3.name",
       "settings": {
@@ -215,12 +220,19 @@
         "pagination": "progress",
         "effect": "parallax",
         "autoplay": false,
-        "autoplay_interval": 5
+        "autoplay_interval": 5,
+        "color_scheme": "scheme-1"
       }
     },
     "carousel_YDVCCp": {
       "type": "carousel",
       "blocks": {
+        "product_F3RM4D": {
+          "type": "product",
+          "settings": {
+            "product": "voxelia-lumen-ultra"
+          }
+        },
         "image_R4xjDC": {
           "type": "image",
           "settings": {
@@ -262,6 +274,7 @@
         }
       },
       "block_order": [
+        "product_F3RM4D",
         "image_R4xjDC",
         "image_KEAXkR",
         "image_CNmdFL"
@@ -271,8 +284,8 @@
         "heading": "Discover the selection",
         "intro": "",
         "align": "center",
-        "per_view_desktop": 1,
-        "per_view_mobile": "1",
+        "per_view_desktop": 3,
+        "per_view_mobile": "1.2",
         "gap": 16,
         "width": "page",
         "slide_align": "start",
@@ -284,7 +297,8 @@
         "pagination": "dots",
         "effect": "none",
         "autoplay": false,
-        "autoplay_interval": 5
+        "autoplay_interval": 5,
+        "color_scheme": ""
       }
     },
     "collections": {
@@ -322,50 +336,44 @@
         "heading": "I nostri prodotti",
         "products_to_show": 4,
         "columns_desktop": 4,
-        "show_view_all": true
+        "show_view_all": true,
+        "color_scheme": ""
       }
     },
     "shop_the_look_PaTin6": {
       "type": "shop-the-look",
       "blocks": {
-        "hotspot_wFbqaT": {
-          "type": "hotspot",
-          "settings": {
-            "product": "bionike-aza17-concentrato-anti-imperfezioni-bionike",
-            "x": 50,
-            "y": 50
-          }
-        },
         "hotspot_dxBHad": {
           "type": "hotspot",
           "settings": {
-            "product": "20-1549",
+            "product": "voxelia-atlas-x1",
             "x": 30,
-            "y": 40
+            "y": 60
           }
         },
-        "hotspot_Jxneqh": {
+        "hotspot_wFbqaT": {
           "type": "hotspot",
           "settings": {
-            "product": "absolute-mascara-volume-effetto-ventaglio-1-894",
-            "x": 62,
-            "y": 58
+            "product": "voxelia-petg-rapid",
+            "x": 78,
+            "y": 50
           }
         }
       },
       "block_order": [
-        "hotspot_wFbqaT",
         "hotspot_dxBHad",
-        "hotspot_Jxneqh"
+        "hotspot_wFbqaT"
       ],
       "name": "t:sections.shop_the_look.presets.preset_1.name",
       "settings": {
         "section_width": "page",
+        "image": "shopify://shop_images/4b048dd5-f39a-49c8-b75d-4c166e625679.png",
         "heading": "Shop the look",
         "intro": "",
         "show_list": true,
         "image_position": "left",
-        "quick_view": true
+        "quick_view": true,
+        "color_scheme": ""
       }
     },
     "content_z4mHJQ": {
@@ -408,7 +416,8 @@
       "settings": {
         "width": "medium",
         "align": "center",
-        "spacing": "medium"
+        "spacing": "medium",
+        "color_scheme": ""
       }
     },
     "content_QkKhFJ": {
@@ -492,7 +501,8 @@
       "settings": {
         "width": "wide",
         "align": "start",
-        "spacing": "medium"
+        "spacing": "medium",
+        "color_scheme": ""
       }
     },
     "story": {
@@ -505,7 +515,8 @@
         "heading": "Fatto a mano, pensato per durare",
         "text": "<p>Racconta qui il tuo brand, i materiali o il processo di produzione.</p>",
         "button_label": "Scopri di più",
-        "button_link": ""
+        "button_link": "",
+        "color_scheme": ""
       }
     },
     "lookbook": {
@@ -553,7 +564,8 @@
       "settings": {
         "heading": "Lookbook",
         "intro": "",
-        "show_progress": true
+        "show_progress": true,
+        "color_scheme": ""
       }
     },
     "faq": {
@@ -591,7 +603,8 @@
         "intro": "",
         "open_first": false,
         "allow_multiple": false,
-        "animate_on_scroll": true
+        "animate_on_scroll": true,
+        "color_scheme": ""
       }
     }
   },

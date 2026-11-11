@@ -866,6 +866,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "full_height": {
+          "label": "Altezza schermo intero",
+          "info": "L'area occupa tutto lo schermo sotto l'header. Titolo e testo introduttivo, se presenti, restano sopra."
         }
       },
       "blocks": {

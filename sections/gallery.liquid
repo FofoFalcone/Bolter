@@ -42,12 +42,49 @@
     assign defer_media = true
   endif
 
+  assign has_video = false
+  for block in section.blocks
+    if block.type == 'video' and block.settings.video != blank
+      assign has_video = true
+      break
+    endif
+  endfor
+
+  # Didascalie e link sotto la scena (con JS, per l'elemento in primo piano): se nessun elemento ne ha, la section
+  # finisce con la scena, senza padding inferiore
+  assign has_details = false
+  for block in section.blocks
+    if block.settings.caption != blank or s.enable_open and block.settings.link != blank
+      assign has_details = true
+      break
+    endif
+  endfor
+
+  # Barra flottante in fondo alla scena (frecce e contatore, pausa dei video). La scena le riserva una fascia
+  # (--gallery-controls-space, padding inferiore della scena): gli elementi si dispongono sopra, quindi la barra
+  # non copre l'elemento in primo piano, mentre ciò che sporge (griglia, disposizioni 3D) le passa sotto.
+  # 4rem = barra da 44px a 16px dal fondo, più un piccolo margine.
+  assign show_arrows = false
+  if section.blocks.size > 1
+    assign show_arrows = true
+  endif
+  assign controls_space = '0px'
+  if show_arrows and s.show_controls or has_video
+    assign controls_space = '4rem'
+  endif
+
   # Altezza della scena sotto i 750px: coverflow e pila stanno su un piano, l'elemento più un margine basta (l'altezza
   # scelta nell'editor lascerebbe un vuoto attorno alla card). Le disposizioni 3D hanno bisogno di tutta la scena.
-  assign stage_height = 'max(min(' | append: s.stage_height | append: 'px, 80svh), calc(var(--gallery-item-height) + 4rem))'
+  # L'altezza scelta comprende la fascia della barra.
+  assign stage_height = 'max(min(' | append: s.stage_height | append: 'px, 80svh), calc(var(--gallery-item-height) + 4rem + var(--gallery-controls-space)))'
   assign stage_height_mobile = stage_height
   if s.arrangement == 'coverflow' or s.arrangement == 'stack'
-    assign stage_height_mobile = 'calc(var(--gallery-item-height) + 4rem)'
+    assign stage_height_mobile = 'calc(var(--gallery-item-height) + 4rem + var(--gallery-controls-space))'
+  endif
+  # Schermo intero (come la hero): lo schermo sotto l'header, a ogni larghezza; mai meno dell'elemento più i margini
+  if s.full_height
+    assign stage_height = 'max(calc(100svh - var(--header-height, 0px)), calc(var(--gallery-item-height) + 4rem + var(--gallery-controls-space)))'
+    assign stage_height_mobile = stage_height
   endif
 
   assign has_quick_view = false
@@ -57,24 +94,38 @@
       break
     endif
   endfor
-
-  assign has_video = false
-  for block in section.blocks
-    if block.type == 'video' and block.settings.video != blank
-      assign has_video = true
-      break
-    endif
-  endfor
 -%}
 
-<div class="py-8 md:py-16">
-  <div class="page-width">
-    {% render 'section-header',
-      heading: s.heading,
-      intro: s.intro,
-      class: 'mb-8 md:mb-12'
-    %}
-  </div>
+{%- comment -%}
+  Con JS la section va da bordo a bordo con la scena: niente padding superiore senza titolo né testo introduttivo,
+  niente padding inferiore senza didascalie/link sotto la scena (la barra dei comandi è dentro di essa). Senza JS
+  (carosello scorrevole) i padding restano.
+{%- endcomment -%}
+{%- liquid
+  assign has_header = false
+  if s.heading != blank or s.intro != blank
+    assign has_header = true
+  endif
+  assign wrapper_class = 'py-8 md:py-16'
+  if section.blocks.size > 0
+    unless has_header
+      assign wrapper_class = wrapper_class | append: ' js:pt-0 md:js:pt-0'
+    endunless
+    unless has_details
+      assign wrapper_class = wrapper_class | append: ' js:pb-0 md:js:pb-0'
+    endunless
+  endif
+-%}
+<div class="{{ wrapper_class }}">
+  {%- if has_header -%}
+    <div class="page-width">
+      {% render 'section-header',
+        heading: s.heading,
+        intro: s.intro,
+        class: 'mb-8 md:mb-12'
+      %}
+    </div>
+  {%- endif -%}
 
   {%- if section.blocks.size > 0 -%}
     {%- comment -%}
@@ -90,7 +141,7 @@
       {% if has_quick_view %}
         data-quick-view="{{ quick_view_id }}"
       {% endif %}
-      style="--gallery-item-width: min({{ s.item_width }}px, 70vw); --gallery-item-height: calc(var(--gallery-item-width) / {{ s.item_ratio }}); --gallery-stage-height: {{ stage_height }}; --gallery-stage-height-mobile: {{ stage_height_mobile }}; --gallery-perspective: max(1000px, calc(var(--gallery-item-width) * 5));"
+      style="--gallery-item-width: min({{ s.item_width }}px, 70vw); --gallery-item-height: calc(var(--gallery-item-width) / {{ s.item_ratio }}); --gallery-controls-space: {{ controls_space }}; --gallery-stage-height: {{ stage_height }}; --gallery-stage-height-mobile: {{ stage_height_mobile }}; --gallery-perspective: max(1000px, calc(var(--gallery-item-width) * 5));"
     >
       <script type="application/json" data-gallery-config>
         {
@@ -163,214 +214,237 @@
         {%- endif -%}
       </p>
 
-      {%- comment -%} Scena: con JS (js:) diventa un'area 3D a altezza fissa; senza JS è un carosello scorrevole {%- endcomment -%}
-      <div
-        data-gallery-stage
-        class="relative js:h-(--gallery-stage-height-mobile) md:js:h-(--gallery-stage-height) js:cursor-grab js:overflow-clip js:perspective-(--gallery-perspective) js:select-none group-data-dragging/gallery:cursor-grabbing group-data-open/gallery:cursor-auto"
-      >
-        <ul
-          data-gallery-plane
-          class="flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto overscroll-x-contain px-6 pb-4 js:absolute js:top-1/2 js:left-1/2 js:block js:size-0 js:overflow-visible js:p-0 js:transform-3d"
-          role="list"
+      <div class="relative">
+        {%- comment -%}
+          Scena: con JS (js:) diventa un'area 3D a altezza fissa; senza JS è un carosello scorrevole. Il padding inferiore
+          è la fascia della barra dei comandi: gallery.js misura il content box, quindi le disposizioni (e l'elemento
+          aperto) occupano l'area sopra, e il piano si centra lì.
+        {%- endcomment -%}
+        <div
+          data-gallery-stage
+          class="relative js:h-(--gallery-stage-height-mobile) md:js:h-(--gallery-stage-height) js:cursor-grab js:overflow-clip js:pb-(--gallery-controls-space) js:perspective-(--gallery-perspective) js:select-none group-data-dragging/gallery:cursor-grabbing group-data-open/gallery:cursor-auto"
         >
-          {%- for block in section.blocks -%}
-            {%- liquid
-              assign block_product = nil
-              assign media = block.settings.image
-              if block.type == 'video'
-                assign media = block.settings.video
-              elsif block.type == 'product'
-                assign block_product = block.settings.product
-              endif
-              assign caption = block.settings.caption
-              assign link = block.settings.link
-              assign link_label = block.settings.link_label | default: default_link_label
-              assign item_name = caption | default: media.alt
-              if block.type == 'product'
-                assign item_name = block_product.title | default: placeholder_title
-              endif
-              assign placeholder = forloop.index0 | modulo: 6 | plus: 1 | prepend: 'collection-'
+          <ul
+            data-gallery-plane
+            class="flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto overscroll-x-contain px-6 pb-4 js:absolute js:top-[calc(50%-var(--gallery-controls-space)/2)] js:left-1/2 js:block js:size-0 js:overflow-visible js:p-0 js:transform-3d"
+            role="list"
+          >
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign block_product = nil
+                assign media = block.settings.image
+                if block.type == 'video'
+                  assign media = block.settings.video
+                elsif block.type == 'product'
+                  assign block_product = block.settings.product
+                endif
+                assign caption = block.settings.caption
+                assign link = block.settings.link
+                assign link_label = block.settings.link_label | default: default_link_label
+                assign item_name = caption | default: media.alt
+                if block.type == 'product'
+                  assign item_name = block_product.title | default: placeholder_title
+                endif
+                assign placeholder = forloop.index0 | modulo: 6 | plus: 1 | prepend: 'collection-'
 
-              assign loading = 'lazy'
-              assign fetchpriority = 'auto'
-              if forloop.first and section.index == 1
-                assign loading = 'eager'
-                assign fetchpriority = 'high'
-              endif
-            -%}
-            <li
-              data-gallery-item
-              class="group/item flex w-(--gallery-item-width) shrink-0 snap-center flex-col gap-3 js:absolute js:top-[calc(var(--gallery-item-height)/-2)] js:left-[calc(var(--gallery-item-width)/-2)] js:backface-hidden js:will-change-transform"
-              data-caption="{{ caption | escape }}"
-              data-label="{{ item_name | escape }}"
-              {% if link != blank %}
-                data-link="{{ link }}" data-link-label="{{ link_label | escape }}"
-              {% endif %}
-              {{ block.shopify_attributes }}
-            >
-              {%- if block.type == 'product' -%}
-                {%- comment -%}
-                  Card prodotto del tema (impostazioni del tema → Card prodotto), alta quanto l'elemento della
-                  galleria; il suo controllo principale (anteprima rapida o link) è il data-gallery-control.
-                {%- endcomment -%}
-                <div class="h-(--gallery-item-height)">
-                  {% render 'product-card',
-                    product: block_product,
-                    card_id: block.id,
-                    layout: 'fill',
-                    loading: loading,
-                    fetchpriority: fetchpriority,
-                    defer_media: defer_media,
-                    sizes: image_sizes,
-                    quick_view: block.settings.quick_view,
-                    control_attributes: 'data-gallery-control tabindex="-1"'
-                  %}
-                </div>
-              {%- else -%}
-              <div
-                data-gallery-media
-                class="media-loading relative h-(--gallery-item-height) overflow-hidden rounded-lg bg-surface shadow-300"
+                assign loading = 'lazy'
+                assign fetchpriority = 'auto'
+                if forloop.first and section.index == 1
+                  assign loading = 'eager'
+                  assign fetchpriority = 'high'
+                endif
+              -%}
+              <li
+                data-gallery-item
+                class="group/item flex w-(--gallery-item-width) shrink-0 snap-center flex-col gap-3 js:absolute js:top-[calc(var(--gallery-item-height)/-2)] js:left-[calc(var(--gallery-item-width)/-2)] js:backface-hidden js:will-change-transform"
+                data-caption="{{ caption | escape }}"
+                data-label="{{ item_name | escape }}"
+                {% if link != blank %}
+                  data-link="{{ link }}" data-link-label="{{ link_label | escape }}"
+                {% endif %}
+                {{ block.shopify_attributes }}
               >
-                {%- if media != blank -%}
-                  {%- if block.type == 'video' -%}
-                    {{
-                      media
-                      | video_tag:
-                        muted: true,
-                        loop: true,
-                        controls: true,
-                        image_size: '1200x',
-                        class: 'size-full object-cover'
-                    }}
-                  {%- else -%}
-                    {%- capture media_image -%}
+                {%- if block.type == 'product' -%}
+                  {%- comment -%}
+                    Card prodotto del tema (impostazioni del tema → Card prodotto), alta quanto l'elemento della
+                    galleria; il suo controllo principale (anteprima rapida o link) è il data-gallery-control.
+                  {%- endcomment -%}
+                  <div class="h-(--gallery-item-height)">
+                    {% render 'product-card',
+                      product: block_product,
+                      card_id: block.id,
+                      layout: 'fill',
+                      loading: loading,
+                      fetchpriority: fetchpriority,
+                      defer_media: defer_media,
+                      sizes: image_sizes,
+                      quick_view: block.settings.quick_view,
+                      control_attributes: 'data-gallery-control tabindex="-1"'
+                    %}
+                  </div>
+                {%- else -%}
+                <div
+                  data-gallery-media
+                  class="media-loading relative h-(--gallery-item-height) overflow-hidden rounded-lg bg-surface shadow-300"
+                >
+                  {%- if media != blank -%}
+                    {%- if block.type == 'video' -%}
                       {{
                         media
-                        | image_url: width: 1800
-                        | image_tag:
-                          loading: loading,
-                          fetchpriority: fetchpriority,
-                          widths: '300, 450, 600, 800, 1000, 1200, 1500, 1800',
-                          sizes: image_sizes,
+                        | video_tag:
+                          muted: true,
+                          loop: true,
+                          controls: true,
+                          image_size: '1200x',
                           class: 'size-full object-cover'
                       }}
-                    {%- endcapture -%}
-                    {%- render 'deferred-media', content: media_image, defer: defer_media -%}
+                    {%- else -%}
+                      {%- capture media_image -%}
+                        {{
+                          media
+                          | image_url: width: 1800
+                          | image_tag:
+                            loading: loading,
+                            fetchpriority: fetchpriority,
+                            widths: '300, 450, 600, 800, 1000, 1200, 1500, 1800',
+                            sizes: image_sizes,
+                            class: 'size-full object-cover'
+                        }}
+                      {%- endcapture -%}
+                      {%- render 'deferred-media', content: media_image, defer: defer_media -%}
+                    {%- endif -%}
+                  {%- else -%}
+                    {{ placeholder | placeholder_svg_tag: 'size-full fill-subtle' }}
                   {%- endif -%}
-                {%- else -%}
-                  {{ placeholder | placeholder_svg_tag: 'size-full fill-subtle' }}
-                {%- endif -%}
 
-                {%- capture control_class -%}
-                  absolute inset-0 rounded-lg focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-primary
-                {%- endcapture -%}
-                {%- if s.enable_open -%}
-                  {%- comment -%} Pulsante sopra il media (non attorno: i controlli del video aperto restano usabili) {%- endcomment -%}
-                  <button
-                    type="button"
-                    data-gallery-control
-                    class="{{ control_class }} hidden cursor-[inherit] js:block group-data-opened/item:hidden"
-                    tabindex="-1"
-                    {% if item_name != blank %}
-                      aria-label="{{ 'sections.gallery.open' | t: name: item_name | escape }}"
-                    {% else %}
-                      aria-label="{{ 'sections.gallery.open_position' | t: position: forloop.index | escape }}"
-                    {% endif %}
-                  ></button>
-                {%- elsif link != blank -%}
-                  <a
-                    data-gallery-control
-                    href="{{ link }}"
-                    class="{{ control_class }} cursor-[inherit]"
-                    aria-label="{{ item_name | default: link_label | escape }}"
-                  ></a>
-                {%- endif -%}
-              </div>
-              {%- endif -%}
-
-              {%- comment -%} Solo senza JS: con JS didascalia e link sono sotto la scena, per l'elemento in primo piano {%- endcomment -%}
-              {%- if caption != blank or s.enable_open and link != blank -%}
-                <div class="flex flex-col items-start gap-1 js:hidden">
-                  {%- if caption != blank -%}
-                    <p class="text-body text-foreground">{{ caption | escape }}</p>
-                  {%- endif -%}
-                  {%- if s.enable_open and link != blank -%}
-                    <a class="text-body-sm text-foreground underline underline-offset-4" href="{{ link }}">
-                      {{- link_label | escape -}}
-                    </a>
+                  {%- capture control_class -%}
+                    absolute inset-0 rounded-lg focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-primary
+                  {%- endcapture -%}
+                  {%- if s.enable_open -%}
+                    {%- comment -%} Pulsante sopra il media (non attorno: i controlli del video aperto restano usabili) {%- endcomment -%}
+                    <button
+                      type="button"
+                      data-gallery-control
+                      class="{{ control_class }} hidden cursor-[inherit] js:block group-data-opened/item:hidden"
+                      tabindex="-1"
+                      {% if item_name != blank %}
+                        aria-label="{{ 'sections.gallery.open' | t: name: item_name | escape }}"
+                      {% else %}
+                        aria-label="{{ 'sections.gallery.open_position' | t: position: forloop.index | escape }}"
+                      {% endif %}
+                    ></button>
+                  {%- elsif link != blank -%}
+                    <a
+                      data-gallery-control
+                      href="{{ link }}"
+                      class="{{ control_class }} cursor-[inherit]"
+                      aria-label="{{ item_name | default: link_label | escape }}"
+                    ></a>
                   {%- endif -%}
                 </div>
+                {%- endif -%}
+
+                {%- comment -%} Solo senza JS: con JS didascalia e link sono sotto la scena, per l'elemento in primo piano {%- endcomment -%}
+                {%- if caption != blank or s.enable_open and link != blank -%}
+                  <div class="flex flex-col items-start gap-1 js:hidden">
+                    {%- if caption != blank -%}
+                      <p class="text-body text-foreground">{{ caption | escape }}</p>
+                    {%- endif -%}
+                    {%- if s.enable_open and link != blank -%}
+                      <a class="text-body-sm text-foreground underline underline-offset-4" href="{{ link }}">
+                        {{- link_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+
+          {%- if s.enable_open -%}
+            <button
+              type="button"
+              data-gallery-close
+              class="button button-neutral button-sm button-icon absolute end-4 top-4 z-10 shadow-300"
+              aria-label="{{ 'sections.gallery.close' | t }}"
+              hidden
+            >
+              {% render 'icon', name: 'x-mark', size: 20 %}
+            </button>
+          {%- endif -%}
+        </div>
+
+        {%- if show_arrows or has_video -%}
+          {%- comment -%}
+            Barra flottante: fuori dalla scena (un pointerdown sui pulsanti non avvia il trascinamento), sopra la sua
+            fascia inferiore. Sfondo dello schema e ombra: resta leggibile anche sopra gli elementi che le passano sotto.
+            Si nasconde con un elemento aperto (frecce inattive, il video aperto ha i suoi comandi). Con "Mostra
+            frecce" spento le frecce restano raggiungibili da tastiera (compaiono col focus); la barra si vede da sola
+            solo per la pausa dei video.
+          {%- endcomment -%}
+          <div class="pointer-events-none absolute inset-x-0 bottom-4 hidden justify-center px-4 js:flex">
+            <div
+              class="pointer-events-auto flex items-center gap-1 rounded-button bg-background p-1 text-foreground shadow-300 transition-[opacity,visibility] duration-200 ease-theme group-data-open/gallery:invisible group-data-open/gallery:opacity-0 motion-reduce:transition-none{% unless s.show_controls %} not-has-[[data-gallery-video-toggle]:not([hidden])]:not-focus-within:sr-only{% endunless %}"
+            >
+              {%- if show_arrows -%}
+                <div class="flex items-center gap-1{% unless s.show_controls %} sr-only focus-within:not-sr-only{% endunless %}">
+                  <button
+                    type="button"
+                    data-gallery-prev
+                    class="button button-subtle button-sm button-icon"
+                    aria-label="{{ 'sections.gallery.previous' | t }}"
+                  >
+                    {% render 'icon', name: 'chevron-left', size: 20 %}
+                  </button>
+                  <p data-gallery-counter class="min-w-14 text-center text-body-sm text-muted tabular-nums" aria-hidden="true"></p>
+                  <button
+                    type="button"
+                    data-gallery-next
+                    class="button button-subtle button-sm button-icon"
+                    aria-label="{{ 'sections.gallery.next' | t }}"
+                  >
+                    {% render 'icon', name: 'chevron-right', size: 20 %}
+                  </button>
+                </div>
               {%- endif -%}
-            </li>
-          {%- endfor -%}
-        </ul>
-
-        {%- if s.enable_open -%}
-          <button
-            type="button"
-            data-gallery-close
-            class="button button-neutral button-sm button-icon absolute end-4 top-4 z-10 shadow-300"
-            aria-label="{{ 'sections.gallery.close' | t }}"
-            hidden
-          >
-            {% render 'icon', name: 'x-mark', size: 20 %}
-          </button>
-        {%- endif -%}
-      </div>
-
-      <div class="page-width mt-6 hidden flex-col items-center gap-3 text-center js:flex">
-        {%- if section.blocks.size > 1 -%}
-          <div class="flex items-center gap-4{% unless s.show_controls %} sr-only focus-within:not-sr-only{% endunless %}">
-            <button
-              type="button"
-              data-gallery-prev
-              class="button button-neutral button-sm button-icon"
-              aria-label="{{ 'sections.gallery.previous' | t }}"
-            >
-              {% render 'icon', name: 'chevron-left', size: 20 %}
-            </button>
-            <p data-gallery-counter class="min-w-16 text-body-sm text-muted tabular-nums" aria-hidden="true"></p>
-            <button
-              type="button"
-              data-gallery-next
-              class="button button-neutral button-sm button-icon"
-              aria-label="{{ 'sections.gallery.next' | t }}"
-            >
-              {% render 'icon', name: 'chevron-right', size: 20 %}
-            </button>
+              {%- if has_video -%}
+                {%- comment -%}
+                  Pausa/riproduzione dei video (WCAG 2.2.2: contenuto in movimento oltre 5 secondi), visibile quando l'elemento
+                  in primo piano è un video. La scelta vale per tutti i video della galleria; con movimento ridotto parte in
+                  pausa. Il nome accessibile (Pausa/Riproduci) lo aggiorna gallery.js.
+                {%- endcomment -%}
+                <button
+                  type="button"
+                  data-gallery-video-toggle
+                  data-label-play="{{ 'sections.hero.play_video' | t | escape }}"
+                  data-label-pause="{{ 'sections.hero.pause_video' | t | escape }}"
+                  aria-label="{{ 'sections.hero.pause_video' | t | escape }}"
+                  class="button button-subtle button-sm button-icon"
+                  hidden
+                >
+                  {% render 'icon', name: 'pause', size: 20, class: 'group-data-videos-paused/gallery:hidden' %}
+                  {% render 'icon', name: 'play', size: 20, class: 'hidden group-data-videos-paused/gallery:block' %}
+                </button>
+              {%- endif -%}
+            </div>
           </div>
         {%- endif -%}
-        {%- if has_video -%}
-          {%- comment -%}
-            Pausa/riproduzione dei video (WCAG 2.2.2: contenuto in movimento oltre 5 secondi), visibile quando l'elemento in
-            primo piano è un video. La scelta vale per tutti i video della galleria; con movimento ridotto parte in pausa.
-          {%- endcomment -%}
-          <button
-            type="button"
-            data-gallery-video-toggle
-            data-label-play="{{ 'sections.hero.play_video' | t | escape }}"
-            data-label-pause="{{ 'sections.hero.pause_video' | t | escape }}"
-            aria-label="{{ 'sections.hero.pause_video' | t | escape }}"
-            class="button button-neutral button-sm gap-2"
-            hidden
-          >
-            {% render 'icon', name: 'pause', size: 16, class: 'group-data-videos-paused/gallery:hidden' %}
-            {% render 'icon', name: 'play', size: 16, class: 'hidden group-data-videos-paused/gallery:block' %}
-            <span aria-hidden="true" class="group-data-videos-paused/gallery:hidden">{{ 'sections.hero.pause_video' | t }}</span>
-            <span aria-hidden="true" class="hidden group-data-videos-paused/gallery:inline">{{ 'sections.hero.play_video' | t }}</span>
-          </button>
-        {%- endif -%}
-        <p data-gallery-caption class="text-body text-foreground" hidden></p>
-        {%- if s.enable_open -%}
-          <a
-            data-gallery-link
-            class="button button-neutral button-sm"
-            data-default-label="{{ default_link_label | escape }}"
-            hidden
-          ></a>
-        {%- endif -%}
-        <p data-gallery-status class="sr-only" aria-live="polite"></p>
       </div>
+
+      {%- if has_details -%}
+        <div class="page-width hidden flex-col items-center gap-3 pt-6 text-center js:flex">
+          <p data-gallery-caption class="text-body text-foreground" hidden></p>
+          {%- if s.enable_open -%}
+            <a
+              data-gallery-link
+              class="button button-neutral button-sm"
+              data-default-label="{{ default_link_label | escape }}"
+              hidden
+            ></a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      <p data-gallery-status class="sr-only" aria-live="polite"></p>
     </animated-gallery>
 
     {%- comment -%} Fuori da <animated-gallery>: frecce ed Esc nel dialog non devono muovere la galleria {%- endcomment -%}
@@ -389,8 +463,8 @@
 </div>
 
 {%- comment -%}
-  ExcessiveSettingsCount (41 su 40): 30 setting dipendono dalla disposizione scelta (visible_if) e il pannello ne mostra
-  al massimo 17 alla volta, quindi il problema che la regola segnala (un pannello troppo lungo) qui non c'è. Dividere
+  ExcessiveSettingsCount (42 su 40): 30 setting dipendono dalla disposizione scelta (visible_if) e il pannello ne mostra
+  al massimo 18 alla volta, quindi il problema che la regola segnala (un pannello troppo lungo) qui non c'è. Dividere
   la section per disposizione moltiplicherebbe le section quasi uguali.
 {%- endcomment -%}
 {% # theme-check-disable ExcessiveSettingsCount %}
@@ -567,8 +641,16 @@
       "default": 24
     },
     {
+      "type": "checkbox",
+      "id": "full_height",
+      "label": "t:sections.gallery.settings.full_height.label",
+      "info": "t:sections.gallery.settings.full_height.info",
+      "default": false
+    },
+    {
       "type": "range",
       "id": "stage_height",
+      "visible_if": "{{ section.settings.full_height == false }}",
       "label": "t:sections.gallery.settings.stage_height.label",
       "info": "t:sections.gallery.settings.stage_height.info",
       "min": 320,
