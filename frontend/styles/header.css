@@ -15,15 +15,11 @@
 
 @layer components {
   /*
-   * Header fisso: elementi raggiunti con Tab o con un'ancora si fermano sotto l'header invece che dietro
-   * (WCAG 2.4.11, focus non nascosto). scroll-margin sull'elemento raggiunto, MAI scroll-padding su <html>:
-   * le scroll timeline native (hero, parallax, scroll gallery, frase rivelata) misurano l'area visibile meno lo
-   * scroll-padding, e a pagina ferma partirebbero già avanzate (immagine della hero spostata in basso).
+   * Header fisso: lo scroll-margin di focus e ancore (WCAG 2.4.11) è stampato da sections/header.liquid solo
+   * quando serve, non qui con html:has(site-header[data-sticky]) :is(:focus, :target): un :has() su <html> seguito
+   * da un discendente fa ricalcolare gli stili di tutta la pagina a ogni nodo aggiunto (traccia del 2026-11-11:
+   * ricalcoli completi da ~540 ms con la CPU rallentata 4×, avviati anche dagli script di Shopify).
    */
-  html:has(site-header[data-sticky='always']) :is(:focus, :target),
-  html:has(site-header[data-sticky='scroll-up']) :is(:focus, :target) {
-    scroll-margin-top: calc(var(--header-height) + 1rem);
-  }
 
   /* Header fisso: deve essere sticky il wrapper della section, non l'elemento interno */
   .section-header:has(site-header[data-sticky='always']),
@@ -36,15 +32,16 @@
   /*
    * Header trasparente: la prima section sale sotto l'header (margine negativo pari alla sua altezza) e
    * l'header le resta sopra. Solo se quella section lo consente e l'header è l'ultima section del gruppo header
-   * (subito prima di <main>): stesse condizioni della variante overlay (theme.css).
+   * (subito prima di <main>): stesse condizioni della variante overlay (theme.css), ancorate sulla section
+   * dell'header e non su <body> (vedi lì il perché).
    */
-  body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) .section-header:has(site-header[data-transparent]) {
+  .section-header:has(site-header[data-transparent]):has(+ main > .shopify-section:first-child [data-header-overlay]) {
     z-index: 40;
     margin-bottom: calc(-1 * var(--header-height));
   }
 
   /* Gli header sticky sono già posizionati (regola sopra): solo quello non sticky ha bisogno di relative */
-  body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) .section-header:has(site-header[data-transparent][data-sticky='none']) {
+  .section-header:has(site-header[data-transparent][data-sticky='none']):has(+ main > .shopify-section:first-child [data-header-overlay]) {
     position: relative;
   }
 

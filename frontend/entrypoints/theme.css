@@ -44,9 +44,15 @@
  * Header trasparente (sections/header.liquid, data-transparent) sopra la prima section della pagina, se questa
  * lo consente ([data-header-overlay="light|dark"]: hero a tutta larghezza con media). Tutto in CSS (:has), quindi
  * corretto dal primo rendering. header.js aggiunge [data-solid] quando l'header deve tornare pieno.
- * Solo se l'header è l'ultima section del gruppo header (body:has(> .section-header + main)): una section dopo
+ * Solo se l'header è l'ultima section del gruppo header (.section-header:has(+ main …)): una section dopo
  * l'header (es. barra annunci spostata sotto) starebbe tra header e hero, e il margine negativo dell'header la
  * porterebbe sotto di lui. In quel caso l'header resta pieno.
+ * Il :has() è ancorato sulla section dell'header, mai su <html>/<body>: con body:has(…) … * ogni nodo aggiunto alla
+ * pagina (anche dagli script di Shopify) faceva ricalcolare gli stili di tutto il documento (traccia della home del
+ * 2026-11-11: ricalcoli da ~540 ms con la CPU rallentata 4×). Così si ricalcola al più l'header.
+ * under-header termina con la classe della utility (… [data-header-overlay] &), non con &:is(… *): con l'asterisco
+ * finale ogni nodo aggiunto in <main> faceva ricalcolare tutto <main> (~3,6 ms contro ~0,6 per inserimento, misurati
+ * in Chrome sull'HTML della home). Stessa specificità. Per overlay: la forma con l'asterisco non pesa (header piccolo).
  * - overlay:        header trasparente in questo momento (su <site-header> e discendenti)
  * - overlay-light:  idem, sopra una hero con testo chiaro (header con testo bianco)
  * - under-header:   contenuto della prima section che sta sotto un header trasparente (spazio in alto)
@@ -54,10 +60,10 @@
  *   tornato pieno ([data-solid]). Per il logo chiaro come sfondo CSS (sections/header.liquid): si scarica solo dove
  *   serve e resta caricato mentre sfuma
  */
-@custom-variant overlay (&:is(body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) site-header[data-transparent]:not([data-solid]), body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay]) site-header[data-transparent]:not([data-solid]) *));
-@custom-variant overlay-light (&:is(body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent]:not([data-solid]), body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent]:not([data-solid]) *));
-@custom-variant overlay-light-page (&:is(body:has(> .section-header + main):has(main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent] *));
-@custom-variant under-header (&:is(body:has(> .section-header + main):has(site-header[data-transparent]) main > .shopify-section:first-child [data-header-overlay] *));
+@custom-variant overlay (&:is(.section-header:has(+ main > .shopify-section:first-child [data-header-overlay]) site-header[data-transparent]:not([data-solid]), .section-header:has(+ main > .shopify-section:first-child [data-header-overlay]) site-header[data-transparent]:not([data-solid]) *));
+@custom-variant overlay-light (&:is(.section-header:has(+ main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent]:not([data-solid]), .section-header:has(+ main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent]:not([data-solid]) *));
+@custom-variant overlay-light-page (&:is(.section-header:has(+ main > .shopify-section:first-child [data-header-overlay='light']) site-header[data-transparent] *));
+@custom-variant under-header (.section-header:has(site-header[data-transparent]) + main > .shopify-section:first-child [data-header-overlay] &);
 @custom-variant js-motion {
   @media (prefers-reduced-motion: no-preference) {
     &:where(.js *) {

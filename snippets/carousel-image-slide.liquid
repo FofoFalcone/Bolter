@@ -11,6 +11,7 @@
   - effect: effetto del carosello
   - sizes / sizes_wide: attributo sizes per la slide normale / doppia
   - loading / fetchpriority: caricamento dell'immagine
+  - defer_media: true per inserire l'immagine solo quando la section si avvicina (snippets/deferred-media.liquid)
 {%- endcomment -%}
 {%- liquid
   assign b = block.settings
@@ -67,10 +68,10 @@
     assign has_button = true
   endif
 
+  # Parallasse su un contenitore che c'è da subito: con defer_media l'<img> arriva dopo che
+  # frontend/entrypoints/carousel-effects.js ha collegato l'effetto ([data-carousel-parallax])
   assign image_class = 'absolute inset-0 size-full object-cover'
-  if effect == 'parallax'
-    assign image_class = image_class | append: ' js-motion:scale-115'
-  elsif has_link
+  if has_link and effect != 'parallax'
     assign image_class = image_class | append: ' transition-[scale] duration-500 ease-theme motion-safe:group-hover/slide:scale-105'
   endif
 
@@ -98,17 +99,26 @@
   <div class="group/slide{% if has_image %} media-loading{% endif %} relative grid h-full grid-cols-1 overflow-hidden rounded-lg bg-surface" data-carousel-image>
     <span class="col-start-1 row-start-1 block w-(--carousel-slide) {{ ratio_class }}" aria-hidden="true"></span>
     {%- if has_image -%}
-      {{
-        b.image
-        | image_url: width: 2400
-        | image_tag:
-          loading: loading,
-          fetchpriority: fetchpriority,
-          sizes: image_sizes,
-          widths: '300, 400, 600, 800, 1000, 1200, 1600, 2000, 2400',
-          alt: slide_alt,
-          class: image_class
-      }}
+      {%- capture slide_image -%}
+        {{
+          b.image
+          | image_url: width: 2400
+          | image_tag:
+            loading: loading,
+            fetchpriority: fetchpriority,
+            sizes: image_sizes,
+            widths: '300, 400, 600, 800, 1000, 1200, 1600, 2000, 2400',
+            alt: slide_alt,
+            class: image_class
+        }}
+      {%- endcapture -%}
+      {%- if effect == 'parallax' -%}
+        <span class="absolute inset-0 js-motion:scale-115" data-carousel-parallax>
+          {%- render 'deferred-media', content: slide_image, defer: defer_media -%}
+        </span>
+      {%- else -%}
+        {%- render 'deferred-media', content: slide_image, defer: defer_media -%}
+      {%- endif -%}
       {%- if b.overlay > 0 -%}
         <span class="absolute inset-0 {{ veil_class }} opacity-(--slide-veil)" style="--slide-veil: {{ b.overlay | divided_by: 100.0 }};" aria-hidden="true"></span>
       {%- endif -%}

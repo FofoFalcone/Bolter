@@ -64,6 +64,12 @@ export default defineConfig(({ mode }) => {
       // Inline: funzionano anche dal CDN Shopify (file .map separati non verrebbero caricati sul tema).
       sourcemap: isDebug ? 'inline' : false,
       minify: !isDebug,
+      // Browser minimi di Tailwind CSS v4 (il tema non funziona su quelli più vecchi). Col target predefinito di Vite
+      // (Firefox 104, senza :has) Lightning CSS avvolge ogni elenco di selettori con un :has() in un unico :is(): il
+      // browser non lo può più smistare per classe e lo prova su ogni elemento. Misurato il 2026-11-11 in una traccia
+      // della home: 41 regole :is(:root, .shopify-section:has(…), .card-colors) provate su tutti gli elementi a ogni
+      // ricalcolo degli stili.
+      cssTarget: ['chrome111', 'edge111', 'firefox128', 'safari16.4'],
       assetsInlineLimit: 0,
 
       // Watch: non osservare i file che la build stessa produce, altrimenti ogni build

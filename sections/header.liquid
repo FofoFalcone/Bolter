@@ -48,6 +48,21 @@
   {% content_for 'blocks' %}
 {%- endcapture -%}
 
+{%- comment -%}
+  Header fisso: elementi raggiunti con Tab o con un'ancora si fermano sotto l'header invece che dietro (WCAG 2.4.11,
+  focus non nascosto). Stampato qui solo se l'header è fisso, invece di html:has(site-header[data-sticky]) nel CSS
+  globale, che a ogni nodo aggiunto faceva ricalcolare gli stili di tutta la pagina (frontend/styles/header.css).
+  scroll-margin sull'elemento raggiunto, MAI scroll-padding su <html>: le scroll timeline native (hero, parallax,
+  scroll gallery, frase rivelata) misurano l'area visibile meno lo scroll-padding, e a pagina ferma partirebbero già
+  avanzate. <style> semplice, non il tag style di Liquid: style[data-shopify] segnala le section con un proprio schema
+  di colori.
+{%- endcomment -%}
+{%- if section.settings.sticky_header != 'none' -%}
+  <style>
+    :focus, :target { scroll-margin-top: calc(var(--header-height) + 1rem); }
+  </style>
+{%- endif -%}
+
 {%- capture pill_class -%}
   relative flex items-center gap-1 rounded-button px-3.5 py-2 text-body leading-none text-foreground transition-colors hover:bg-surface js:hover:bg-transparent aria-[current=page]:font-semibold overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white
 {%- endcapture -%}

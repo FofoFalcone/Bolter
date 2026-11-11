@@ -28,7 +28,8 @@ const supportsScrollTimeline = () => typeof window.ScrollTimeline === 'function'
 const EFFECTS = {
   parallax: (slide) => [
     {
-      element: slide.querySelector('[data-carousel-image] > img'),
+      // Contenitore dell'immagine, non l'<img>: con le immagini differite (deferred-media) arriva dopo il collegamento
+      element: slide.querySelector('[data-carousel-parallax]'),
       keyframes: { translate: ['-7% 0', '7% 0'] },
     },
   ],

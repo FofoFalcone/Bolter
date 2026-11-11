@@ -47,6 +47,14 @@
     assign use_quick_view = true
   endif
 
+  # Immagini inserite a uno schermo dal carosello (snippets/deferred-media.liquid), come nella galleria: con
+  # loading="lazy" Chrome le scaricava a 0,4 s anche a ~3400px dall'alto, insieme alla foto della hero (Lighthouse
+  # mobile, 2026-11-11: ~173 KiB prima dell'LCP). Non nelle prime due section (con Section Rendering index è vuoto).
+  assign defer_media = false
+  if section.index > 2
+    assign defer_media = true
+  endif
+
   assign effect = s.effect
   assign align = s.slide_align
   if effect == 'coverflow'
@@ -222,6 +230,7 @@
                         sizes: card_sizes,
                         loading: card_loading,
                         fetchpriority: card_priority,
+                        defer_media: defer_media,
                         quick_view: use_quick_view,
                         link_collection: collection_block
                       %}
@@ -279,6 +288,7 @@
                       sizes: card_sizes,
                       loading: card_loading,
                       fetchpriority: card_priority,
+                      defer_media: defer_media,
                       quick_view: use_quick_view
                     %}
                   </li>
@@ -308,7 +318,8 @@
                     sizes: sizes,
                     sizes_wide: sizes_wide,
                     loading: image_loading,
-                    fetchpriority: image_priority
+                    fetchpriority: image_priority,
+                    defer_media: defer_media
                   %}
                 {%- endif -%}
             {%- endcase -%}
