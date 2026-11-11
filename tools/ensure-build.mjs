@@ -10,7 +10,7 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -89,3 +89,7 @@ if (iconIssues.length) {
     `\n⚠️  Icone con la misura nella classe (usa il parametro size: 16, 20, 24, 32, 48 o 'full'):\n   ${iconIssues.join('\n   ')}\n`,
   );
 }
+
+// 5. Licenze (tools/build-license.mjs): snippets/license.liquid porta LICENSE e THIRD_PARTY_NOTICES.md nel tema
+//    caricato su Shopify. Avvisa se uno dei due è cambiato senza rigenerare lo snippet.
+spawnSync(process.execPath, ['tools/build-license.mjs', '--check'], { cwd: root, stdio: 'inherit' });

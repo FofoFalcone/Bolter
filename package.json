@@ -9,6 +9,7 @@
     "chunks:save": "npm run build:check && node tools/compare-chunks.mjs save",
     "chunks:compare": "npm run build:check && node tools/compare-chunks.mjs",
     "icons": "node tools/build-icons.mjs",
+    "license": "node tools/build-license.mjs",
     "schema:i18n": "node tools/schema-i18n.mjs",
     "prelint": "node tools/ensure-build.mjs",
     "lint": "shopify theme check",

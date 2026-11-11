@@ -9,6 +9,11 @@ Bolter Theme include nel codice distribuito (bundle in `assets/`, snippet genera
 | [Lenis](https://github.com/darkroom-engineering/lenis) | 1.3.27 | bundle JS dello scorrimento morbido | Copyright (c) 2024 darkroom.engineering |
 | [Heroicons](https://heroicons.com) | 2.2.0 | `snippets/icon.liquid` (SVG generati da `npm run icons`) | Copyright (c) Tailwind Labs, Inc. |
 | [Tailwind CSS](https://tailwindcss.com) | 4.x | CSS generato (reset Preflight e utility) | Copyright (c) Tailwind Labs, Inc. |
+| [Esempi di Motion](https://motion.dev/examples) (`js-accordion`, `js-tab-select`, `js-parallax`, `js-scroll-pinning`, `js-stagger-grid`, `js-lenis-smooth-scroll`) | — | adattati in accordion, tab delle collezioni, parallasse, galleria a scorrimento, ingressi a griglia, scorrimento morbido (`docs/motion-examples.md`) | Copyright (c) Motion Division Ltd |
+
+Gli esempi di Motion sono citati per prudenza: Motion dichiara MIT il codice degli esempi Motion+ ([prezzi, FAQ](https://motion.dev/pricing)), mentre per gli esempi gratuiti non indica una licenza esplicita (verificato il 2026-11-11). Degli esempi Motion+ il tema riprende solo idee, mai codice.
+
+Questi avvisi e la licenza del tema viaggiano anche nel tema caricato su Shopify, che non riceve i file della radice del repository: `snippets/license.liquid` (generato da `npm run license`, da rilanciare dopo ogni modifica a questo file o a LICENSE) e un'intestazione `/*! … */` in `theme.js`, `theme.css` e nei chunk JS con codice di terzi (`tools/license-banner.mjs`).
 
 Gli strumenti usati solo per lo sviluppo e la build (Vite, `vite-plugin-shopify`, Shopify CLI, ecc.) non sono inclusi nel tema distribuito; le loro licenze si trovano nei rispettivi pacchetti in `node_modules/`.
 

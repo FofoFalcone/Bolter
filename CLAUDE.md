@@ -14,6 +14,7 @@ npm run chunks:save  # build:check + salva il "prima" in .build-check-baseline/ 
 npm run chunks:compare # build:check + file JS scaricati per entrypoint/import dinamico rispetto al "prima" (tools/compare-chunks.mjs)
 npm run lint         # Theme Check (fa la build solo se vite-tag.liquid manca)
 npm run icons        # rigenera snippets/icon.liquid da tools/icons.json (Heroicons)
+npm run license      # rigenera snippets/license.liquid da LICENSE + THIRD_PARTY_NOTICES.md (npm run lint avvisa se è vecchio)
 npm run watch        # build in watch (non minificata, sourcemap inline); si riavvia da solo se cambiano gli entrypoint (tools/watch.mjs)
 npm run start:watch  # watch, poi shopify theme dev sull'ambiente `local` (tools/dev.mjs): theme dev parte DOPO la prima build
 npm run start:events # come start:watch, con l'inspector degli standard storefront events
@@ -49,6 +50,7 @@ Standard storefront events and actions (giugno 2026): helper in `frontend/script
 - **Mai eseguire push o comandi che scrivono sullo store** (`shopify theme push`, `shopify:push:*`, `shopify theme publish`, `delete`, `rename`) senza richiesta esplicita dell'utente nel messaggio corrente. Per la produzione chiedi sempre conferma.
   Questa regola è anche imposta tecnicamente in `.claude/settings.json`: push in produzione, `--live`/`--allow-live`, `publish`, `delete` e `rename` sono bloccati (regole `deny` + hook `PreToolUse`); il push sul tema di sviluppo richiede conferma. Se un comando viene bloccato, non cercare di aggirarlo: indica all'utente il comando da eseguire manualmente.
 - **Mai modificare `config/settings_data.json`** salvo richiesta esplicita: contiene le personalizzazioni del merchant.
+- **Licenze**: il tema è proprietario ([LICENSE](LICENSE)). Una dipendenza che finisce nei bundle o nei file del tema va aggiunta a [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) e, se è JS, a `LIBRARIES` in `tools/license-banner.mjs` (intestazione `/*! … */` nei chunk che la contengono); poi `npm run license`. Codice preso da esempi esterni: solo con licenza verificata e citato negli avvisi; dagli esempi Motion+ solo idee.
 - **`shopify.theme.toml`**: l'ambiente `local` (senza theme ID) è per `theme dev`; `development` riceve solo build. Non puntare `theme dev` al tema condiviso.
 - Prima di dichiarare un task completato: `npm run build:check` deve riuscire e `npm run lint` terminare senza **nuovi** errori. Se non hai verificato qualcosa (es. comportamento nel browser), dillo esplicitamente.
 

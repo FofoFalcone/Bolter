@@ -23,6 +23,8 @@
  * se Tailwind lo osservasse, in `npm run watch` ogni build ne avvierebbe un'altra (ciclo infinito).
  */
 @source not '../../snippets/vite-tag.liquid';
+/* Testo delle licenze (npm run license): solo prosa, le parole come "table" o "contents" diventerebbero classi */
+@source not '../../snippets/license.liquid';
 
 /*
  * Varianti custom:

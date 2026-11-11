@@ -91,7 +91,8 @@ const sizeCases = SIZES.map(
 
 const snippet = `{%- comment -%}
   FILE GENERATO da tools/build-icons.mjs — non modificare a mano.
-  Icone: Heroicons (https://heroicons.com, licenza MIT). Elenco in tools/icons.json, rigenera con: npm run icons
+  Icone: Heroicons (https://heroicons.com), Copyright (c) Tailwind Labs, Inc., licenza MIT (testo in snippets/license.liquid).
+  Elenco in tools/icons.json, rigenera con: npm run icons
 
   Parametri:
   - name: nome dell'icona (${names})

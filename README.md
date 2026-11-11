@@ -198,6 +198,7 @@ npm run shopify:pull
 | `npm run build:check`       | Build di verifica in `.build-check/`: non tocca `assets/` né `vite-tag` (sicura con theme dev attivo) |
 | `npm run lint`              | Theme Check (esegue la build solo se `vite-tag.liquid` manca)        |
 | `npm run icons`             | Rigenera `snippets/icon.liquid` dalle Heroicons in `tools/icons.json` |
+| `npm run license`           | Rigenera `snippets/license.liquid` da `LICENSE` e `THIRD_PARTY_NOTICES.md` (le licenze che viaggiano con il tema) |
 | `npm run schema:i18n`       | Sposta i testi degli schema in `locales/*.schema.json` (chiavi `t:`) ed elenca le traduzioni inglesi mancanti |
 | `npm run lint:fix`          | Esegue Theme Check con correzione automatica (`--auto-correct`)      |
 | `npm run shopify:pull`      | Scarica il tema remoto (ambiente development)                        |

@@ -9,5 +9,8 @@ ignore:
 # Personalizza le regole (opzionale)
 MissingTemplate: # Regola per evitare template mancanti
   enabled: true
+OrphanedSnippet: # Snippet mai resi
+  ignore:
+    - snippets/license.liquid # Testo delle licenze (npm run license): viaggia con il tema, non va mai reso
 UnusedAssign: # Regola per evitare variabili non utilizzate
   severity: suggestion # La regola è attiva, ma segnala solo come suggerimento (non è un errore).

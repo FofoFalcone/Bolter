@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import shopify from 'vite-plugin-shopify';
 import tailwindcss from '@tailwindcss/vite';
 import pruneStaleAssets from './tools/prune-stale-assets.mjs';
+import licenseBanner from './tools/license-banner.mjs';
 
 // Cartella del progetto con la lettera del disco nella forma reale ("C:\"), non come l'ha scritta il terminale.
 // Aperta come "c:\" (VS Code, Git Bash), lo stesso file arrivava al bundler con due id (radice e alias "@/" di
@@ -50,6 +51,8 @@ export default defineConfig(({ mode }) => {
       }),
       // Watch: dopo ogni build elimina da assets/ i file con hash non più prodotti (tools/prune-stale-assets.mjs)
       isWatch && pruneStaleAssets({ publicDir: PUBLIC_DIR }),
+      // Avvisi di copyright (tema e librerie MIT) in testa a theme.js, theme.css e ai chunk con codice di terzi
+      licenseBanner(),
     ],
 
     build: {
