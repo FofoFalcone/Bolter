@@ -59,6 +59,8 @@ const VIEW_OPTIONS = {
   margin: '0px 0px -10% 0px',
 };
 
+// Copia locale, non import da reduced-motion.js: l'import aggiungeva un file al chunk delle animazioni (5 → 6),
+// cioè una richiesta in più su quasi ogni pagina per una riga (misurato il 2026-11-11).
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

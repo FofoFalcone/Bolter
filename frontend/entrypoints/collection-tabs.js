@@ -17,6 +17,8 @@ import { stagger } from 'motion';
 
 const TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] };
 
+// Copia locale, non import da reduced-motion.js: l'import aggiungeva un file all'entrypoint (5 → 6), cioè una
+// richiesta in più per una riga (misurato il 2026-11-11).
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

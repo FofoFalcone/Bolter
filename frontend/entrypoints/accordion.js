@@ -17,6 +17,8 @@ import { animate } from 'motion/mini';
 
 const TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] };
 
+// Copia locale, non import da reduced-motion.js: l'import aggiungeva un file all'entrypoint (4 → 5), cioè una
+// richiesta in più per una riga (misurato il 2026-11-11).
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

@@ -13,12 +13,12 @@
 
 import { animate } from 'motion/mini';
 import { spring } from 'motion';
+import { prefersReducedMotion } from './reduced-motion.js';
 
 const AUTO_HIDE_MS = 5000;
 const ANNOUNCE_DELAY_MS = 100;
 const ENTER_SPRING = { type: spring, visualDuration: 0.35, bounce: 0.15 };
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const getTemplate = () => document.getElementById('ToastTemplate');
 
 let active = null;
@@ -26,7 +26,7 @@ let active = null;
 function hide(toast) {
   clearTimeout(toast.hideTimer);
   if (active === toast) active = null;
-  if (reducedMotion()) {
+  if (prefersReducedMotion()) {
     toast.remove();
     return;
   }
@@ -92,7 +92,7 @@ export function showToast(message, { tone = 'success', action = null } = {}) {
   setTimeout(() => (status.textContent = message), ANNOUNCE_DELAY_MS);
 
   animate(toast, { opacity: [0, 1] }, { duration: 0.2 });
-  if (!reducedMotion()) {
+  if (!prefersReducedMotion()) {
     animate(toast, { translate: [fromTop ? '0 -1.5rem' : '0 1.5rem', '0 0'] }, ENTER_SPRING);
   }
 }

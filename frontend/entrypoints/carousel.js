@@ -21,6 +21,8 @@ const SETTLE_DELAY = 140; // ms senza scorrimento dopo cui la traccia è conside
 const DRAG_THRESHOLD = 5; // px: sotto è un clic
 const DRAG_PROJECTION = 180; // ms di velocità aggiunti alla posizione di rilascio
 
+// Copia locale, non import da scripts/reduced-motion.js: l'import aggiungeva un file all'entrypoint (2 → 3), cioè
+// una richiesta in più per una riga (misurato il 2026-11-11).
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
