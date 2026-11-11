@@ -30,8 +30,11 @@
   assign tag_class = 'inline-flex h-9 items-center rounded-button border px-4 text-body-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none'
 -%}
 
-<div class="page-width py-8 md:py-16">
+<div class="page-width {% if s.show_breadcrumbs %}pt-6 pb-8 md:pt-8 md:pb-16{% else %}py-8 md:py-16{% endif %}">
   <header class="flex flex-col gap-6">
+    {%- if s.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
     <h1 class="text-heading text-balance text-headings md:text-title-page">
       {{- blog.title | escape -}}
       {%- if current_tags.size > 0 -%}
@@ -192,6 +195,13 @@
         }
       ],
       "default": "page"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_blog.settings.show_breadcrumbs.label",
+      "info": "t:sections.main_blog.settings.show_breadcrumbs.info",
+      "default": true
     },
     {
       "type": "range",

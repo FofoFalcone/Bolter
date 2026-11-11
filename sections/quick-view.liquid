@@ -21,6 +21,17 @@
     assign featured_media = current_variant.featured_media | default: product.featured_media
     assign product_form_id = 'ProductForm-' | append: section.id
     assign media_alt = featured_media.alt | default: product.title
+
+    # Anteprima aperta da una card di collezione (richiesta all'URL /collections/…/products/…, vedi link_collection in
+    # snippets/product-card.liquid): "Vedi dettagli" porta al prodotto dentro la stessa collezione, anche dopo un cambio
+    # di variante (data-section-url: product-page.js richiede la section a quell'URL, quindi `collection` resta definita)
+    assign details_url = current_variant.url | default: product.url
+    assign section_url = product.url
+    if collection
+      assign collection_path = collection.url | append: '/products/'
+      assign details_url = details_url | split: '/products/' | last | prepend: collection_path
+      assign section_url = section_url | split: '/products/' | last | prepend: collection_path
+    endif
   -%}
 
   <s-view-event
@@ -32,6 +43,7 @@
       class="block size-full overflow-y-auto overscroll-contain md:grid md:grid-cols-2 md:overflow-hidden"
       data-section-id="{{ section.id }}"
       data-product-url="{{ product.url }}"
+      data-section-url="{{ section_url }}"
       data-variant-id="{{ current_variant.id }}"
       data-product-gid="gid://shopify/Product/{{ product.id }}"
       data-product-title="{{ product.title | escape }}"
@@ -104,7 +116,7 @@
         {%- comment -%} Pagina completa del prodotto, con la variante scelta {%- endcomment -%}
         <div data-product-part="details-link">
           <a
-            href="{{ current_variant.url | default: product.url }}"
+            href="{{ details_url }}"
             class="inline-flex items-center gap-1 text-body font-semibold text-foreground underline underline-offset-4"
           >
             {{- 'products.quick_view.view_details' | t -}}

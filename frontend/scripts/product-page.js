@@ -148,6 +148,15 @@ class ProductPage extends HTMLElement {
     }
   }
 
+  /**
+   * URL a cui si richiede la section: quello del prodotto, o quello dentro la collezione se la section lo indica
+   * (data-section-url, anteprima rapida aperta da una collezione). Il confronto dei combined listings resta su
+   * data-product-url.
+   */
+  get sectionUrl() {
+    return this.dataset.sectionUrl ?? this.dataset.productUrl;
+  }
+
   /** Section Rendering API: sostituisce le parti aggiornate e restituisce la variante (formato standard event). */
   async renderVariant(optionValueIds, changedInput, signal) {
     this.limitRequest?.abort(); // La risposta descriverebbe la variante precedente
@@ -155,7 +164,7 @@ class ProductPage extends HTMLElement {
     // Prodotto senza opzioni (nessun radio delle varianti): la variante si indica direttamente
     const selection = optionValueIds.length ? `option_values=${optionValueIds.join(',')}` : `variant=${this.dataset.variantId}`;
     const planParam = sellingPlan ? `&selling_plan=${sellingPlan}` : '';
-    const url = `${this.dataset.productUrl}?${selection}${planParam}&section_id=${this.dataset.sectionId}`;
+    const url = `${this.sectionUrl}?${selection}${planParam}&section_id=${this.dataset.sectionId}`;
     const response = await fetch(url, { signal });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const html = new DOMParser().parseFromString(await response.text(), 'text/html');
@@ -239,6 +248,9 @@ class ProductPage extends HTMLElement {
       if (page.dataset.variantId) pageUrl.searchParams.set('variant', page.dataset.variantId);
       window.history.replaceState({}, '', pageUrl);
       if (oldTitle && page.dataset.productTitle) document.title = document.title.replace(oldTitle, page.dataset.productTitle);
+      // Percorso di navigazione (fuori dalla parte sostituita, per tenere la collezione di provenienza): solo il nome
+      const crumb = document.querySelector('[data-breadcrumb-current]');
+      if (crumb && page.dataset.productTitle) crumb.textContent = page.dataset.productTitle;
     }
   }
 
@@ -351,7 +363,7 @@ class ProductPage extends HTMLElement {
     const { signal } = this.limitRequest;
     const sellingPlan = this.querySelector('input[name="selling_plan"]:checked')?.value;
     const planParam = sellingPlan ? `&selling_plan=${sellingPlan}` : '';
-    const url = `${this.dataset.productUrl}?variant=${this.dataset.variantId}${planParam}&section_id=${this.dataset.sectionId}`;
+    const url = `${this.sectionUrl}?variant=${this.dataset.variantId}${planParam}&section_id=${this.dataset.sectionId}`;
 
     try {
       const response = await fetch(url, { signal });

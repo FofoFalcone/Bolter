@@ -414,6 +414,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       },
       "blocks": {
@@ -1131,6 +1135,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       }
     },
@@ -1163,6 +1171,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       }
     },
@@ -1395,6 +1407,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       }
     },
@@ -1471,6 +1487,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       }
     },
@@ -1527,6 +1547,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       }
     },
@@ -1601,6 +1625,10 @@
         "color_scheme": {
           "label": "Color scheme",
           "info": "Edit the schemes in Theme settings → Colors."
+        },
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs",
+          "info": "Breadcrumb trail above the title (Home › …). Below 750px only the link to the parent page is shown."
         }
       }
     },
@@ -3318,6 +3346,10 @@
         },
         "header_3": {
           "content": "Variant swatches"
+        },
+        "product_card_collection_url": {
+          "label": "Open products within the collection",
+          "info": "From the cards of a collection, the product opens with the collection in its address and breadcrumb (Home › Collection › Product). The canonical address stays the product one."
         }
       }
     },

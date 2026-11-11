@@ -55,10 +55,15 @@
   grid {{ columns_mobile_class }} gap-x-4 gap-y-8 md:grid-cols-[repeat(var(--columns-md),minmax(0,1fr))] md:gap-x-6 md:gap-y-10 lg:grid-cols-[repeat(var(--columns),minmax(0,1fr))]
 {%- endcapture -%}
 
-<div class="page-width flex flex-col gap-8 py-12 md:gap-12 md:py-16">
-  <h1 class="text-heading text-balance text-headings md:text-title-page">
-    {{- s.heading | default: page_title | escape -}}
-  </h1>
+<div class="page-width flex flex-col gap-8 {% if s.show_breadcrumbs %}pt-6 pb-12 md:pt-8 md:pb-16{% else %}py-12 md:py-16{% endif %} md:gap-12">
+  <header class="flex flex-col gap-6 md:gap-8">
+    {%- if s.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
+    <h1 class="text-heading text-balance text-headings md:text-title-page">
+      {{- s.heading | default: page_title | escape -}}
+    </h1>
+  </header>
 
   {%- if use_menu -%}
     <ul class="{{ grid_class }}" style="--columns: {{ columns }}; --columns-md: {{ columns_md }};" role="list">
@@ -139,6 +144,13 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_list_collections.settings.show_breadcrumbs.label",
+      "info": "t:sections.main_list_collections.settings.show_breadcrumbs.info",
+      "default": true
+    },
     {
       "type": "text",
       "id": "heading",

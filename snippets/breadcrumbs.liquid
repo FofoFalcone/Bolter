@@ -1,0 +1,139 @@
+{%- comment -%}
+  Percorso di navigazione (breadcrumb): una sola fonte per la parte visibile e per i dati strutturati
+  BreadcrumbList, così le due versioni non possono divergere.
+
+  Percorsi (al massimo tre livelli, quindi niente elenchi: Home, genitore facoltativo, pagina corrente):
+  - prodotto: Home › Collezione › Prodotto, con la collezione solo se il prodotto è stato aperto da una collezione
+    (URL /collections/…/products/…, oggetto globale `collection`); altrimenti Home › Prodotto;
+  - collezione: Home › Collezione · elenco collezioni: Home › Collezioni · pagina: Home › Pagina;
+  - blog: Home › Blog, con un tag Home › Blog › Tag · articolo: Home › Blog › Articolo · ricerca: Home › Ricerca.
+  Gli URL dei dati strutturati sono quelli canonici (product.url, non l'URL dentro la collezione). L'ultima voce del
+  tag non ha `item`: Google lo ammette per l'ultima voce e usa l'URL della pagina.
+
+  Parte visibile (WAI-ARIA APG, pattern Breadcrumb): <nav> con nome, <ol>, pagina corrente con aria-current, separatori
+  decorativi. Sotto i 750px resta solo il link al livello superiore ("‹ Collezione"): il percorso completo andava a
+  capo su due righe sopra il titolo.
+
+  Parametri:
+  - format: 'html' (predefinito) o 'json-ld' (snippets/structured-data.liquid, nel <head>)
+  - align: 'start' (predefinito) o 'center'
+  - class: classi del <nav> (es. margini)
+
+  Uso: {% render 'breadcrumbs', class: 'mb-6' %}
+{%- endcomment -%}
+{%- liquid
+  assign home_label = 'general.breadcrumbs.home' | t
+  assign parent_label = nil
+  assign parent_url = nil
+  assign current_label = nil
+  assign current_url = nil
+
+  case request.page_type
+    when 'product'
+      if collection
+        assign parent_label = collection.title
+        assign parent_url = collection.url
+      endif
+      assign current_label = product.title
+      assign current_url = product.url
+    when 'collection'
+      assign current_label = collection.title
+      assign current_url = collection.url
+    when 'list-collections'
+      assign current_label = page_title
+      assign current_url = routes.collections_url
+    when 'page'
+      assign current_label = page.title
+      assign current_url = page.url
+    when 'blog'
+      if current_tags.size > 0
+        assign parent_label = blog.title
+        assign parent_url = blog.url
+        assign current_label = current_tags | join: ', '
+      else
+        assign current_label = blog.title
+        assign current_url = blog.url
+      endif
+    when 'article'
+      assign parent_label = blog.title
+      assign parent_url = blog.url
+      assign current_label = article.title
+      assign current_url = article.url
+    when 'search'
+      assign current_label = 'general.breadcrumbs.search' | t
+      assign current_url = routes.search_url
+  endcase
+-%}
+
+{%- if current_label != blank -%}
+  {%- if format == 'json-ld' -%}
+    {%- assign home_url = request.origin | append: routes.root_url -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": {{ home_label | json }},
+            "item": {{ home_url | json }}
+          }
+          {%- if parent_label != blank %},
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ parent_label | json }},
+            "item": {{ request.origin | append: parent_url | json }}
+          }
+          {%- endif %},
+          {
+            "@type": "ListItem",
+            "position": {% if parent_label != blank %}3{% else %}2{% endif %},
+            "name": {{ current_label | json }}
+            {%- if current_url %},
+            "item": {{ request.origin | append: current_url | json }}
+            {%- endif %}
+          }
+        ]
+      }
+    </script>
+  {%- else -%}
+    {%- liquid
+      if align == 'center'
+        assign list_class = 'justify-center'
+      else
+        assign list_class = ''
+      endif
+      # Altezza minima 24px (WCAG 2.5.8); il focus segue gli angoli dei controlli piccoli
+      assign link_class = 'inline-flex min-h-6 min-w-0 items-center gap-1 rounded-sm underline-offset-4 transition-colors duration-150 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none'
+    -%}
+    <nav aria-label="{{ 'general.breadcrumbs.label' | t | escape }}" class="{{ class }}">
+      <ol class="flex min-w-0 items-center gap-1 text-body-sm text-muted {{ list_class }}" role="list">
+        <li class="{% if parent_label != blank %}hidden md:flex{% else %}flex{% endif %} min-w-0 shrink-0 items-center gap-1">
+          <a href="{{ routes.root_url }}" class="{{ link_class }}">
+            {%- if parent_label == blank -%}
+              {% render 'icon', name: 'chevron-left', size: 16, class: 'shrink-0 md:hidden' %}
+            {%- endif -%}
+            {{- home_label | escape -}}
+          </a>
+          {% render 'icon', name: 'chevron-right', size: 16, class: 'hidden shrink-0 text-subtle md:block' %}
+        </li>
+        {%- if parent_label != blank -%}
+          <li class="flex min-w-0 items-center gap-1 md:max-w-[40%]">
+            <a href="{{ parent_url }}" class="{{ link_class }}">
+              {% render 'icon', name: 'chevron-left', size: 16, class: 'shrink-0 md:hidden' %}
+              <span class="truncate">{{ parent_label | escape }}</span>
+            </a>
+            {% render 'icon', name: 'chevron-right', size: 16, class: 'hidden shrink-0 text-subtle md:block' %}
+          </li>
+        {%- endif -%}
+        <li class="hidden min-w-0 md:flex">
+          <span aria-current="page" class="truncate text-foreground" data-breadcrumb-current>
+            {{- current_label | escape -}}
+          </span>
+        </li>
+      </ol>
+    </nav>
+  {%- endif -%}
+{%- endif -%}

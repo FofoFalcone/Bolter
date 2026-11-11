@@ -476,6 +476,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       },
       "blocks": {
@@ -1122,6 +1126,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       }
     },
@@ -1324,6 +1332,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       }
     },
@@ -1386,6 +1398,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       }
     },
@@ -1462,6 +1478,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       }
     },
@@ -1518,6 +1538,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       }
     },
@@ -1592,6 +1616,10 @@
         "color_scheme": {
           "label": "Schema di colori",
           "info": "Gli schemi si modificano in Impostazioni tema → Colori."
+        },
+        "show_breadcrumbs": {
+          "label": "Mostra il percorso di navigazione",
+          "info": "Breadcrumb sopra il titolo (Home › …). Sotto i 750px resta solo il link alla pagina superiore."
         }
       }
     },
@@ -3295,6 +3323,10 @@
         },
         "header_3": {
           "content": "Campioni delle varianti"
+        },
+        "product_card_collection_url": {
+          "label": "Apri i prodotti dentro la collezione",
+          "info": "Dalle card di una collezione il prodotto si apre con la collezione nell'indirizzo e nel percorso di navigazione (Home › Collezione › Prodotto). L'indirizzo canonico resta quello del prodotto."
         }
       }
     },

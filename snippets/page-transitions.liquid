@@ -97,6 +97,13 @@
       function path(url) {
         try { return new URL(url, location.href).pathname; } catch (e) { return ''; }
       }
+      // Prodotto senza il contesto: /collections/x/products/y e /products/y sono lo stesso prodotto (card di una
+      // collezione, snippets/product-card.liquid → link_collection)
+      function productPath(url) {
+        var p = path(url);
+        var i = p.indexOf('/products/');
+        return i < 0 ? p : p.slice(i);
+      }
       function isProduct(url) {
         return /\/products\/[^/]+$/.test(path(url));
       }
@@ -112,7 +119,7 @@
       function cardMedia(url, mustBeVisible) {
         var cards = document.querySelectorAll('product-card[data-product-url]');
         for (var i = 0; i < cards.length; i++) {
-          if (cards[i].closest('[aria-hidden="true"]') || path(cards[i].dataset.productUrl) !== path(url)) continue;
+          if (cards[i].closest('[aria-hidden="true"]') || productPath(cards[i].dataset.productUrl) !== productPath(url)) continue;
           var media = cards[i].querySelector('[data-card-media]');
           if (media && (!mustBeVisible || visible(media))) return media;
         }

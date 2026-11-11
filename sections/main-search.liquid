@@ -88,8 +88,11 @@
   {% render 'vite-tag', entry: 'collection.js' %}
 {%- endif -%}
 
-<div class="page-width py-8 md:py-12">
+<div class="page-width {% if s.show_breadcrumbs %}pt-6 pb-8 md:pt-8 md:pb-12{% else %}py-8 md:py-12{% endif %}">
   <header class="flex flex-col gap-6">
+    {%- if s.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
     <h1 class="text-heading text-balance text-headings md:text-title-page">
       {%- if search.performed -%}
         {{ 'sections.search.title_with_terms' | t: terms: terms }}
@@ -298,6 +301,13 @@
         }
       ],
       "default": "page"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_search.settings.show_breadcrumbs.label",
+      "info": "t:sections.main_search.settings.show_breadcrumbs.info",
+      "default": true
     },
     {
       "type": "header",

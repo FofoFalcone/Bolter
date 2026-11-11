@@ -17,6 +17,16 @@
 -%}
 
 {%- comment -%}
+  Percorso di navigazione fuori da <product-page>: i combined listings sostituiscono tutto il prodotto, e la collezione
+  di provenienza deve restare (product-page.js aggiorna solo il nome del prodotto, [data-breadcrumb-current]).
+{%- endcomment -%}
+{%- if section.settings.show_breadcrumbs -%}
+  <div class="page-width pt-6 md:pt-8">
+    {% render 'breadcrumbs' %}
+  </div>
+{%- endif -%}
+
+{%- comment -%}
   Standard event shopify:product:view (Shopify): <s-view-event> lo emette quando l'elemento entra in pagina.
   display: contents → nessun effetto sul layout.
 {%- endcomment -%}
@@ -25,7 +35,7 @@
   view-event-payload='{{ product | standard_event_data: "view", context: "page" | escape }}'
 >
 <product-page
-  class="page-width grid gap-8 py-8 md:py-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+  class="page-width grid gap-8 {% if section.settings.show_breadcrumbs %}pt-6 pb-8 md:pt-8 md:pb-12{% else %}py-8 md:py-12{% endif %} lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
   data-section-id="{{ section.id }}"
   data-product-url="{{ product.url }}"
   data-variant-id="{{ current_variant.id }}"
@@ -194,6 +204,13 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_product.settings.show_breadcrumbs.label",
+      "info": "t:sections.main_product.settings.show_breadcrumbs.info",
+      "default": true
+    },
     {
       "type": "select",
       "id": "media_layout",

@@ -481,6 +481,13 @@
         "default": true
       },
       {
+        "type": "checkbox",
+        "id": "product_card_collection_url",
+        "label": "t:settings_schema.product.settings.product_card_collection_url.label",
+        "info": "t:settings_schema.product.settings.product_card_collection_url.info",
+        "default": true
+      },
+      {
         "type": "header",
         "content": "t:settings_schema.product.settings.header_1.content"
       },

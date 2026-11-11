@@ -28,6 +28,10 @@
   - quick_view: true per aprire l'anteprima rapida (snippets/quick-view.liquid) al clic sulla card (con JS)
   - control_attributes: attributi extra sul controllo principale della card (pulsante dell'anteprima
     rapida o link del titolo), es. 'data-gallery-control tabindex="-1"'
+  - link_collection: collezione da cui viene il prodotto (pagina collezione, tab e caroselli di una collezione). Con
+    Impostazioni tema → Card prodotto → "Apri i prodotti dentro la collezione" i link diventano
+    /collections/<collezione>/products/<prodotto>, così il percorso di navigazione del prodotto mostra la collezione
+    (snippets/breadcrumbs.liquid). Non si chiama `collection` per non confonderlo con l'oggetto globale.
 
   Uso: {% render 'product-card', product: product, card_id: card_id, heading_tag: 'h4', sizes: sizes %}
 {%- endcomment -%}
@@ -57,6 +61,15 @@
     assign title = product.title
     assign variant = product.selected_variant
     assign url = variant.url | default: product.url
+    assign product_url = product.url
+    # URL dentro la collezione costruito da collection.url, che ha già il prefisso della lingua (/it/collections/…):
+    # il filtro `within` è segnalato nella community per il prefisso della lingua duplicato. Si tiene la parte dopo
+    # /products/ (handle e ?variant=…). Canonical invariato: Shopify lo punta comunque a /products/<prodotto>.
+    if link_collection and settings.product_card_collection_url
+      assign collection_path = link_collection.url | append: '/products/'
+      assign url = url | split: '/products/' | last | prepend: collection_path
+      assign product_url = product_url | split: '/products/' | last | prepend: collection_path
+    endif
     assign available = product.available
     assign compare_at_price = product.compare_at_price
     assign price = product.price
@@ -213,7 +226,7 @@
 <product-card
   class="group/card @container relative flex h-full flex-col {{ card_class }}"
   {% if product != blank %}
-    data-product-url="{{ product.url }}"
+    data-product-url="{{ product_url }}"
     data-product-gid="gid://shopify/Product/{{ product.id }}"
     data-product-title="{{ product.title | escape }}"
     data-product-handle="{{ product.handle }}"

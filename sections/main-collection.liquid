@@ -101,7 +101,10 @@
   assign quick_view_id = 'QuickView-' | append: section.id
 -%}
 
-<div class="page-width py-8 md:py-12">
+<div class="page-width {% if s.show_breadcrumbs %}pt-6 pb-8 md:pt-8 md:pb-12{% else %}py-8 md:py-12{% endif %}">
+  {%- if s.show_breadcrumbs -%}
+    {% render 'breadcrumbs', class: 'mb-6 md:mb-8' %}
+  {%- endif -%}
   {%- comment -%}
     Standard event shopify:collection:view all'apertura della pagina. Avvolge solo l'intestazione: le parti
     sostituite dai filtri non devono ricrearlo (l'elemento emette l'evento a ogni inserimento nella pagina).
@@ -230,6 +233,7 @@
                       loading: loading,
                       fetchpriority: fetchpriority,
                       event_context: 'collection',
+                      link_collection: collection,
                       quick_view: s.quick_view
                     %}
                   </li>
@@ -308,6 +312,13 @@
         }
       ],
       "default": "page"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_collection.settings.show_breadcrumbs.label",
+      "info": "t:sections.main_collection.settings.show_breadcrumbs.info",
+      "default": true
     },
     {
       "type": "header",

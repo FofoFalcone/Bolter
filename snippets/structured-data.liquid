@@ -4,8 +4,9 @@
   - home: WebSite (nome del sito nei risultati di Google) e Organization (logo da Impostazioni → Brand del negozio,
     profili social da Impostazioni tema → Social media, politica di reso standard con il solo link alla policy di
     rimborso, la forma minima ammessa da Google: i dettagli restano nella policy, e Merchant Center ha la precedenza);
-  - prodotto, collezione, elenco collezioni, pagina, blog e articolo: BreadcrumbList (Home › Collezione › Prodotto, Home › Pagina,
-    Home › Blog › Articolo nei risultati; l'Article stesso è in main-article con il filtro structured_data). Il prodotto ha la collezione nel percorso solo se è stato aperto da una collezione
+  - prodotto, collezione, elenco collezioni, pagina, blog e articolo: BreadcrumbList da snippets/breadcrumbs.liquid, lo
+    stesso snippet del percorso visibile nelle section main-* (l'Article stesso è in main-article con il filtro
+    structured_data). Il prodotto ha la collezione nel percorso solo se è stato aperto da una collezione
     (URL /collections/…/products/…).
   Tutti i valori passano da `| json`: escape corretto e JSON sempre valido.
 
@@ -61,69 +62,6 @@
   </script>
 
 {%- elsif request.page_type == 'product' or request.page_type == 'collection' or request.page_type == 'list-collections' or request.page_type == 'page' or request.page_type == 'blog' or request.page_type == 'article' -%}
-  {%- liquid
-    assign home_label = 'general.breadcrumbs.home' | t
-    assign position = 1
-  -%}
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": {{ home_label | json }},
-          "item": {{ home_url | json }}
-        }
-        {%- if collection %},
-        {%- assign position = position | plus: 1 %}
-        {
-          "@type": "ListItem",
-          "position": {{ position }},
-          "name": {{ collection.title | json }},
-          "item": {{ request.origin | append: collection.url | json }}
-        }
-        {%- endif %}
-        {%- if request.page_type == 'product' %},
-        {%- assign position = position | plus: 1 %}
-        {
-          "@type": "ListItem",
-          "position": {{ position }},
-          "name": {{ product.title | json }},
-          "item": {{ request.origin | append: product.url | json }}
-        }
-        {%- elsif request.page_type == 'list-collections' %},
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": {{ page_title | json }},
-          "item": {{ request.origin | append: routes.collections_url | json }}
-        }
-        {%- elsif request.page_type == 'page' %},
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": {{ page.title | json }},
-          "item": {{ request.origin | append: page.url | json }}
-        }
-        {%- elsif request.page_type == 'blog' or request.page_type == 'article' %},
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": {{ blog.title | json }},
-          "item": {{ request.origin | append: blog.url | json }}
-        }
-        {%- if request.page_type == 'article' %},
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": {{ article.title | json }},
-          "item": {{ request.origin | append: article.url | json }}
-        }
-        {%- endif %}
-        {%- endif %}
-      ]
-    }
-  </script>
+  {%- comment -%} Stesso snippet della parte visibile: percorso e nomi coincidono {%- endcomment -%}
+  {%- render 'breadcrumbs', format: 'json-ld' -%}
 {%- endif -%}

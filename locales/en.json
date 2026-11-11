@@ -72,7 +72,9 @@
       "page": "Page {{ page }}"
     },
     "breadcrumbs": {
-      "home": "Home"
+      "label": "Breadcrumb",
+      "home": "Home",
+      "search": "Search"
     }
   },
   "customer": {

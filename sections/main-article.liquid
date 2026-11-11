@@ -27,20 +27,25 @@
   {{ article | structured_data }}
 </script>
 
-<article class="page-width py-10 md:py-16{% if s.show_reading_progress %} reading-progress-scope{% endif %}">
+<article class="page-width {% if s.show_breadcrumbs %}pt-6 pb-10 md:pt-8 md:pb-16{% else %}py-10 md:py-16{% endif %}{% if s.show_reading_progress %} reading-progress-scope{% endif %}">
   {%- if s.show_reading_progress -%}
     {% render 'inline-css', entry: 'reading-progress.css' %}
     <div class="reading-progress" aria-hidden="true"></div>
   {%- endif -%}
 
   <header class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-    <a
-      href="{{ blog.url }}"
-      class="inline-flex items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground/80 transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-    >
-      {% render 'icon', name: 'chevron-left', size: 16 %}
-      {{- blog.title | escape -}}
-    </a>
+    {%- comment -%} Con il percorso spento resta il link al blog, che sotto i 750px è anche ciò che mostra il percorso {%- endcomment -%}
+    {%- if s.show_breadcrumbs -%}
+      {% render 'breadcrumbs', align: 'center', class: 'w-full' %}
+    {%- else -%}
+      <a
+        href="{{ blog.url }}"
+        class="inline-flex items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground/80 transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        {% render 'icon', name: 'chevron-left', size: 16 %}
+        {{- blog.title | escape -}}
+      </a>
+    {%- endif -%}
 
     {%- if s.show_tags and article.tags.size > 0 -%}
       <ul class="flex flex-wrap justify-center gap-2" role="list" aria-label="{{ 'blogs.article.tags' | t | escape }}">
@@ -314,6 +319,13 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_article.settings.show_breadcrumbs.label",
+      "info": "t:sections.main_article.settings.show_breadcrumbs.info",
+      "default": true
+    },
     {
       "type": "checkbox",
       "id": "show_image",
