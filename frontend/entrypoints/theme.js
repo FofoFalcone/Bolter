@@ -21,8 +21,8 @@ import { initLoadingStates } from '../scripts/loading-states.js';
 import { initScrollbarWidth } from '../scripts/scrollbar-width.js';
 // Esc nasconde i tooltip CSS (utility `tooltip`)
 import { initTooltips } from '../scripts/tooltips.js';
-// JS delle section caricato quando serve (snippets/vite-tag-deferred.liquid)
-import { initDeferredScripts } from '../scripts/deferred-scripts.js';
+// JS e immagini delle section caricati quando servono (snippets/vite-tag-deferred.liquid, snippets/deferred-media.liquid)
+import { initDeferredScripts, initDeferredMedia } from '../scripts/deferred-scripts.js';
 
 // Nessuna misura del layout all'avvio: il modulo gira mentre la pagina fa il primo layout, e ogni lettura lo
 // forzerebbe. Le misure arrivano dai ResizeObserver, le cui callback girano nell'ordine di creazione: header
@@ -70,6 +70,7 @@ function loadSmoothScroll() {
 
 onDOMReady(() => {
   initDeferredScripts();
+  initDeferredMedia();
   loadAnimations();
   loadProductCards();
   loadSmoothScroll();

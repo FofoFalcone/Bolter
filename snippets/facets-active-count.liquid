@@ -1,0 +1,26 @@
+{%- comment -%}
+  Numero di filtri attivi (un intervallo di prezzo conta 1). Condiviso da collezione, ricerca e facets-active.
+  Uno snippet non può assegnare variabili a chi lo richiama: stampa il numero, da catturare e convertire.
+
+  Parametri:
+  - results: collection o search
+
+  Uso:
+    capture active_count
+      render 'facets-active-count', results: collection
+    endcapture
+    assign active_count = active_count | plus: 0
+{%- endcomment -%}
+{%- liquid
+  assign count = 0
+  for filter in results.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign count = count | plus: 1
+      endif
+    else
+      assign count = count | plus: filter.active_values.size
+    endif
+  endfor
+  echo count
+-%}

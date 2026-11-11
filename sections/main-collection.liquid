@@ -55,16 +55,10 @@
   endif
 
   # Filtri attivi (badge del pulsante "Filtri" sotto i 990px)
-  assign active_count = 0
-  for filter in collection.filters
-    if filter.type == 'price_range'
-      if filter.min_value.value != nil or filter.max_value.value != nil
-        assign active_count = active_count | plus: 1
-      endif
-    else
-      assign active_count = active_count | plus: filter.active_values.size
-    endif
-  endfor
+  capture active_count
+    render 'facets-active-count', results: collection
+  endcapture
+  assign active_count = active_count | plus: 0
 
   # Colonne: tablet al massimo 3; da 990px con la barra laterale al massimo 3, tutte da 1280px
   assign columns = s.columns_desktop
@@ -105,7 +99,6 @@
   endif
 
   assign quick_view_id = 'QuickView-' | append: section.id
-  assign panel_id = 'FacetsPanel-' | append: section.id
 -%}
 
 <div class="page-width py-8 md:py-12">
@@ -178,22 +171,7 @@
         <div class="flex min-w-0 flex-col gap-6{% if toolbar %} lg:mt-6{% endif %}">
           <div class="flex flex-wrap items-center gap-3">
             {%- if show_filters -%}
-              <button
-                type="button"
-                id="FacetsOpen-{{ section.id }}"
-                class="button button-neutral button-sm lg:hidden"
-                popovertarget="{{ panel_id }}"
-                data-facets-part="drawer-button"
-              >
-                {% render 'icon', name: 'adjustments-horizontal', size: 20 %}
-                {{ 'sections.collection.filters' | t }}
-                {%- if active_count > 0 -%}
-                  <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-body-sm leading-5 text-primary-foreground tabular-nums" aria-hidden="true">
-                    {{- active_count -}}
-                  </span>
-                  <span class="sr-only">({{ 'sections.collection.selected_count' | t: count: active_count }})</span>
-                {%- endif -%}
-              </button>
+              {% render 'facets-drawer-button', section_id: section.id, active_count: active_count %}
             {%- endif -%}
 
             {%- comment -%} tabindex -1: riceve il focus quando il chip usato sparisce (collection.js) {%- endcomment -%}

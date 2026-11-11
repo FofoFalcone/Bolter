@@ -12,21 +12,12 @@
   Uso: {% render 'facets-active', results: collection, clear_url: clear_url, show_filter_label: true %}
 {%- endcomment -%}
 {%- liquid
-  assign has_active = false
-  for filter in results.filters
-    if filter.active_values.size > 0
-      assign has_active = true
-      break
-    endif
-    if filter.type == 'price_range'
-      if filter.min_value.value != nil or filter.max_value.value != nil
-        assign has_active = true
-        break
-      endif
-    endif
-  endfor
+  capture active_count
+    render 'facets-active-count', results: results
+  endcapture
+  assign active_count = active_count | plus: 0
 -%}
-{%- if has_active -%}
+{%- if active_count > 0 -%}
   {%- capture chip_class -%}
     inline-flex h-8 items-center gap-1.5 rounded-button border border-border bg-surface ps-3 pe-2 text-body-sm text-foreground transition-colors duration-150 hover:border-foreground hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none
   {%- endcapture -%}

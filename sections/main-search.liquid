@@ -44,16 +44,10 @@
     assign clear_url = clear_url | append: '&sort_by=' | append: search.sort_by
   endif
 
-  assign active_count = 0
-  for filter in search.filters
-    if filter.type == 'price_range'
-      if filter.min_value.value != nil or filter.max_value.value != nil
-        assign active_count = active_count | plus: 1
-      endif
-    else
-      assign active_count = active_count | plus: filter.active_values.size
-    endif
-  endfor
+  capture active_count
+    render 'facets-active-count', results: search
+  endcapture
+  assign active_count = active_count | plus: 0
 
   assign columns = s.columns_desktop
   assign columns_md = columns | at_most: 3
@@ -87,7 +81,6 @@
   endif
 
   assign quick_view_id = 'QuickView-' | append: section.id
-  assign panel_id = 'FacetsPanel-' | append: section.id
   assign input_id = 'SearchInput-' | append: section.id
 -%}
 
@@ -170,22 +163,7 @@
           <div class="flex min-w-0 flex-col gap-6{% if toolbar %} lg:mt-6{% endif %}">
             <div class="flex flex-wrap items-center gap-3">
               {%- if show_filters -%}
-                <button
-                  type="button"
-                  id="FacetsOpen-{{ section.id }}"
-                  class="button button-neutral button-sm lg:hidden"
-                  popovertarget="{{ panel_id }}"
-                  data-facets-part="drawer-button"
-                >
-                  {% render 'icon', name: 'adjustments-horizontal', size: 20 %}
-                  {{ 'sections.collection.filters' | t }}
-                  {%- if active_count > 0 -%}
-                    <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-body-sm leading-5 text-primary-foreground tabular-nums" aria-hidden="true">
-                      {{- active_count -}}
-                    </span>
-                    <span class="sr-only">({{ 'sections.collection.selected_count' | t: count: active_count }})</span>
-                  {%- endif -%}
-                </button>
+                {% render 'facets-drawer-button', section_id: section.id, active_count: active_count %}
               {%- endif -%}
 
               <p class="me-auto text-body-sm text-muted tabular-nums outline-none" tabindex="-1" data-facets-part="count">

@@ -1,0 +1,27 @@
+{%- comment -%}
+  Pulsante "Filtri" che apre il pannello dei filtri sotto i 990px (popover nativo di facets-panel, funziona senza
+  JS), con il numero dei filtri attivi. Condiviso da collezione e ricerca. Parte data-facets-part="drawer-button":
+  <product-facets> la sostituisce dopo ogni aggiornamento dei risultati.
+
+  Parametri:
+  - section_id: id della section (stesso usato per facets-panel)
+  - active_count: numero di filtri attivi (snippet facets-active-count)
+
+  Uso: {% render 'facets-drawer-button', section_id: section.id, active_count: active_count %}
+{%- endcomment -%}
+<button
+  type="button"
+  id="FacetsOpen-{{ section_id }}"
+  class="button button-neutral button-sm lg:hidden"
+  popovertarget="FacetsPanel-{{ section_id }}"
+  data-facets-part="drawer-button"
+>
+  {% render 'icon', name: 'adjustments-horizontal', size: 20 %}
+  {{ 'sections.collection.filters' | t }}
+  {%- if active_count > 0 -%}
+    <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-body-sm leading-5 text-primary-foreground tabular-nums" aria-hidden="true">
+      {{- active_count -}}
+    </span>
+    <span class="sr-only">({{ 'sections.collection.selected_count' | t: count: active_count }})</span>
+  {%- endif -%}
+</button>

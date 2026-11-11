@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
       // Watch: non osservare i file che la build stessa produce, altrimenti ogni build
       // ne avvia un'altra (assets/ non viene svuotata in watch, quindi Vite non la esclude da solo).
       watch: isWatch
-        ? { exclude: ['assets/**', 'snippets/vite-tag.liquid', '.build-check/**', 'node_modules/**'] }
+        ? { exclude: ['assets/**', 'snippets/vite-tag.liquid', '.build-check/**', '.build-check-baseline/**', 'node_modules/**'] }
         : null,
 
       rollupOptions: {

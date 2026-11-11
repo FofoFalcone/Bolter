@@ -9,6 +9,7 @@ assets/
 snippets/vite-tag.liquid
 dist/
 .build-check/
+.build-check-baseline/
 
 # File locali di Shopify CLI
 .shopify-cli.json

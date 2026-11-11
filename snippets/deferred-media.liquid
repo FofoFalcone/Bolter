@@ -1,0 +1,24 @@
+{%- comment -%}
+  Immagine fuori dalla prima schermata, inserita quando la section si avvicina alla vista invece di lasciare la
+  distanza al browser: con loading="lazy" Chrome, su una connessione che stima lenta, scarica fino a ~2500px sotto
+  lo schermo (misurato il 2026-11-11 sulla galleria della home, che toglieva banda alla foto della hero).
+
+  L'HTML va in un <noscript data-deferred-media>: con JS attivo il browser lo legge come testo e non scarica nulla,
+  e frontend/scripts/deferred-scripts.js (avviato da theme.js) lo inserisce come HTML a uno schermo di distanza.
+  Senza JS il noscript mostra l'immagine normalmente. Nessuna copia dell'HTML: la pagina non pesa di più.
+
+  Nel theme editor stampa l'HTML così com'è (le section si ricaricano di continuo), come vite-tag-deferred.
+  Solo dove il posto dell'immagine ha dimensioni proprie (altezza o proporzioni del contenitore): prima
+  dell'inserimento resta vuoto, con il riflesso di media-loading.
+
+  Parametri:
+  - content: HTML dell'immagine (es. catturato da image_tag)
+  - defer: true per differire; falso o assente stampa l'HTML così com'è
+
+  Uso: {% render 'deferred-media', content: image_html, defer: defer_media %}
+{%- endcomment -%}
+{%- if defer and request.design_mode == false -%}
+  <noscript data-deferred-media>{{ content }}</noscript>
+{%- else -%}
+  {{- content -}}
+{%- endif -%}

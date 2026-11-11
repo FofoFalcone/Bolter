@@ -34,6 +34,14 @@
   assign default_link_label = 'sections.gallery.link' | t
   assign placeholder_title = 'products.product.placeholder_title' | t
 
+  # Immagini inserite a uno schermo dalla galleria (snippets/deferred-media.liquid), non quando lo decide il browser:
+  # con loading="lazy" su una connessione lenta partivano all'apertura della home e rallentavano la foto della hero.
+  # Non nelle prime due section, che possono essere già in vista (con Section Rendering section.index è vuoto).
+  assign defer_media = false
+  if section.index > 2
+    assign defer_media = true
+  endif
+
   # Altezza della scena sotto i 750px: coverflow e pila stanno su un piano, l'elemento più un margine basta (l'altezza
   # scelta nell'editor lascerebbe un vuoto attorno alla card). Le disposizioni 3D hanno bisogno di tutta la scena.
   assign stage_height = 'max(min(' | append: s.stage_height | append: 'px, 80svh), calc(var(--gallery-item-height) + 4rem))'
@@ -212,6 +220,7 @@
                     layout: 'fill',
                     loading: loading,
                     fetchpriority: fetchpriority,
+                    defer_media: defer_media,
                     sizes: image_sizes,
                     quick_view: block.settings.quick_view,
                     control_attributes: 'data-gallery-control tabindex="-1"'
@@ -234,16 +243,19 @@
                         class: 'size-full object-cover'
                     }}
                   {%- else -%}
-                    {{
-                      media
-                      | image_url: width: 1800
-                      | image_tag:
-                        loading: loading,
-                        fetchpriority: fetchpriority,
-                        widths: '300, 450, 600, 800, 1000, 1200, 1500, 1800',
-                        sizes: image_sizes,
-                        class: 'size-full object-cover'
-                    }}
+                    {%- capture media_image -%}
+                      {{
+                        media
+                        | image_url: width: 1800
+                        | image_tag:
+                          loading: loading,
+                          fetchpriority: fetchpriority,
+                          widths: '300, 450, 600, 800, 1000, 1200, 1500, 1800',
+                          sizes: image_sizes,
+                          class: 'size-full object-cover'
+                      }}
+                    {%- endcapture -%}
+                    {%- render 'deferred-media', content: media_image, defer: defer_media -%}
                   {%- endif -%}
                 {%- else -%}
                   {{ placeholder | placeholder_svg_tag: 'size-full fill-subtle' }}

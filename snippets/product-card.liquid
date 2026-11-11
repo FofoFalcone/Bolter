@@ -20,6 +20,8 @@
   - layout: 'grid' (default; immagine con le proporzioni delle impostazioni) o 'fill' (la card riempie
     l'altezza del contenitore e l'immagine si adatta, es. galleria animata)
   - loading / fetchpriority: 'lazy' / 'auto' (default); 'eager' / 'high' per la card dell'immagine LCP
+  - defer_media: true per inserire le immagini solo quando la section si avvicina (snippets/deferred-media.liquid),
+    per card lontane dalla prima schermata; ignorato con loading 'eager'
   - full_width: true se la card sta in una section a tutta larghezza: aggiunge formati più grandi all'immagine
   - sizes: attributo sizes delle immagini
   - event_context: contesto di shopify:product:view ('collection' default, 'search', 'recommendation')
@@ -45,6 +47,9 @@
   assign event_context = event_context | default: 'collection'
   assign loading = loading | default: 'lazy'
   assign fetchpriority = fetchpriority | default: 'auto'
+  if loading == 'eager'
+    assign defer_media = false
+  endif
   assign sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
   assign card_id = card_id | default: product.id | default: 'placeholder' | prepend: 'ProductCard-'
 
@@ -231,17 +236,20 @@
         Ritaglio e angoli arrotondati vengono dalla parte media (overflow-hidden), che contiene anche lo scale all'hover.
       {%- endcomment -%}
       <div class="media-loading absolute inset-0">
-        {{
-          primary_media
-          | image_url: width: image_max
-          | image_tag:
-            loading: loading,
-            fetchpriority: fetchpriority,
-            sizes: sizes,
-            widths: image_widths,
-            alt: image_alt,
-            class: primary_class
-        }}
+        {%- capture primary_image -%}
+          {{
+            primary_media
+            | image_url: width: image_max
+            | image_tag:
+              loading: loading,
+              fetchpriority: fetchpriority,
+              sizes: sizes,
+              widths: image_widths,
+              alt: image_alt,
+              class: primary_class
+          }}
+        {%- endcapture -%}
+        {%- render 'deferred-media', content: primary_image, defer: defer_media -%}
       </div>
       {%- if secondary_media -%}
         {%- comment -%}
@@ -253,20 +261,23 @@
           priorità bassa, per non togliere banda alle immagini visibili. L'<img> principale resta la prima della
           parte (quick-view.js, page-transitions e product-card.js leggono querySelector('img') / img[sizes]).
         {%- endcomment -%}
-        <picture>
-          <source media="(hover: none)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-          {{
-            secondary_media
-            | image_url: width: image_max
-            | image_tag:
-              loading: 'lazy',
-              fetchpriority: 'low',
-              sizes: sizes,
-              widths: image_widths,
-              alt: '',
-              class: 'absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 group-hover/card:opacity-100 motion-reduce:transition-none'
-          }}
-        </picture>
+        {%- capture secondary_image -%}
+          <picture>
+            <source media="(hover: none)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+            {{
+              secondary_media
+              | image_url: width: image_max
+              | image_tag:
+                loading: 'lazy',
+                fetchpriority: 'low',
+                sizes: sizes,
+                widths: image_widths,
+                alt: '',
+                class: 'absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 group-hover/card:opacity-100 motion-reduce:transition-none'
+            }}
+          </picture>
+        {%- endcapture -%}
+        {%- render 'deferred-media', content: secondary_image, defer: defer_media -%}
       {%- endif -%}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'absolute inset-0 size-full fill-subtle' }}

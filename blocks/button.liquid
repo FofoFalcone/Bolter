@@ -19,11 +19,28 @@
     else
       assign size_class = ''
   endcase
+
+  # Testi generici ("Scopri di più") non dicono dove porta il link: se punta a un prodotto o a una
+  # collezione se ne aggiunge il nome per i lettori di schermo e i motori di ricerca (Lighthouse SEO,
+  # link-text, 2026-11-11). Il nome accessibile inizia comunque dal testo visibile (WCAG 2.5.3).
+  assign link = block.settings.link
+  assign link_context = ''
+  if link contains '/products/'
+    assign link_handle = link | split: '/products/' | last | split: '?' | first | split: '/' | first
+    assign link_context = all_products[link_handle].title
+  elsif link contains '/collections/'
+    assign link_handle = link | split: '/collections/' | last | split: '?' | first | split: '/' | first
+    assign link_context = collections[link_handle].title
+  endif
+  if link_context != blank and block.settings.text contains link_context
+    assign link_context = ''
+  endif
 -%}
 {%- if block.settings.text != blank -%}
-  {%- if block.settings.link != blank -%}
-    <a href="{{ block.settings.link }}" class="button {{ variant_class }} {{ size_class }} w-fit" {{ block.shopify_attributes }}>
+  {%- if link != blank -%}
+    <a href="{{ link }}" class="button {{ variant_class }} {{ size_class }} w-fit" {{ block.shopify_attributes }}>
       {{- block.settings.text | escape -}}
+      {%- if link_context != blank %}<span class="sr-only">: {{ link_context | escape }}</span>{% endif -%}
     </a>
   {%- elsif request.design_mode -%}
     <span class="button {{ size_class }} w-fit" aria-disabled="true" {{ block.shopify_attributes }}>

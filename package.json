@@ -6,6 +6,8 @@
     "watch": "node tools/watch.mjs",
     "build": "vite build",
     "build:check": "vite build --outDir .build-check --emptyOutDir",
+    "chunks:save": "npm run build:check && node tools/compare-chunks.mjs save",
+    "chunks:compare": "npm run build:check && node tools/compare-chunks.mjs",
     "icons": "node tools/build-icons.mjs",
     "schema:i18n": "node tools/schema-i18n.mjs",
     "prelint": "node tools/ensure-build.mjs",
