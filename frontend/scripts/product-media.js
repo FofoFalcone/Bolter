@@ -94,7 +94,9 @@ class ProductMedia extends HTMLElement {
     const itemRect = item.getBoundingClientRect();
     const listRect = this.list.getBoundingClientRect();
     const offset = itemRect.left + itemRect.width / 2 - (listRect.left + listRect.width / 2);
-    this.list.scrollBy({ left: offset, behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
+    // scrollTo, non scrollBy: con lo snap obbligatorio uno scorrimento relativo aggancia lo snap successivo nella sua
+    // direzione anche per mezzo pixel (misure frazionarie delle slide all'85%); uno assoluto aggancia il più vicino
+    this.list.scrollTo({ left: this.list.scrollLeft + offset, behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
   }
 
   /* ------------------------------------------------------------------ Video e 3D */

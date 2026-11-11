@@ -253,7 +253,10 @@ export class ProductLightbox {
     const list = item?.parentElement;
     if (!list) return;
     const offset = centerOf(item.getBoundingClientRect()).x - centerOf(list.getBoundingClientRect()).x;
-    list.scrollBy({ left: offset, behavior: 'instant' });
+    // scrollTo, non scrollBy: con lo snap obbligatorio uno scorrimento relativo aggancia lo snap successivo nella sua
+    // direzione anche per mezzo pixel. Con la seconda di tre immagini (centro a +0,5px) si tornava sulla terza
+    // (segnalato dall'utente, misurato il 2026-11-11); uno scorrimento assoluto aggancia lo snap più vicino
+    list.scrollTo({ left: list.scrollLeft + offset, behavior: 'instant' });
   }
 
   /* -------------------------------------------------------------------- Navigazione */
