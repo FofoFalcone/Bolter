@@ -29,7 +29,8 @@
       >
       {% render 'icon',
         name: 'check',
-        class: 'check-tick pointer-events-none absolute inset-0 m-auto size-4 text-primary-foreground'
+        size: 16,
+        class: 'check-tick pointer-events-none absolute inset-0 m-auto text-primary-foreground'
       %}
     </span>
     <span class="text-pretty [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:no-underline">
@@ -38,7 +39,7 @@
   </label>
   {%- if policy_missing and request.design_mode -%}
     <p class="ms-8 flex items-center gap-1.5 text-body-sm text-warning-foreground">
-      {% render 'icon', name: 'exclamation-triangle', class: 'size-4' %}
+      {% render 'icon', name: 'exclamation-triangle', size: 16 %}
       {{- 'sections.contact_form.policy_missing' | t -}}
     </p>
   {%- endif -%}

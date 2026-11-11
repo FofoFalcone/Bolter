@@ -72,7 +72,7 @@
         }}
       {%- else -%}
         <div class="absolute inset-0 flex items-center justify-center text-subtle" aria-hidden="true">
-          {% render 'icon', name: 'newspaper', class: 'size-12' %}
+          {% render 'icon', name: 'newspaper', size: 48 %}
         </div>
       {%- endif -%}
     </div>
@@ -109,7 +109,7 @@
     {%- if featured -%}
       <span class="mt-2 inline-flex items-center gap-1 text-body font-semibold text-foreground" aria-hidden="true">
         {{- 'blogs.article.read_more' | t -}}
-        {% render 'icon', name: 'arrow-right', class: 'size-5 transition-transform duration-200 ease-theme motion-safe:group-hover/card:translate-x-1' %}
+        {% render 'icon', name: 'arrow-right', size: 20, class: 'transition-transform duration-200 ease-theme motion-safe:group-hover/card:translate-x-1' %}
       </span>
     {%- endif -%}
   </div>

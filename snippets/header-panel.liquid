@@ -56,7 +56,7 @@
         popovertargetaction="hide"
         class="button button-subtle button-sm -ms-3.5"
       >
-        {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+        {% render 'icon', name: 'chevron-left', size: 20 %}
         {{- 'general.header.back' | t -}}
       </button>
       <h2 class="text-title-page text-headings">{{ title }}</h2>
@@ -189,7 +189,7 @@
           class="group/all inline-flex w-fit items-center gap-1.5 text-body font-semibold text-foreground underline-offset-4 hover:underline{% if layout == 'compact' %} lg:px-3 lg:py-2{% endif %}"
         >
           {{- 'general.header.view_all' | t: title: title -}}
-          {% render 'icon', name: 'arrow-right', class: 'size-4 transition-transform group-hover/all:translate-x-0.5 motion-reduce:transition-none' %}
+          {% render 'icon', name: 'arrow-right', size: 16, class: 'transition-transform group-hover/all:translate-x-0.5 motion-reduce:transition-none' %}
         </a>
       {%- endif -%}
     </div>

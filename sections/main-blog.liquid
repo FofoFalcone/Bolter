@@ -150,7 +150,7 @@
       </div>
     {%- else -%}
       <div class="mt-10 flex flex-col items-center gap-4 rounded-lg bg-surface px-6 py-16 text-center md:mt-12">
-        {% render 'icon', name: 'newspaper', class: 'size-8 text-foreground/80' %}
+        {% render 'icon', name: 'newspaper', size: 32, class: 'text-foreground/80' %}
         {%- if current_tags.size > 0 -%}
           <p class="text-subheading text-balance text-foreground">{{ 'blogs.blog.no_tagged_articles' | t }}</p>
           <a href="{{ blog.url }}" class="button button-neutral">{{ 'blogs.blog.all_articles' | t }}</a>

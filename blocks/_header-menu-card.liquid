@@ -69,7 +69,7 @@
     {%- if url != blank and s.link_label != blank -%}
       <span class="mt-1 inline-flex items-center gap-1.5 text-body-sm font-semibold text-foreground underline-offset-4 group-hover/card:underline">
         {{- s.link_label | escape -}}
-        {% render 'icon', name: 'arrow-right', class: 'size-4 transition-transform group-hover/card:translate-x-0.5 motion-reduce:transition-none' %}
+        {% render 'icon', name: 'arrow-right', size: 16, class: 'transition-transform group-hover/card:translate-x-0.5 motion-reduce:transition-none' %}
       </span>
     {%- endif -%}
   </span>

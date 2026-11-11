@@ -70,9 +70,9 @@
                 <span class="sr-only">{{ 'sections.testimonials.rating' | t: rating: rating, max: 5 }}</span>
                 {%- for i in (1..5) -%}
                   {%- if i <= rating -%}
-                    {% render 'icon', name: 'star-solid', class: 'size-5' %}
+                    {% render 'icon', name: 'star-solid', size: 20 %}
                   {%- else -%}
-                    {% render 'icon', name: 'star-solid', class: 'size-5 text-foreground/20' %}
+                    {% render 'icon', name: 'star-solid', size: 20, class: 'text-foreground/20' %}
                   {%- endif -%}
                 {%- endfor -%}
               </p>

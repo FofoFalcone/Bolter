@@ -194,7 +194,8 @@
                   {{- link.title | escape -}}
                   {% render 'icon',
                     name: 'chevron-down',
-                    class: 'size-4 transition-transform duration-300 ease-theme group-data-open/trigger:rotate-180 motion-reduce:transition-none'
+                    size: 16,
+                    class: 'transition-transform duration-300 ease-theme group-data-open/trigger:rotate-180 motion-reduce:transition-none'
                   %}
                 </button>
               {%- else -%}
@@ -237,7 +238,7 @@
           data-search-trigger
           class="button button-subtle button-sm button-icon relative overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
         >
-          {% render 'icon', name: 'magnifying-glass', class: 'size-5' %}
+          {% render 'icon', name: 'magnifying-glass', size: 24, style: 'solid' %}
           <span class="sr-only">{{ 'general.search.title' | t }}</span>
           <span class="tooltip tooltip-below" aria-hidden="true">{{ 'general.search.title' | t }}</span>
         </button>
@@ -253,7 +254,7 @@
           href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
           class="button button-subtle button-sm button-icon js:hidden overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
         >
-          {% render 'icon', name: 'user', class: 'size-5' %}
+          {% render 'icon', name: 'user', size: 24, style: 'solid' %}
           <span class="sr-only">
             {%- if customer -%}
               {{ 'customer.account.title' | t }}
@@ -272,7 +273,7 @@
               slot="signed-out-avatar"
               class="flex size-9 items-center justify-center text-foreground overlay-light:text-white"
             >
-              {% render 'icon', name: 'user', class: 'size-5' %}
+              {% render 'icon', name: 'user', size: 24, style: 'solid' %}
               <span class="sr-only">{{ 'customer.login.title' | t }}</span>
             </span>
           {%- endunless -%}
@@ -291,7 +292,7 @@
         {% endif %}
         data-header-cart
       >
-        {% render 'icon', name: 'shopping-bag', class: 'size-5' %}
+        {% render 'icon', name: 'shopping-bag', size: 24, style: 'solid' %}
         <span class="hidden md:inline">{{ 'sections.cart.title_short' | t }}</span>
         <span class="sr-only">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
         {%- if cart.item_count > 0 -%}
@@ -307,8 +308,8 @@
       {%- comment -%} Menu mobile: primo livello; il secondo è il pannello della voce (stesso popover del desktop) {%- endcomment -%}
       <details class="header-drawer group lg:hidden" data-scroll-lock>
         <summary class="button button-subtle button-sm button-icon list-none overlay-light:text-white overlay-light:focus-visible:outline-white [&::-webkit-details-marker]:hidden">
-          {% render 'icon', name: 'bars-3', class: 'size-6 group-open:hidden' %}
-          {% render 'icon', name: 'x-mark', class: 'hidden size-6 group-open:block' %}
+          {% render 'icon', name: 'bars-3', size: 24, style: 'solid', class: 'group-open:hidden' %}
+          {% render 'icon', name: 'x-mark', size: 24, style: 'solid', class: 'hidden group-open:block' %}
           <span class="sr-only">{{ 'general.header.menu' | t }}</span>
         </summary>
 
@@ -334,7 +335,7 @@
                   {%- if has_panel -%}
                     <button type="button" popovertarget="HeaderPanel-{{ key }}" class="{{ drawer_item_class }}">
                       {{- link.title | escape -}}
-                      {% render 'icon', name: 'chevron-right', class: 'size-5 text-muted' %}
+                      {% render 'icon', name: 'chevron-right', size: 20, class: 'text-muted' %}
                     </button>
                   {%- else -%}
                     <a

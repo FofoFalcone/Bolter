@@ -111,7 +111,7 @@
             </div>
           {%- elsif b.icon != 'none' -%}
             <span class="flex size-12 shrink-0 items-center justify-center rounded-md text-foreground {{ icon_class }}">
-              {% render 'icon', name: b.icon, class: 'size-6' %}
+              {% render 'icon', name: b.icon, size: 24 %}
             </span>
           {%- endif -%}
 
@@ -138,7 +138,8 @@
               {%- endif -%}
               {% render 'icon',
                 name: 'arrow-right',
-                class: 'size-4 shrink-0 transition-transform duration-200 ease-theme motion-safe:group-hover/link:translate-x-1'
+                size: 16,
+                class: 'shrink-0 transition-transform duration-200 ease-theme motion-safe:group-hover/link:translate-x-1'
               %}
             </a>
           {%- endif -%}

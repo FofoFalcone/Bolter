@@ -66,3 +66,26 @@ if (missing.length) {
 } else {
   console.log('vite-tag.liquid: tutti gli entrypoint presenti.');
 }
+
+// 4. Icone (tools/build-icons.mjs): la misura va nel parametro size, che sceglie anche il disegno Heroicons nitido
+//    per quella misura. Una size-* di base nella classe ridimensiona il disegno da 20px e lo fa uscire sgranato.
+const iconIssues = [];
+for (const dir of ['sections', 'snippets', 'blocks', 'layout', 'templates']) {
+  if (!existsSync(join(root, dir))) continue;
+  for (const file of readdirSync(join(root, dir))) {
+    if (!file.endsWith('.liquid') || file === 'icon.liquid') continue;
+    const source = readFileSync(join(root, dir, file), 'utf8');
+    for (const match of source.matchAll(/render 'icon'[\s\S]*?%\}/g)) {
+      const classes = match[0].match(/class:\s*'([^']*)'/)?.[1] ?? '';
+      if (/(^|\s)size-/.test(classes)) {
+        const line = source.slice(0, match.index).split('\n').length;
+        iconIssues.push(`${dir}/${file}:${line}`);
+      }
+    }
+  }
+}
+if (iconIssues.length) {
+  console.warn(
+    `\n⚠️  Icone con la misura nella classe (usa il parametro size: 16, 20, 24, 32, 48 o 'full'):\n   ${iconIssues.join('\n   ')}\n`,
+  );
+}

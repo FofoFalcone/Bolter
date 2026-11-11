@@ -46,7 +46,7 @@
             <a href="{{ filter.url_to_remove }}" class="{{ chip_class }}" data-facets-link>
               <span class="sr-only">{{ 'sections.collection.remove_filter' | t }}:</span>
               {{ chip_label | escape }}
-              {% render 'icon', name: 'x-mark', class: 'size-4 text-muted' %}
+              {% render 'icon', name: 'x-mark', size: 16, class: 'text-muted' %}
             </a>
           </li>
         {%- endif -%}
@@ -62,7 +62,7 @@
             <a href="{{ filter_value.url_to_remove }}" class="{{ chip_class }}" data-facets-link>
               <span class="sr-only">{{ 'sections.collection.remove_filter' | t }}:</span>
               {{ chip_label | escape }}
-              {% render 'icon', name: 'x-mark', class: 'size-4 text-muted' %}
+              {% render 'icon', name: 'x-mark', size: 16, class: 'text-muted' %}
             </a>
           </li>
         {%- endfor -%}

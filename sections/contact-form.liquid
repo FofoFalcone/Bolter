@@ -135,7 +135,7 @@
             autofocus
             role="status"
           >
-            {% render 'icon', name: 'check-circle', class: 'size-8' %}
+            {% render 'icon', name: 'check-circle', size: 32 %}
             <div class="flex flex-col gap-2">
               <h2 class="text-heading text-balance">{{ 'sections.contact_form.success_title' | t }}</h2>
               {%- if s.success_text != blank -%}
@@ -161,7 +161,7 @@
               autofocus
               role="alert"
             >
-              {% render 'icon', name: 'exclamation-circle', class: 'mt-0.5 size-5' %}
+              {% render 'icon', name: 'exclamation-circle', size: 20, class: 'mt-0.5' %}
               <div class="flex flex-col gap-2">
                 <h2 class="text-body font-semibold">{{ 'sections.contact_form.error_title' | t }}</h2>
                 <ul class="flex flex-col gap-1 text-body-sm" role="list">
@@ -217,7 +217,7 @@
               >
               {%- if form.errors contains 'email' -%}
                 <p id="{{ form_id }}-email-error" class="flex items-center gap-1.5 text-body-sm text-danger-foreground">
-                  {% render 'icon', name: 'exclamation-circle', class: 'size-4' %}
+                  {% render 'icon', name: 'exclamation-circle', size: 16 %}
                   {{- form.errors.translated_fields.email | capitalize }}
                   {{ form.errors.messages.email -}}
                 </p>
@@ -262,7 +262,8 @@
                     </select>
                     {% render 'icon',
                       name: 'chevron-down',
-                      class: 'pointer-events-none absolute inset-y-0 end-4 my-auto size-5 text-foreground'
+                      size: 20,
+                      class: 'pointer-events-none absolute inset-y-0 end-4 my-auto text-foreground'
                     %}
                   </div>
                 </div>
@@ -287,7 +288,7 @@
             </textarea>
             {%- if form.errors contains 'body' -%}
               <p id="{{ form_id }}-body-error" class="flex items-center gap-1.5 text-body-sm text-danger-foreground">
-                {% render 'icon', name: 'exclamation-circle', class: 'size-4' %}
+                {% render 'icon', name: 'exclamation-circle', size: 16 %}
                 {{- form.errors.translated_fields.body | capitalize }}
                 {{ form.errors.messages.body -}}
               </p>
@@ -392,7 +393,7 @@
             <div class="flex gap-4" {{ block.shopify_attributes }}>
               {%- if icon != 'none' and icon != blank -%}
                 <span class="{{ icon_box_class }}" aria-hidden="true">
-                  {% render 'icon', name: icon, class: 'size-6' %}
+                  {% render 'icon', name: icon, size: 24 %}
                 </span>
               {%- endif -%}
               <div class="flex min-w-0 flex-col gap-1 pt-0.5">
@@ -426,7 +427,7 @@
                           >
                             {{- 'sections.contact_form.open_map' | t -}}
                             <span class="sr-only"> {{ 'accessibility.new_window' | t }}</span>
-                            {% render 'icon', name: 'arrow-right', class: 'size-4' %}
+                            {% render 'icon', name: 'arrow-right', size: 16 %}
                           </a>
                         {%- endif -%}
                     {%- endcase -%}

@@ -32,7 +32,7 @@
           {{- 'sections.cart.title_with_count' | t: count: cart.item_count -}}
         </h2>
         <button type="button" class="button button-subtle button-sm button-icon" data-cart-drawer-close>
-          {% render 'icon', name: 'x-mark', class: 'size-6' %}
+          {% render 'icon', name: 'x-mark', size: 24 %}
           <span class="sr-only">{{ 'sections.cart.close' | t }}</span>
         </button>
       </div>

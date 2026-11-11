@@ -80,7 +80,7 @@
         aria-disabled="true"
       {% endif %}
     >
-      {% render 'icon', name: 'minus', class: 'size-5' %}
+      {% render 'icon', name: 'minus', size: 20 %}
       <span class="sr-only">{{ 'products.product.quantity.decrease' | t: product: product.title }}</span>
     </button>
     <input
@@ -108,7 +108,7 @@
         disabled
       {% endif %}
     >
-      {% render 'icon', name: 'plus', class: 'size-5' %}
+      {% render 'icon', name: 'plus', size: 20 %}
       <span class="sr-only">{{ 'products.product.quantity.increase' | t: product: product.title }}</span>
     </button>
   </div>

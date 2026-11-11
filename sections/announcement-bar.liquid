@@ -41,7 +41,7 @@
           class="{{ control_class }} hidden js:inline-flex"
           aria-label="{{ 'sections.announcement_bar.previous' | t }}"
         >
-          {% render 'icon', name: 'chevron-left', class: 'size-4' %}
+          {% render 'icon', name: 'chevron-left', size: 16 %}
         </button>
       {%- endif -%}
 
@@ -62,7 +62,7 @@
           class="{{ control_class }} hidden js:inline-flex"
           aria-label="{{ 'sections.announcement_bar.next' | t }}"
         >
-          {% render 'icon', name: 'chevron-right', class: 'size-4' %}
+          {% render 'icon', name: 'chevron-right', size: 16 %}
         </button>
         {%- if s.autoplay -%}
           {%- comment -%} Pausa/riproduzione: data-paused su <announcement-bar> sceglie l'icona {%- endcomment -%}
@@ -74,8 +74,8 @@
             aria-label="{{ 'sections.announcement_bar.pause' | t | escape }}"
             class="{{ control_class }} hidden js:inline-flex"
           >
-            {% render 'icon', name: 'pause', class: 'size-3.5 group-data-paused/bar:hidden' %}
-            {% render 'icon', name: 'play', class: 'hidden size-3.5 group-data-paused/bar:block' %}
+            {% render 'icon', name: 'pause', size: 16, class: 'group-data-paused/bar:hidden' %}
+            {% render 'icon', name: 'play', size: 16, class: 'hidden group-data-paused/bar:block' %}
           </button>
         {%- endif -%}
       {%- endif -%}

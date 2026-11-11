@@ -303,8 +303,8 @@
         aria-label="{{ 'sections.hero.pause_video' | t | escape }}"
         class="absolute right-4 bottom-4 hidden size-10 place-items-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-white js:grid md:right-6 md:bottom-6"
       >
-        {% render 'icon', name: 'pause', class: 'size-5 group-data-paused/hero:hidden' %}
-        {% render 'icon', name: 'play', class: 'hidden size-5 translate-x-px group-data-paused/hero:block' %}
+        {% render 'icon', name: 'pause', size: 20, class: 'group-data-paused/hero:hidden' %}
+        {% render 'icon', name: 'play', size: 20, class: 'hidden translate-x-px group-data-paused/hero:block' %}
       </button>
     {%- endif -%}
   </div>

@@ -180,8 +180,8 @@
           aria-label="{{ 'sections.ticker.pause' | t | escape }}"
           class="button button-subtle button-sm button-icon invisible group-data-running/ticker:visible"
         >
-          {% render 'icon', name: 'pause', class: 'size-4 group-data-paused/ticker:hidden' %}
-          {% render 'icon', name: 'play', class: 'hidden size-4 group-data-paused/ticker:block' %}
+          {% render 'icon', name: 'pause', size: 16, class: 'group-data-paused/ticker:hidden' %}
+          {% render 'icon', name: 'play', size: 16, class: 'hidden group-data-paused/ticker:block' %}
         </button>
       {%- endunless -%}
     {%- endcapture -%}

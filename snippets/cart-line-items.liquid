@@ -172,7 +172,7 @@
                 aria-disabled="true"
               {% endif %}
             >
-              {% render 'icon', name: 'minus', class: 'size-4' %}
+              {% render 'icon', name: 'minus', size: 16 %}
               <span class="sr-only">{{ 'products.product.quantity.decrease' | t: product: item.product.title }}</span>
             </button>
             <label for="{{ line_id }}-quantity" class="sr-only">
@@ -200,7 +200,7 @@
                 aria-disabled="true"
               {% endif %}
             >
-              {% render 'icon', name: 'plus', class: 'size-4' %}
+              {% render 'icon', name: 'plus', size: 16 %}
               <span class="sr-only">{{ 'products.product.quantity.increase' | t: product: item.product.title }}</span>
             </button>
           </div>
@@ -213,7 +213,7 @@
             class="inline-flex items-center gap-1 text-body-sm text-muted underline-offset-4 hover:text-foreground hover:underline"
             data-cart-remove
           >
-            {% render 'icon', name: 'x-mark', class: 'size-4' %}
+            {% render 'icon', name: 'x-mark', size: 16 %}
             {{ 'sections.cart.remove' | t }}
             <span class="sr-only">{{ item.product.title | escape }}</span>
           </a>

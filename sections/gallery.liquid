@@ -301,7 +301,7 @@
             aria-label="{{ 'sections.gallery.close' | t }}"
             hidden
           >
-            {% render 'icon', name: 'x-mark', class: 'size-5' %}
+            {% render 'icon', name: 'x-mark', size: 20 %}
           </button>
         {%- endif -%}
       </div>
@@ -315,7 +315,7 @@
               class="button button-neutral button-sm button-icon"
               aria-label="{{ 'sections.gallery.previous' | t }}"
             >
-              {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+              {% render 'icon', name: 'chevron-left', size: 20 %}
             </button>
             <p data-gallery-counter class="min-w-16 text-body-sm text-muted tabular-nums" aria-hidden="true"></p>
             <button
@@ -324,7 +324,7 @@
               class="button button-neutral button-sm button-icon"
               aria-label="{{ 'sections.gallery.next' | t }}"
             >
-              {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+              {% render 'icon', name: 'chevron-right', size: 20 %}
             </button>
           </div>
         {%- endif -%}
@@ -342,8 +342,8 @@
             class="button button-neutral button-sm gap-2"
             hidden
           >
-            {% render 'icon', name: 'pause', class: 'size-4 group-data-videos-paused/gallery:hidden' %}
-            {% render 'icon', name: 'play', class: 'hidden size-4 group-data-videos-paused/gallery:block' %}
+            {% render 'icon', name: 'pause', size: 16, class: 'group-data-videos-paused/gallery:hidden' %}
+            {% render 'icon', name: 'play', size: 16, class: 'hidden group-data-videos-paused/gallery:block' %}
             <span aria-hidden="true" class="group-data-videos-paused/gallery:hidden">{{ 'sections.hero.pause_video' | t }}</span>
             <span aria-hidden="true" class="hidden group-data-videos-paused/gallery:inline">{{ 'sections.hero.play_video' | t }}</span>
           </button>
@@ -376,6 +376,12 @@
   {%- endif -%}
 </div>
 
+{%- comment -%}
+  ExcessiveSettingsCount (41 su 40): 30 setting dipendono dalla disposizione scelta (visible_if) e il pannello ne mostra
+  al massimo 17 alla volta, quindi il problema che la regola segnala (un pannello troppo lungo) qui non c'è. Dividere
+  la section per disposizione moltiplicherebbe le section quasi uguali.
+{%- endcomment -%}
+{% # theme-check-disable ExcessiveSettingsCount %}
 {% schema %}
 {
   "name": "t:sections.gallery.name",

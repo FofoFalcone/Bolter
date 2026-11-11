@@ -89,7 +89,7 @@
         popovertarget="{{ panel_id }}"
         popovertargetaction="hide"
       >
-        {% render 'icon', name: 'x-mark', class: 'size-6' %}
+        {% render 'icon', name: 'x-mark', size: 24 %}
         <span class="sr-only">{{ 'sections.collection.close_filters' | t }}</span>
       </button>
     </div>
@@ -140,7 +140,7 @@
                 <span class="sr-only">({{ 'sections.collection.selected_count' | t: count: active_count }})</span>
               {%- endif -%}
             </span>
-            {% render 'icon', name: 'chevron-down', class: 'size-5 shrink-0 text-muted transition-transform duration-200 ease-theme group-open/facet:rotate-180 motion-reduce:transition-none' %}
+            {% render 'icon', name: 'chevron-down', size: 20, class: 'shrink-0 text-muted transition-transform duration-200 ease-theme group-open/facet:rotate-180 motion-reduce:transition-none' %}
           </summary>
 
           <div class="pb-4 {{ content_class }}"{% if toolbar %} data-lenis-prevent{% endif %}>
@@ -352,7 +352,7 @@
                       <summary class="mt-1 inline-flex cursor-pointer list-none items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
                         <span class="group-open/more:hidden">{{ 'sections.collection.show_more' | t: count: hidden_values }}</span>
                         <span class="hidden group-open/more:inline">{{ 'sections.collection.show_less' | t }}</span>
-                        {% render 'icon', name: 'chevron-down', class: 'size-4 transition-transform duration-200 group-open/more:rotate-180 motion-reduce:transition-none' %}
+                        {% render 'icon', name: 'chevron-down', size: 16, class: 'transition-transform duration-200 group-open/more:rotate-180 motion-reduce:transition-none' %}
                       </summary>
                       <ul class="flex flex-col" role="list">
                         {%- for filter_value in values offset: visible_values -%}

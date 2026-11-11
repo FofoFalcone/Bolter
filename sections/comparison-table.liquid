@@ -84,12 +84,12 @@
                 <td class="{{ cell_class }}">
                   {%- if yes_values contains normalized -%}
                     <span class="inline-grid size-7 place-items-center rounded-full bg-primary text-primary-foreground">
-                      {% render 'icon', name: 'check', class: 'size-4' %}
+                      {% render 'icon', name: 'check', size: 16 %}
                     </span>
                     <span class="sr-only">{{ 'sections.comparison_table.yes' | t }}</span>
                   {%- elsif no_values contains normalized -%}
                     <span class="inline-grid size-7 place-items-center rounded-full text-foreground/60">
-                      {% render 'icon', name: 'x-mark', class: 'size-5' %}
+                      {% render 'icon', name: 'x-mark', size: 20 %}
                     </span>
                     <span class="sr-only">{{ 'sections.comparison_table.no' | t }}</span>
                   {%- elsif value != blank -%}

@@ -33,7 +33,9 @@
       <div class="relative flex-1">
         {% render 'icon',
           name: 'magnifying-glass',
-          class: 'pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-input-foreground/65 lg:left-5 lg:size-6'
+          size: 24,
+          style: 'solid',
+          class: 'pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-input-foreground/65 lg:left-5'
         %}
         <input
           id="HeaderSearchInput"
@@ -66,7 +68,7 @@
         popovertargetaction="hide"
         class="button button-subtle button-icon shrink-0"
       >
-        {% render 'icon', name: 'x-mark', class: 'size-6' %}
+        {% render 'icon', name: 'x-mark', size: 24, style: 'solid' %}
         <span class="sr-only">{{ 'general.predictive_search.close' | t }}</span>
       </button>
     </form>

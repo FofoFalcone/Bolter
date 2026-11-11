@@ -18,12 +18,12 @@
       <li>
         {%- if paginate.previous -%}
           <a href="{{ paginate.previous.url }}{{ anchor }}" class="{{ item_class }}" rel="prev">
-            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+            {% render 'icon', name: 'chevron-left', size: 20 %}
             <span class="sr-only">{{ 'general.pagination.previous' | t }}</span>
           </a>
         {%- else -%}
           <span class="{{ item_class }} pointer-events-none text-subtle" aria-hidden="true">
-            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+            {% render 'icon', name: 'chevron-left', size: 20 %}
           </span>
         {%- endif -%}
       </li>
@@ -50,12 +50,12 @@
       <li>
         {%- if paginate.next -%}
           <a href="{{ paginate.next.url }}{{ anchor }}" class="{{ item_class }}" rel="next">
-            {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+            {% render 'icon', name: 'chevron-right', size: 20 %}
             <span class="sr-only">{{ 'general.pagination.next' | t }}</span>
           </a>
         {%- else -%}
           <span class="{{ item_class }} pointer-events-none text-subtle" aria-hidden="true">
-            {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+            {% render 'icon', name: 'chevron-right', size: 20 %}
           </span>
         {%- endif -%}
       </li>

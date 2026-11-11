@@ -132,7 +132,7 @@
           aria-disabled="true"
           aria-label="{{ 'products.product.media.previous' | t | escape }}"
         >
-          {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+          {% render 'icon', name: 'chevron-left', size: 20 %}
         </button>
         <p class="min-w-12 text-center text-body-sm font-semibold text-foreground tabular-nums" aria-hidden="true">
           <span data-media-counter>1</span> / {{ gallery.size }}
@@ -143,7 +143,7 @@
           class="button button-subtle button-sm button-icon aria-disabled:bg-transparent"
           aria-label="{{ 'products.product.media.next' | t | escape }}"
         >
-          {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+          {% render 'icon', name: 'chevron-right', size: 20 %}
         </button>
       </div>
     {%- endif -%}
@@ -170,9 +170,9 @@
               {%- unless media.media_type == 'image' -%}
                 <span class="absolute end-1 bottom-1 grid size-5 place-items-center rounded-sm bg-background text-foreground/60">
                   {%- if media.media_type == 'model' -%}
-                    {% render 'icon', name: 'cube', class: 'size-4' %}
+                    {% render 'icon', name: 'cube', size: 16 %}
                   {%- else -%}
-                    {% render 'icon', name: 'play', class: 'size-4' %}
+                    {% render 'icon', name: 'play', size: 16 %}
                   {%- endif -%}
                 </span>
               {%- endunless -%}
@@ -192,7 +192,7 @@
         data-shopify-title="{{ product.title | escape }}"
         data-shopify-xr-hidden
       >
-        {% render 'icon', name: 'cube', class: 'size-5' %}
+        {% render 'icon', name: 'cube', size: 20 %}
         {{ 'products.product.media.xr' | t }}
       </button>
       <script type="application/json" data-product-models>

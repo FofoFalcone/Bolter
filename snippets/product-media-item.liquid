@@ -36,7 +36,7 @@
     aria-label="{{ open_label | escape }}"
   >
     <span class="button button-neutral button-sm button-icon absolute end-3 top-3 opacity-0 shadow-300 transition-opacity group-hover/open:opacity-100 group-focus-visible/open:opacity-100 pointer-coarse:opacity-100 motion-reduce:transition-none">
-      {% render 'icon', name: 'magnifying-glass-plus', class: 'size-5' %}
+      {% render 'icon', name: 'magnifying-glass-plus', size: 20 %}
     </span>
   </button>
 {%- else -%}
@@ -86,7 +86,7 @@
       aria-label="{{ play_label | escape }}"
     >
       <span class="button button-inverse button-icon shadow-400 [--button-size:4rem] motion-safe:group-hover/play:scale-105">
-        {% render 'icon', name: play_icon, class: 'size-6' %}
+        {% render 'icon', name: play_icon, size: 24 %}
       </span>
     </button>
     <template data-media-player>

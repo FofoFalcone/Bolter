@@ -185,7 +185,7 @@
                 popovertarget="{{ panel_id }}"
                 data-facets-part="drawer-button"
               >
-                {% render 'icon', name: 'adjustments-horizontal', class: 'size-5' %}
+                {% render 'icon', name: 'adjustments-horizontal', size: 20 %}
                 {{ 'sections.collection.filters' | t }}
                 {%- if active_count > 0 -%}
                   <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-body-sm leading-5 text-primary-foreground tabular-nums" aria-hidden="true">
@@ -238,7 +238,7 @@
                       </option>
                     {%- endfor -%}
                   </select>
-                  {% render 'icon', name: 'chevron-down', class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto size-4 text-input-foreground/65' %}
+                  {% render 'icon', name: 'chevron-down', size: 16, class: 'pointer-events-none absolute inset-y-0 end-2.5 my-auto text-input-foreground/65' %}
                 </div>
                 <button type="submit" class="button button-neutral button-sm js:hidden">{{ 'sections.collection.apply' | t }}</button>
               </form>
@@ -295,7 +295,7 @@
             {%- elsif collection.all_products_count > 0 -%}
               {%- comment -%} Nessun risultato con i filtri scelti {%- endcomment -%}
               <div class="flex flex-col items-center gap-4 rounded-lg border border-dashed border-border-strong px-6 py-16 text-center">
-                {% render 'icon', name: 'adjustments-horizontal', class: 'size-8 text-subtle' %}
+                {% render 'icon', name: 'adjustments-horizontal', size: 32, class: 'text-subtle' %}
                 <p class="text-subheading text-balance text-foreground">{{ 'sections.collection.no_results_title' | t }}</p>
                 <p class="max-w-md text-body text-pretty text-muted">{{ 'sections.collection.no_results_text' | t }}</p>
                 <a href="{{ clear_url }}" class="button button-neutral" data-facets-link>{{ 'sections.collection.clear_filters' | t }}</a>

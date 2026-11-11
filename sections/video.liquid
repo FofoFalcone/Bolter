@@ -155,8 +155,8 @@
           data-label-pause="{{ 'sections.video.pause' | t | escape }}"
           aria-label="{{ 'sections.video.pause' | t | escape }}"
         >
-          <span class="group-data-paused/video:hidden">{% render 'icon', name: 'pause', class: 'size-5' %}</span>
-          <span class="hidden group-data-paused/video:inline">{% render 'icon', name: 'play', class: 'size-5' %}</span>
+          <span class="group-data-paused/video:hidden">{% render 'icon', name: 'pause', size: 20 %}</span>
+          <span class="hidden group-data-paused/video:inline">{% render 'icon', name: 'play', size: 20 %}</span>
         </button>
       {%- elsif has_video -%}
         <button
@@ -169,7 +169,7 @@
             <span class="absolute inset-0 bg-linear-to-b from-white/5 to-white/15" aria-hidden="true"></span>
           {%- endif -%}
           <span class="button button-inverse button-icon relative shadow-400 [--button-size:4.5rem] motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-theme motion-safe:group-hover/play:scale-105">
-            {% render 'icon', name: 'play', class: 'size-7' %}
+            {% render 'icon', name: 'play', size: 32 %}
           </span>
         </button>
         <template data-video-player>

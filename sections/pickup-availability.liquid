@@ -12,9 +12,9 @@
   {%- assign closest = pick_up_availabilities.first -%}
   <div class="flex items-start gap-3 rounded-md bg-surface p-4" data-pickup-content>
     {%- if closest.available -%}
-      {% render 'icon', name: 'check-circle', class: 'mt-0.5 size-5 shrink-0 text-positive-foreground' %}
+      {% render 'icon', name: 'check-circle', size: 20, class: 'mt-0.5 shrink-0 text-positive-foreground' %}
     {%- else -%}
-      {% render 'icon', name: 'exclamation-circle', class: 'mt-0.5 size-5 shrink-0 text-foreground/80' %}
+      {% render 'icon', name: 'exclamation-circle', size: 20, class: 'mt-0.5 shrink-0 text-foreground/80' %}
     {%- endif -%}
 
     <div class="flex min-w-0 flex-col items-start gap-1">
@@ -59,7 +59,7 @@
           {%- endunless -%}
         </div>
         <button type="button" class="button button-subtle button-sm button-icon shrink-0" data-pickup-close>
-          {% render 'icon', name: 'x-mark', class: 'size-5' %}
+          {% render 'icon', name: 'x-mark', size: 20 %}
           <span class="sr-only">{{ 'accessibility.close' | t }}</span>
         </button>
       </div>
@@ -70,7 +70,7 @@
             <h3 class="text-body font-semibold text-headings">{{ availability.location.name | escape }}</h3>
             <p class="flex items-start gap-2 text-body-sm text-foreground">
               {%- if availability.available -%}
-                {% render 'icon', name: 'check-circle', class: 'size-5 shrink-0 text-positive-foreground' %}
+                {% render 'icon', name: 'check-circle', size: 20, class: 'shrink-0 text-positive-foreground' %}
                 <span>
                   {{- 'products.pickup.available' | t -}}
                   {%- if availability.pick_up_time != blank -%}
@@ -78,7 +78,7 @@
                   {%- endif -%}
                 </span>
               {%- else -%}
-                {% render 'icon', name: 'exclamation-circle', class: 'size-5 shrink-0 text-foreground/80' %}
+                {% render 'icon', name: 'exclamation-circle', size: 20, class: 'shrink-0 text-foreground/80' %}
                 <span>{{ 'products.pickup.unavailable' | t }}</span>
               {%- endif -%}
             </p>

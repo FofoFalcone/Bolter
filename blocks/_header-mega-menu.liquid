@@ -54,7 +54,7 @@
     class="pointer-events-auto flex max-w-md items-start gap-2 rounded-lg border border-warning bg-warning-surface p-3 text-body-sm text-warning-foreground shadow-400"
     {{ block.shopify_attributes }}
   >
-    {% render 'icon', name: 'exclamation-triangle', class: 'mt-px size-5 shrink-0' %}
+    {% render 'icon', name: 'exclamation-triangle', size: 20, class: 'mt-px shrink-0' %}
     <span>{{ message }}</span>
   </p>
 {%- endif -%}

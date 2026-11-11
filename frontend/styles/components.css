@@ -81,7 +81,13 @@
     color: transparent;
 
     &::after {
-      --button-dot: radial-gradient(circle closest-side, var(--button-fg, currentColor) 92%, transparent);
+      /* Bordo sfumato di 1px: un gradiente non viene smussato come una forma, e con un passaggio più stretto di un
+         pixel il pallino da 6px esce a scalini sugli schermi a densità 1 (peggio mentre la misura cambia) */
+      --button-dot: radial-gradient(
+        circle closest-side,
+        var(--button-fg, currentColor) calc(100% - 1px),
+        transparent
+      );
       content: '';
       position: absolute;
       inset: 0;

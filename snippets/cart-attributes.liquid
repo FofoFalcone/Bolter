@@ -78,7 +78,8 @@
               >
               {% render 'icon',
                 name: 'check',
-                class: 'check-tick pointer-events-none absolute inset-0 m-auto size-4 text-primary-foreground'
+                size: 16,
+                class: 'check-tick pointer-events-none absolute inset-0 m-auto text-primary-foreground'
               %}
             </span>
             <span>{{ 'sections.cart.attributes.gift_wrap' | t }}</span>
@@ -137,7 +138,7 @@
       <details class="group"{% if has_values %} open{% endif %}>
         <summary class="flex cursor-pointer list-none items-center justify-between gap-2 rounded-sm text-body-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
           {{- 'sections.cart.attributes.toggle' | t -}}
-          {% render 'icon', name: 'chevron-down', class: 'size-5 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none' %}
+          {% render 'icon', name: 'chevron-down', size: 20, class: 'transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none' %}
         </summary>
         <div class="pt-3">{{ fields }}</div>
       </details>

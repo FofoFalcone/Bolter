@@ -11,6 +11,7 @@
     prodotti singoli: il campo è obbligatorio e questo è il valore previsto per una card in un elenco.
   - Blocchi senza contenuto: nel negozio spariscono; nell'editor resta un segnaposto.
   JS: frontend/entrypoints/carousel.js; effetti e barra: frontend/entrypoints/carousel-effects.js (solo se usati).
+  Slide immagine con testo: snippets/carousel-image-slide.liquid.
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
@@ -237,7 +238,8 @@
                         </span>
                         {% render 'icon',
                           name: 'arrow-right',
-                          class: 'size-5 transition-transform duration-200 ease-theme motion-safe:group-hover/all:translate-x-1'
+                          size: 20,
+                          class: 'transition-transform duration-200 ease-theme motion-safe:group-hover/all:translate-x-1'
                         %}
                       </a>
                     </li>
@@ -294,135 +296,19 @@
                         assign image_priority = 'high'
                       endif
                     endif
-
-                    # Larga il doppio solo dove c'è spazio: con slide centrate non resterebbe più in mezzo
-                    assign is_wide = false
-                    if b.wide and align == 'start' and per_view > 1
-                      assign is_wide = true
-                    endif
-                    assign image_sizes = sizes
-                    if is_wide
-                      assign image_sizes = sizes_wide
-                    endif
-
-                    # Sopra la foto i colori sono fissi; senza foto la slide segue la palette
-                    assign has_image = false
-                    if b.image != blank
-                      assign has_image = true
-                    endif
-                    if has_image and b.text_tone == 'dark'
-                      assign tone_class = 'text-black'
-                      assign veil_class = 'bg-white'
-                      assign button_class = 'button-primary'
-                      assign outline_class = 'focus-visible:outline-black'
-                    elsif has_image
-                      assign tone_class = 'text-white'
-                      assign veil_class = 'bg-black'
-                      assign button_class = 'button-inverse focus-visible:outline-white'
-                      assign outline_class = 'focus-visible:outline-white'
-                    else
-                      assign tone_class = 'text-foreground'
-                      assign veil_class = ''
-                      assign button_class = 'button-primary'
-                      assign outline_class = 'focus-visible:outline-primary'
-                    endif
-
-                    case b.content_position
-                      when 'top_start'
-                        assign position_class = 'items-start justify-start text-start'
-                      when 'center'
-                        assign position_class = 'items-center justify-center text-center'
-                      when 'bottom_center'
-                        assign position_class = 'items-center justify-end text-center'
-                      else
-                        assign position_class = 'items-start justify-end text-start'
-                    endcase
-
-                    assign has_link = false
-                    if b.link != blank
-                      assign has_link = true
-                    endif
-                    assign has_button = false
-                    if has_link and b.button_label != blank
-                      assign has_button = true
-                    endif
-
-                    assign image_class = 'absolute inset-0 size-full object-cover'
-                    if effect == 'parallax'
-                      assign image_class = image_class | append: ' js-motion:scale-115'
-                    elsif has_link
-                      assign image_class = image_class | append: ' transition-[scale] duration-500 ease-theme motion-safe:group-hover/slide:scale-105'
-                    endif
-
-                    # Senza testo alternativo la foto è decorativa (titolo e link della slide la descrivono): alt=""
-                    # esplicito, perché con un valore nil image_tag non scrive l'attributo (segnalato da Lighthouse)
-                    assign slide_alt = b.image.alt | default: ''
-                    assign link_label = b.heading | default: b.image.alt
-                    # Senza titolo né alt: nome del prodotto o della collezione a cui punta il link. "Scopri di più"
-                    # da solo è un testo di link generico (Lighthouse SEO, link-text, 2026-11-11).
-                    if link_label == blank and b.link contains '/products/'
-                      assign link_handle = b.link | split: '/products/' | last | split: '?' | first | split: '/' | first
-                      assign link_label = all_products[link_handle].title
-                    elsif link_label == blank and b.link contains '/collections/'
-                      assign link_handle = b.link | split: '/collections/' | last | split: '?' | first | split: '/' | first
-                      assign link_label = collections[link_handle].title
-                    endif
-                    if link_label == blank
-                      assign link_label = 'sections.carousel.open_link' | t
-                    endif
                   -%}
-                  <li
-                    class="{{ slide_class }}{% if is_wide %} md:w-[calc(2_*_var(--carousel-slide)_+_var(--carousel-gap))]{% endif %}"
-                    {{ block.shopify_attributes }}
-                  >
-                    <div class="group/slide{% if has_image %} media-loading{% endif %} relative grid h-full grid-cols-1 overflow-hidden rounded-lg bg-surface" data-carousel-image>
-                      <span class="col-start-1 row-start-1 block w-(--carousel-slide) {{ ratio_class }}" aria-hidden="true"></span>
-                      {%- if has_image -%}
-                        {{
-                          b.image
-                          | image_url: width: 2400
-                          | image_tag:
-                            loading: image_loading,
-                            fetchpriority: image_priority,
-                            sizes: image_sizes,
-                            widths: '300, 400, 600, 800, 1000, 1200, 1600, 2000, 2400',
-                            alt: slide_alt,
-                            class: image_class
-                        }}
-                        {%- if b.overlay > 0 -%}
-                          <span class="absolute inset-0 {{ veil_class }} opacity-(--slide-veil)" style="--slide-veil: {{ b.overlay | divided_by: 100.0 }};" aria-hidden="true"></span>
-                        {%- endif -%}
-                      {%- elsif request.design_mode -%}
-                        {{ 'lifestyle-1' | placeholder_svg_tag: 'absolute inset-0 size-full fill-subtle' }}
-                      {%- endif -%}
-
-                      {%- if b.heading != blank or b.text != blank or has_button -%}
-                        <div class="@container/slide z-10 col-start-1 row-start-1 grid">
-                          <div class="flex min-w-0 flex-col gap-3 p-6 @md/slide:p-8 {{ position_class }} {{ tone_class }}">
-                          {%- if b.heading != blank -%}
-                            <h3 class="max-w-2xl text-heading text-balance @md/slide:text-title-page">{{ b.heading | escape }}</h3>
-                          {%- endif -%}
-                          {%- if b.text != blank -%}
-                            <p class="max-w-2xl text-body text-pretty">{{ b.text }}</p>
-                          {%- endif -%}
-                          {%- if has_button -%}
-                            <a href="{{ b.link }}" class="button {{ button_class }} mt-2 after:absolute after:inset-0">
-                              {{- b.button_label | escape -}}
-                            </a>
-                          {%- endif -%}
-                          </div>
-                        </div>
-                      {%- endif -%}
-
-                      {%- if has_link and has_button == false -%}
-                        <a
-                          href="{{ b.link }}"
-                          class="absolute inset-0 z-10 rounded-lg focus-visible:outline-2 focus-visible:-outline-offset-4 {{ outline_class }}"
-                          aria-label="{{ link_label | escape }}"
-                        ></a>
-                      {%- endif -%}
-                    </div>
-                  </li>
+                  {% render 'carousel-image-slide',
+                    block: block,
+                    slide_class: slide_class,
+                    ratio_class: ratio_class,
+                    align: align,
+                    per_view: per_view,
+                    effect: effect,
+                    sizes: sizes,
+                    sizes_wide: sizes_wide,
+                    loading: image_loading,
+                    fetchpriority: image_priority
+                  %}
                 {%- endif -%}
             {%- endcase -%}
           {%- endfor -%}
@@ -437,7 +323,7 @@
             aria-disabled="true"
             data-carousel-previous
           >
-            {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+            {% render 'icon', name: 'chevron-left', size: 20 %}
           </button>
           <button
             type="button"
@@ -446,7 +332,7 @@
             aria-label="{{ 'sections.carousel.next' | t }}"
             data-carousel-next
           >
-            {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+            {% render 'icon', name: 'chevron-right', size: 20 %}
           </button>
         {%- endif -%}
       </div>
@@ -498,8 +384,8 @@
                   data-carousel-toggle
                   hidden
                 >
-                  {% render 'icon', name: 'pause', class: 'size-5 group-data-paused/carousel:hidden' %}
-                  {% render 'icon', name: 'play', class: 'hidden size-5 group-data-paused/carousel:block' %}
+                  {% render 'icon', name: 'pause', size: 20, class: 'group-data-paused/carousel:hidden' %}
+                  {% render 'icon', name: 'play', size: 20, class: 'hidden group-data-paused/carousel:block' %}
                 </button>
               {%- endif -%}
               {%- if s.show_arrows -%}
@@ -511,7 +397,7 @@
                   aria-disabled="true"
                   data-carousel-previous
                 >
-                  {% render 'icon', name: 'chevron-left', class: 'size-5' %}
+                  {% render 'icon', name: 'chevron-left', size: 20 %}
                 </button>
                 <button
                   type="button"
@@ -520,7 +406,7 @@
                   aria-label="{{ 'sections.carousel.next' | t }}"
                   data-carousel-next
                 >
-                  {% render 'icon', name: 'chevron-right', class: 'size-5' %}
+                  {% render 'icon', name: 'chevron-right', size: 20 %}
                 </button>
               {%- endif -%}
             </div>

@@ -62,7 +62,7 @@
     <details class="group"{% if codes.size > 0 %} open{% endif %}>
       <summary class="flex cursor-pointer list-none items-center justify-between gap-2 rounded-sm text-body-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
         {{- 'sections.cart.discount_toggle' | t -}}
-        {% render 'icon', name: 'chevron-down', class: 'size-5 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none' %}
+        {% render 'icon', name: 'chevron-down', size: 20, class: 'transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none' %}
       </summary>
       <div class="pt-3">{{ field }}</div>
     </details>
@@ -81,7 +81,7 @@
           >
             <span class="sr-only">{{ 'sections.cart.discount_remove' | t }}:</span>
             {{ code | escape }}
-            {% render 'icon', name: 'x-mark', class: 'size-4' %}
+            {% render 'icon', name: 'x-mark', size: 16 %}
           </button>
         </li>
       {%- endfor -%}

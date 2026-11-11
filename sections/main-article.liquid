@@ -38,7 +38,7 @@
       href="{{ blog.url }}"
       class="inline-flex items-center gap-1 rounded-sm text-body-sm font-semibold text-foreground/80 transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
-      {% render 'icon', name: 'chevron-left', class: 'size-4' %}
+      {% render 'icon', name: 'chevron-left', size: 16 %}
       {{- blog.title | escape -}}
     </a>
 
@@ -156,7 +156,7 @@
       {%- if blog.next_article -%}
         <a href="{{ blog.next_article.url }}" class="{{ nav_class }}">
           <span class="inline-flex items-center gap-1 text-body-sm text-foreground/80">
-            {% render 'icon', name: 'chevron-left', class: 'size-4' %}
+            {% render 'icon', name: 'chevron-left', size: 16 %}
             {{- 'blogs.article.older' | t -}}
           </span>
           <span class="text-body font-semibold text-balance text-foreground">{{ blog.next_article.title | escape }}</span>
@@ -168,7 +168,7 @@
         <a href="{{ blog.previous_article.url }}" class="{{ nav_class }} md:items-end md:text-end">
           <span class="inline-flex items-center gap-1 text-body-sm text-foreground/80">
             {{- 'blogs.article.newer' | t -}}
-            {% render 'icon', name: 'chevron-right', class: 'size-4' %}
+            {% render 'icon', name: 'chevron-right', size: 16 %}
           </span>
           <span class="text-body font-semibold text-balance text-foreground">{{ blog.previous_article.title | escape }}</span>
         </a>
@@ -209,7 +209,7 @@
 
         {%- if form.posted_successfully? -%}
           <div class="flex items-start gap-3 rounded-md bg-positive-surface p-4 text-positive-foreground outline-none" tabindex="-1" autofocus role="status">
-            {% render 'icon', name: 'check-circle', class: 'mt-0.5 size-5' %}
+            {% render 'icon', name: 'check-circle', size: 20, class: 'mt-0.5' %}
             <p class="text-body text-pretty">
               {%- if blog.moderated? -%}
                 {{ 'blogs.comments.success_moderated' | t }}
@@ -220,7 +220,7 @@
           </div>
         {%- elsif form.errors -%}
           <div class="flex items-start gap-3 rounded-md bg-danger-surface p-4 text-danger-foreground outline-none" tabindex="-1" autofocus role="alert">
-            {% render 'icon', name: 'exclamation-circle', class: 'mt-0.5 size-5' %}
+            {% render 'icon', name: 'exclamation-circle', size: 20, class: 'mt-0.5' %}
             <ul class="flex flex-col gap-1 text-body-sm" role="list">
               {%- for error in form.errors -%}
                 <li>

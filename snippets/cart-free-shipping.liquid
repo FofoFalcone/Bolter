@@ -43,9 +43,9 @@
     <p id="{{ message_id }}" class="flex items-center gap-2 text-body-sm text-pretty{% if reached %} font-semibold text-positive-foreground{% else %} text-foreground{% endif %}" data-free-shipping-text>
       <span class="shrink-0" data-free-shipping-icon>
         {%- if reached -%}
-          {% render 'icon', name: 'check-circle', class: 'size-5' %}
+          {% render 'icon', name: 'check-circle', size: 20 %}
         {%- else -%}
-          {% render 'icon', name: 'truck', class: 'size-5' %}
+          {% render 'icon', name: 'truck', size: 20 %}
         {%- endif -%}
       </span>
       <span>
