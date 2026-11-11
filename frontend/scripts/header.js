@@ -106,7 +106,10 @@ class SiteHeader extends HTMLElement {
       if (entry.target === this.section) sectionHeight = height;
       if (entry.target === this) this.ownHeight = Math.round(height);
     }
+    // Cassetto aperto e header che cambia altezza (es. rotazione dello schermo): lettura prima delle scritture
+    const drawerBottom = this.drawer?.open ? this.measureHeaderBottom() : null;
     if (sectionHeight !== null) this.writeHeaderHeight(sectionHeight);
+    if (drawerBottom !== null) this.writeHeaderBottom(drawerBottom);
     // L'header trasparente torna pieno quando la hero passa sotto il suo bordo: margine dell'observer = altezza
     if (this.overlayTarget && this.ownHeight !== this.overlayHeight) this.observeOverlay();
   }
@@ -151,7 +154,7 @@ class SiteHeader extends HTMLElement {
    */
   positionPanel(panel) {
     // Letture
-    const bottom = Math.max(0, Math.round(this.getBoundingClientRect().bottom));
+    const bottom = this.measureHeaderBottom();
     let left = null;
     if (panel.dataset.headerPanel === 'compact') {
       // Voce del menu o, per paese/lingua, il pulsante visibile che apre il pannello
@@ -168,14 +171,23 @@ class SiteHeader extends HTMLElement {
     }
 
     // Scritture, solo se il valore cambia (durante lo scroll con un pannello aperto di solito resta uguale)
-    if (bottom !== this.headerBottom) {
-      this.headerBottom = bottom;
-      this.style.setProperty('--header-bottom', `${bottom}px`);
-    }
+    this.writeHeaderBottom(bottom);
     if (left !== null && left !== this.panelLeft) {
       this.panelLeft = left;
       this.style.setProperty('--panel-left', `${left}px`);
     }
+  }
+
+  /** Bordo inferiore dell'header nella viewport (sotto la barra annunci, se è in vista). */
+  measureHeaderBottom() {
+    return Math.max(0, Math.round(this.getBoundingClientRect().bottom));
+  }
+
+  /** --header-bottom per pannelli e cassetto mobile, scritta solo se cambia. */
+  writeHeaderBottom(bottom) {
+    if (bottom === this.headerBottom) return;
+    this.headerBottom = bottom;
+    this.style.setProperty('--header-bottom', `${bottom}px`);
   }
 
   /** Stato letto dal DOM (gli eventi toggle arrivano dopo, anche passando da un pannello all'altro). */
@@ -418,7 +430,12 @@ class SiteHeader extends HTMLElement {
 
   onDrawerToggle() {
     const open = this.drawer.open;
-    if (open) this.show(); // l'header deve restare visibile con il menu aperto
+    if (open) {
+      // Il cassetto arriva al fondo dello schermo partendo dal bordo dell'header, che con la barra annunci in vista
+      // è più in basso della sola altezza dell'header (lo scroll è bloccato finché resta aperto)
+      this.writeHeaderBottom(this.measureHeaderBottom());
+      this.show(); // l'header deve restare visibile con il menu aperto
+    }
     else this.hidePanels(); // chiudendo il cassetto si chiude anche il secondo livello
     this.updateSolid();
   }

@@ -313,8 +313,13 @@
           <span class="sr-only">{{ 'general.header.menu' | t }}</span>
         </summary>
 
+        {%- comment -%}
+          Altezza = dal bordo inferiore dell'header (--header-bottom, misurato da header.js all'apertura) al fondo
+          dello schermo; +1px perché il pannello parte sopra il filetto dell'header. Con 100% (altezza del solo header)
+          la barra annunci sopra lo spingeva oltre lo schermo e l'ultima riga (lingua) restava irraggiungibile.
+        {%- endcomment -%}
         <div
-          class="header-drawer__panel absolute inset-x-0 top-full z-40 flex h-[calc(100dvh-100%)] flex-col overflow-y-auto overscroll-contain border-t border-border bg-background"
+          class="header-drawer__panel absolute inset-x-0 top-full z-40 flex h-[calc(100dvh-var(--header-bottom)+1px)] flex-col overflow-y-auto overscroll-contain border-t border-border bg-background"
           data-lenis-prevent
         >
           <nav class="flex-1 px-6 py-2" aria-label="{{ 'general.header.main_navigation' | t }}">

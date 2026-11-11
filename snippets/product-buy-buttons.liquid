@@ -20,7 +20,7 @@
 {%- liquid
   assign form_class = 'flex flex-col gap-3'
   if sticky_actions
-    assign form_class = 'contents'
+    assign form_class = 'contents [--buy-bar-pb:max(--spacing(4),env(safe-area-inset-bottom))] md:[--buy-bar-pb:--spacing(6)]'
   endif
 -%}
 <div {% if sticky_actions %}class="contents"{% endif %} data-product-part="buy-buttons" {{ attributes }}>
@@ -90,9 +90,10 @@
     {%- comment -%}
       Barra sticky: margini negativi pari al padding dell'anteprima rapida, così lo sfondo arriva ai bordi; la sfumatura
       segnala che sotto c'è altro. Si ferma al bordo dell'area che scorre, che quindi non deve avere padding in basso
-      (sections/quick-view.liquid): lo spazio sotto il pulsante è il padding della barra, con la zona sicura dell'iPhone.
+      (sections/quick-view.liquid): lo spazio sotto il pulsante è il padding della barra (--buy-bar-pb, sul form), con
+      la zona sicura dell'iPhone.
     {%- endcomment -%}
-    <div class="flex flex-col gap-3{% if sticky_actions %} sticky bottom-0 z-10 -mx-6 -mt-3 bg-background px-6 pt-3 pb-[max(--spacing(4),env(safe-area-inset-bottom))] before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-3 before:bg-linear-to-t before:from-background before:to-transparent md:-mx-10 md:px-10 md:pt-4 md:pb-6{% endif %}">
+    <div class="flex flex-col gap-3{% if sticky_actions %} sticky bottom-0 z-10 -mx-6 -mt-3 bg-background px-6 pt-3 pb-(--buy-bar-pb) before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-3 before:bg-linear-to-t before:from-background before:to-transparent md:-mx-10 md:px-10 md:pt-4{% endif %}">
       <p
         class="rounded-md bg-danger-surface p-3 text-body-sm text-danger-foreground"
         role="alert"
@@ -125,7 +126,19 @@
       Niente pagamento rapido sui buoni regalo: la convalida dei dati del destinatario funziona solo con "Aggiungi al carrello".
     {%- endcomment -%}
     {%- if show_dynamic_checkout and variant.available and product.gift_card? == false -%}
-      {{ form | payment_button }}
+      {%- if sticky_actions -%}
+        {%- comment -%}
+          Con la barra sticky il padding sotto il pulsante serve solo quando è incollata al bordo: qui si annulla insieme
+          a metà del gap-6 del contenitore, così la distanza tra i due pulsanti è 12px come in pagina prodotto (gap-3).
+          Il pagamento rapido sale sul padding della barra e le sta sopra (z-10 dopo di lei): quando la barra è
+          incollata spunta dal bordo solo negli ultimi pixel di scorrimento, dentro quel padding.
+        {%- endcomment -%}
+        <div class="relative z-10 -mt-[calc(var(--buy-bar-pb)+--spacing(3))]">
+          {{ form | payment_button }}
+        </div>
+      {%- else -%}
+        {{ form | payment_button }}
+      {%- endif -%}
     {%- endif -%}
   {%- endform -%}
 </div>

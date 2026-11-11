@@ -234,7 +234,7 @@
    * scrivere la variabile quando coincide: se li cambi qui, cambiali anche lì, o l'altezza misurata può non arrivare.
    */
   --header-height: calc(4.5rem + 1px);
-  /* Bordo inferiore dell'header nella viewport: header.js lo imposta su <site-header> all'apertura dei pannelli */
+  /* Bordo inferiore dell'header nella viewport: header.js lo imposta su <site-header> all'apertura dei pannelli e del cassetto mobile */
   --header-bottom: var(--header-height);
 }
 
