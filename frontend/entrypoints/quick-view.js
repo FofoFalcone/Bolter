@@ -16,7 +16,8 @@
  * Molle di Motion eseguite con WAAPI (motion/mini + spring): nessun motore di animazione JS nel bundle.
  * prefers-reduced-motion: apertura e chiusura immediate.
  *
- * I contenuti restano in cache per URL; prefetch(url) li richiede in anticipo (es. passando sul trigger).
+ * I contenuti restano in cache per URL finché il carrello non cambia (cart:sections-rendered, frontend/scripts/cart-api.js);
+ * prefetch(url) li richiede in anticipo (es. passando sul trigger).
  * Sul link alla pagina prodotto: l'immagine principale di quella pagina parte all'intenzione di cliccare, così
  * l'immagine condivisa delle transizioni tra pagine arriva già pronta (snippets/page-transitions.liquid).
  * Caricato da snippets/quick-view.liquid con {% render 'vite-tag', entry: 'quick-view.js' %}.
@@ -42,6 +43,9 @@ const PANEL_IMAGE_CLASS =
   'absolute inset-x-0 top-4 mx-auto h-[calc(100%-1rem)] w-auto max-w-full rounded-lg object-contain md:inset-0 md:size-full md:rounded-none md:object-cover';
 
 const cache = new Map();
+// Il contenuto dipende dal carrello (quantità massima e unità già nel carrello, snippets/product-quantity.liquid; "Massimo
+// nel carrello" sul pulsante): dopo ogni modifica, del tema o di un'app, la copia in cache non vale più
+document.addEventListener('cart:sections-rendered', () => cache.clear());
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const centerOf = (rect) => ({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
 
