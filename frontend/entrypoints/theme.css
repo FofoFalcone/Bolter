@@ -73,6 +73,9 @@
 /* Stili di base sopra il Preflight */
 @import '../styles/base.css';
 
+/* Barre di scorrimento nei colori dello schema (sottili nei contenitori interni) */
+@import '../styles/scrollbars.css';
+
 /* Utility custom (@utility) */
 @import '../styles/utilities.css';
 

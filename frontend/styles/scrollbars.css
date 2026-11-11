@@ -1,0 +1,33 @@
+/*
+ * Barre di scorrimento nei colori dello schema, al posto di quelle di sistema (grigie anche su uno schema scuro o
+ * colorato, e larghe 17px dentro cassetti e pannelli su Windows).
+ *
+ * Solo le proprietà standard (scrollbar-color, scrollbar-width): niente ::-webkit-scrollbar. Chrome lo ignora già
+ * quando ci sono le standard, e su Safari renderebbe sempre visibili le barre sovrapposte di macOS (che compaiono
+ * solo mentre si scorre). Safari senza scrollbar-color tiene le sue.
+ *
+ * Colori: scrollbar-color si eredita, ma var() si risolve sull'elemento che la dichiara: va ripetuta dove lo schema
+ * ricalcola i derivati (stessi selettori di tokens.css), altrimenti dentro una section scura resterebbe la barra
+ * della pagina. Cursore = border-strong (almeno 3:1 sullo sfondo, come i bordi dei controlli), binario trasparente:
+ * negli angoli arrotondati di un pannello non resta un rettangolo grigio tagliato.
+ *
+ * Larghezza: sottile nei contenitori interni (non si eredita, quindi selettore universale, che non pesa sulla
+ * specificità). La pagina tiene la larghezza normale: è più facile da prendere col mouse, e --scrollbar-width
+ * (frontend/scripts/scrollbar-width.js) continua a misurarla. Le utility [scrollbar-width:none|thin] vincono.
+ */
+
+@layer base {
+  :root,
+  .shopify-section:has(> style[data-shopify]),
+  .card-colors {
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+
+  * {
+    scrollbar-width: thin;
+  }
+
+  html {
+    scrollbar-width: auto;
+  }
+}
