@@ -10,6 +10,8 @@
  * frontend/scripts/gallery-arrangements.js), importato qui in modo dinamico. La section stampa anche il
  * vite-tag della disposizione scelta, così il file si scarica insieme a questo e l'import non aggiunge
  * richieste; nel theme editor, se cambia la disposizione, l'import lo scarica al momento.
+ * Con una disposizione diversa sotto i 750px (config.arrangementMobile) si usa quella della larghezza
+ * attuale e si passa all'altra quando la finestra attraversa il breakpoint (switchArrangement).
  * Finché la disposizione non è pronta resta visibile solo il primo elemento (gallery.css, data-ready).
  *
  * - Senza JS: carosello nativo con scroll-snap (markup della section).
@@ -44,6 +46,8 @@ const ARRANGEMENTS = {
 };
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+// Da qui in su vale "Disposizione", sotto "Disposizione su mobile" (breakpoint md del tema, come l'altezza della scena)
+const WIDE_QUERY = '(min-width: 750px)';
 const SPRING = { stiffness: 260, damping: 34, restDelta: 0.001, restSpeed: 0.01 };
 const OPEN_SPRING = { stiffness: 320, damping: 36, restDelta: 0.001 };
 const DRAG_THRESHOLD = 6; // px prima che un clic diventi un trascinamento
@@ -104,15 +108,60 @@ class AnimatedGallery extends HTMLElement {
     if (!this.stage || !this.plane || !configScript || this.items.length === 0) return;
 
     this.config = JSON.parse(configScript.textContent);
-    const name = this.config.arrangement in ARRANGEMENTS ? this.config.arrangement : 'list';
     this.abort = new AbortController();
+
+    // Disposizione diversa sotto i 750px: si cambia al volo quando la finestra attraversa quella larghezza
+    const { arrangement, arrangementMobile } = this.config;
+    if (arrangementMobile && arrangementMobile !== arrangement) {
+      this.wideQuery = window.matchMedia(WIDE_QUERY);
+      this.wideQuery.addEventListener('change', () => this.loadArrangement(), { signal: this.abort.signal });
+    }
+    this.loadArrangement();
+  }
+
+  /** Importa la disposizione della larghezza attuale; alla prima avvia la galleria, poi la sostituisce. */
+  loadArrangement() {
     const signal = this.abort.signal;
+    const wanted = this.wideQuery && !this.wideQuery.matches ? this.config.arrangementMobile : this.config.arrangement;
+    const name = wanted in ARRANGEMENTS ? wanted : 'list';
+    if (name === this.arrangementName) return;
+    this.arrangementName = name;
 
     ARRANGEMENTS[name]().then(({ default: arrangement }) => {
-      // Section rimossa o ricaricata dal theme editor nel frattempo
-      if (signal.aborted) return;
-      this.init(arrangement, this.config.options[name] ?? {}, signal);
+      // Section rimossa o ricaricata dal theme editor, o larghezza cambiata di nuovo, nel frattempo
+      if (signal.aborted || name !== this.arrangementName) return;
+      const options = this.config.options[name] ?? {};
+      if (this.arrangement) this.switchArrangement(arrangement, options);
+      else this.init(arrangement, options, signal);
     });
+  }
+
+  /**
+   * Cambio di disposizione (finestra che attraversa i 750px): chiude l'elemento aperto, interrompe molle e
+   * trascinamento, toglie le copie della disposizione precedente e riparte dall'elemento in primo piano.
+   */
+  switchArrangement(arrangement, options) {
+    this.u.stop();
+    this.v.stop();
+    this.pointer = null;
+    this.removeAttribute('data-dragging');
+    if (this.openElement !== null) {
+      this.elements[this.openElement]?.removeAttribute('data-opened');
+      this.elements.forEach((element) => (element.inert = false));
+      this.removeAttribute('data-open');
+      if (this.closeButton) this.closeButton.hidden = true;
+      this.isOpen = false;
+      this.openElement = null;
+      this.openProgress.jump(0);
+      this.updateVideos();
+    }
+    this.clones.forEach((clone) => clone.remove());
+    this.clones = [];
+    this.elements = this.items;
+    this.arrangement = arrangement;
+    this.options = options;
+    this.initialized = false;
+    this.measure();
   }
 
   init(arrangement, options, signal) {
@@ -232,7 +281,12 @@ class AnimatedGallery extends HTMLElement {
 
     if (!this.initialized) {
       this.initialized = true;
-      const initial = this.arrangement.initial(ctx);
+      let initial = this.arrangement.initial(ctx);
+      // Cambio di disposizione: resta in primo piano lo stesso elemento
+      if (this.focusIndex > 0) {
+        const target = this.arrangement.stateFor(this.focusIndex, initial, ctx);
+        initial = { u: target.u, v: target.v ?? initial.v };
+      }
       this.u.jump(initial.u);
       this.v.jump(initial.v);
       this.setFocus(this.arrangement.focusOf(initial, ctx), false);

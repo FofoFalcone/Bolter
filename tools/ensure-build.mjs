@@ -7,6 +7,7 @@
  * 2. Controlla che ogni file in frontend/entrypoints/ sia presente in vite-tag.liquid. Se ne manca uno,
  *    la section che lo richiama resta senza JS/CSS in silenzio (successo con cart.js: "Rimuovi" ricaricava
  *    la pagina). Causa tipica: watch avviato prima della creazione del file → riavviare il watch.
+ * Poi altri controlli che Theme Check non fa (CSS inlinati, icone, visible_if, licenze): vedi i punti sotto.
  */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -90,6 +91,33 @@ if (iconIssues.length) {
   );
 }
 
-// 5. Licenze (tools/build-license.mjs): snippets/license.liquid porta LICENSE e THIRD_PARTY_NOTICES.md nel tema
+// 5. Condizioni visible_if degli schemi: Shopify rifiuta il file oltre i 250 caratteri (graffe comprese) e senza
+//    parentesi. Limite non documentato né segnalato da Theme Check (risposta dello staff Shopify sul forum per
+//    sviluppatori, community.shopify.dev/t/37395): theme dev non carica la section e l'editor mostra la versione
+//    precedente (successo il 2026-11-11 con gallery.liquid).
+const VISIBLE_IF_LIMIT = 250;
+const visibleIfIssues = [];
+for (const dir of ['sections', 'blocks', 'config']) {
+  if (!existsSync(join(root, dir))) continue;
+  for (const file of readdirSync(join(root, dir))) {
+    if (!file.endsWith('.liquid') && file !== 'settings_schema.json') continue;
+    const source = readFileSync(join(root, dir, file), 'utf8');
+    for (const match of source.matchAll(/"visible_if"\s*:\s*"((?:[^"\\]|\\.)*)"/g)) {
+      const expression = match[1];
+      if (expression.length > VISIBLE_IF_LIMIT || /[()]/.test(expression)) {
+        const line = source.slice(0, match.index).split('\n').length;
+        visibleIfIssues.push(`${dir}/${file}:${line} (${expression.length} caratteri)`);
+      }
+    }
+  }
+}
+if (visibleIfIssues.length) {
+  console.warn(
+    `\n⚠️  visible_if oltre ${VISIBLE_IF_LIMIT} caratteri o con parentesi: Shopify rifiuta il file ` +
+      `(theme dev non lo carica):\n   ${visibleIfIssues.join('\n   ')}\n`,
+  );
+}
+
+// 6. Licenze (tools/build-license.mjs): snippets/license.liquid porta LICENSE e THIRD_PARTY_NOTICES.md nel tema
 //    caricato su Shopify. Avvisa se uno dei due è cambiato senza rigenerare lo snippet.
 spawnSync(process.execPath, ['tools/build-license.mjs', '--check'], { cwd: root, stdio: 'inherit' });

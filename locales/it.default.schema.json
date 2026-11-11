@@ -870,6 +870,13 @@
         "full_height": {
           "label": "Altezza schermo intero",
           "info": "L'area occupa tutto lo schermo sotto l'header. Titolo e testo introduttivo, se presenti, restano sopra."
+        },
+        "arrangement_mobile": {
+          "label": "Disposizione su mobile",
+          "info": "Sotto i 750px di larghezza. Le impostazioni in comune tra le due disposizioni (come raggio e asse) valgono per entrambe.",
+          "options": {
+            "same": "Uguale al desktop"
+          }
         }
       },
       "blocks": {

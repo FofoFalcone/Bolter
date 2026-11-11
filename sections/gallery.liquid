@@ -1,6 +1,8 @@
 {%- comment -%}
   Galleria animata con otto disposizioni 3D: lista, griglia, coverflow, pila, cilindro, anello,
   spirale e sfera. Ogni disposizione ha le sue opzioni nello schema (mostrate con visible_if).
+  Sotto i 750px può usare una disposizione diversa (arrangement_mobile, es. spirale su mobile e griglia su
+  desktop): gallery.js la cambia al volo se la finestra attraversa quella larghezza.
   Ispirata al componente Gallery di Motion+ (https://motion.dev/examples/react-gallery-playground),
   reimplementata da zero con le API gratuite di Motion: nessun codice Motion+.
 
@@ -11,7 +13,7 @@
     quella delle altre section. Con JS il clic sulla card in primo piano apre l'anteprima rapida
     (snippets/quick-view.liquid) al posto dell'apertura nella galleria; senza JS, o con l'anteprima
     disattivata nel blocco, è un link alla pagina prodotto.
-  JS: frontend/entrypoints/gallery.js + la sola disposizione scelta (frontend/entrypoints/gallery-<arrangement>.js,
+  JS: frontend/entrypoints/gallery.js + le sole disposizioni scelte (frontend/entrypoints/gallery-<arrangement>.js,
   base comune in frontend/scripts/gallery-arrangements.js)
   CSS: frontend/entrypoints/gallery.css
 {%- endcomment -%}
@@ -40,6 +42,12 @@
   assign defer_media = false
   if section.index > 2
     assign defer_media = true
+  endif
+
+  # Disposizione sotto i 750px: "Uguale al desktop" (o setting assente nelle section salvate prima) = la stessa
+  assign arrangement_mobile = s.arrangement_mobile
+  if arrangement_mobile == blank or arrangement_mobile == 'same'
+    assign arrangement_mobile = s.arrangement
   endif
 
   assign has_video = false
@@ -78,7 +86,7 @@
   # L'altezza scelta comprende la fascia della barra.
   assign stage_height = 'max(min(' | append: s.stage_height | append: 'px, 80svh), calc(var(--gallery-item-height) + 4rem + var(--gallery-controls-space)))'
   assign stage_height_mobile = stage_height
-  if s.arrangement == 'coverflow' or s.arrangement == 'stack'
+  if arrangement_mobile == 'coverflow' or arrangement_mobile == 'stack'
     assign stage_height_mobile = 'calc(var(--gallery-item-height) + 4rem + var(--gallery-controls-space))'
   endif
   # Schermo intero (come la hero): lo schermo sotto l'header, a ogni larghezza; mai meno dell'elemento più i margini
@@ -146,6 +154,7 @@
       <script type="application/json" data-gallery-config>
         {
           "arrangement": {{ s.arrangement | json }},
+          "arrangementMobile": {{ arrangement_mobile | json }},
           "gap": {{ s.gap | json }},
           "loop": {{ s.loop | json }},
           "open": {{ s.enable_open | json }},
@@ -453,18 +462,25 @@
     {%- endif -%}
 
     {%- comment -%}
-      Solo la disposizione scelta (gallery-list.js, gallery-grid.js, …): si scarica insieme a gallery.js, che poi
-      la importa senza nuove richieste. I valori di "arrangement" nello schema coincidono con i nomi dei file.
+      Solo le disposizioni scelte (gallery-list.js, gallery-grid.js, …): si scaricano insieme a gallery.js, che poi
+      importa quella della larghezza attuale senza nuove richieste. I valori di "arrangement" nello schema coincidono
+      con i nomi dei file. Con una disposizione diversa su mobile si scaricano entrambe (file piccoli, il codice comune
+      è già in gallery.js): chi ruota il tablet o allarga la finestra la trova pronta.
     {%- endcomment -%}
     {%- assign arrangement_entry = 'gallery-' | append: s.arrangement | append: '.js' -%}
     {% render 'vite-tag-deferred', entry: arrangement_entry, section_index: section.index %}
+    {%- if arrangement_mobile != s.arrangement -%}
+      {%- assign arrangement_mobile_entry = 'gallery-' | append: arrangement_mobile | append: '.js' -%}
+      {% render 'vite-tag-deferred', entry: arrangement_mobile_entry, section_index: section.index %}
+    {%- endif -%}
     {% render 'vite-tag-deferred', entry: 'gallery.js', section_index: section.index %}
   {%- endif -%}
 </div>
 
 {%- comment -%}
-  ExcessiveSettingsCount (42 su 40): 30 setting dipendono dalla disposizione scelta (visible_if) e il pannello ne mostra
-  al massimo 18 alla volta, quindi il problema che la regola segnala (un pannello troppo lungo) qui non c'è. Dividere
+  ExcessiveSettingsCount (43 su 40): 30 setting dipendono dalle disposizioni scelte (visible_if) e il pannello mostra
+  solo quelli di una o, con una disposizione diversa su mobile, due di esse, quindi il problema che la regola segnala
+  (un pannello troppo lungo) qui resta contenuto. Dividere
   la section per disposizione moltiplicherebbe le section quasi uguali.
 {%- endcomment -%}
 {% # theme-check-disable ExcessiveSettingsCount %}
@@ -536,11 +552,56 @@
       "default": "coverflow"
     },
     {
+      "type": "select",
+      "id": "arrangement_mobile",
+      "label": "t:sections.gallery.settings.arrangement_mobile.label",
+      "info": "t:sections.gallery.settings.arrangement_mobile.info",
+      "options": [
+        {
+          "value": "same",
+          "label": "t:sections.gallery.settings.arrangement_mobile.options.same"
+        },
+        {
+          "value": "list",
+          "label": "t:sections.gallery.settings.arrangement.options.list"
+        },
+        {
+          "value": "grid",
+          "label": "t:sections.gallery.settings.arrangement.options.grid"
+        },
+        {
+          "value": "coverflow",
+          "label": "t:sections.gallery.settings.arrangement.options.coverflow"
+        },
+        {
+          "value": "stack",
+          "label": "t:sections.gallery.settings.arrangement.options.stack"
+        },
+        {
+          "value": "barrel",
+          "label": "t:sections.gallery.settings.arrangement.options.barrel"
+        },
+        {
+          "value": "ring",
+          "label": "t:sections.gallery.settings.arrangement.options.ring"
+        },
+        {
+          "value": "helix",
+          "label": "t:sections.gallery.settings.arrangement.options.helix"
+        },
+        {
+          "value": "sphere",
+          "label": "t:sections.gallery.settings.arrangement.options.sphere"
+        }
+      ],
+      "default": "same"
+    },
+    {
       "type": "checkbox",
       "id": "loop",
       "label": "t:sections.gallery.settings.loop.label",
       "default": true,
-      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement == 'coverflow' or section.settings.arrangement == 'stack' }}"
+      "visible_if": "{{ section.settings.arrangement_mobile != 'same' or section.settings.arrangement == 'list' or section.settings.arrangement == 'coverflow' or section.settings.arrangement == 'stack' }}"
     },
     {
       "type": "select",
@@ -557,7 +618,7 @@
         }
       ],
       "default": "x",
-      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement == 'barrel' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' or section.settings.arrangement == 'barrel' or section.settings.arrangement_mobile == 'barrel' }}"
     },
     {
       "type": "range",
@@ -569,7 +630,7 @@
       "step": 20,
       "unit": "t:sections.gallery.settings.radius.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'barrel' or section.settings.arrangement == 'ring' or section.settings.arrangement == 'helix' or section.settings.arrangement == 'sphere' }}"
+      "visible_if": "{{ section.settings.arrangement_mobile != 'same' or section.settings.arrangement == 'barrel' or section.settings.arrangement == 'ring' or section.settings.arrangement == 'helix' or section.settings.arrangement == 'sphere' }}"
     },
     {
       "type": "range",
@@ -580,7 +641,7 @@
       "step": 2,
       "unit": "t:sections.gallery.settings.camera_tilt.unit",
       "default": -8,
-      "visible_if": "{{ section.settings.arrangement == 'barrel' or section.settings.arrangement == 'ring' }}"
+      "visible_if": "{{ section.settings.arrangement == 'barrel' or section.settings.arrangement_mobile == 'barrel' or section.settings.arrangement == 'ring' or section.settings.arrangement_mobile == 'ring' }}"
     },
     {
       "type": "header",
@@ -662,7 +723,7 @@
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_3.content",
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "range",
@@ -674,7 +735,7 @@
       "step": 5,
       "unit": "t:sections.gallery.settings.list_angle.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "range",
@@ -686,7 +747,7 @@
       "step": 1,
       "unit": "t:sections.gallery.settings.list_curl.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "range",
@@ -698,7 +759,7 @@
       "step": 10,
       "unit": "t:sections.gallery.settings.list_depth.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "range",
@@ -710,7 +771,7 @@
       "step": 10,
       "unit": "t:sections.gallery.settings.list_recede.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "range",
@@ -722,7 +783,7 @@
       "step": 2,
       "unit": "t:sections.gallery.settings.list_turn.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "range",
@@ -734,12 +795,12 @@
       "step": 5,
       "unit": "t:sections.gallery.settings.list_wave.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'list' }}"
+      "visible_if": "{{ section.settings.arrangement == 'list' or section.settings.arrangement_mobile == 'list' }}"
     },
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_4.content",
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "range",
@@ -750,7 +811,7 @@
       "max": 8,
       "step": 1,
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "select",
@@ -772,7 +833,7 @@
         }
       ],
       "default": "sequence",
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "range",
@@ -783,7 +844,7 @@
       "step": 2,
       "unit": "t:sections.gallery.settings.grid_rotate_x.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "range",
@@ -794,7 +855,7 @@
       "step": 2,
       "unit": "t:sections.gallery.settings.grid_rotate_y.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "range",
@@ -805,7 +866,7 @@
       "step": 1,
       "unit": "t:sections.gallery.settings.grid_rotate_z.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "range",
@@ -817,12 +878,12 @@
       "step": 10,
       "unit": "t:sections.gallery.settings.grid_bulge.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'grid' }}"
+      "visible_if": "{{ section.settings.arrangement == 'grid' or section.settings.arrangement_mobile == 'grid' }}"
     },
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_5.content",
-      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' or section.settings.arrangement_mobile == 'coverflow' }}"
     },
     {
       "type": "range",
@@ -833,7 +894,7 @@
       "step": 1,
       "unit": "t:sections.gallery.settings.coverflow_turn.unit",
       "default": 55,
-      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' or section.settings.arrangement_mobile == 'coverflow' }}"
     },
     {
       "type": "range",
@@ -845,7 +906,7 @@
       "step": 5,
       "unit": "t:sections.gallery.settings.coverflow_spread.unit",
       "default": 30,
-      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' or section.settings.arrangement_mobile == 'coverflow' }}"
     },
     {
       "type": "range",
@@ -857,7 +918,7 @@
       "step": 5,
       "unit": "t:sections.gallery.settings.coverflow_depth.unit",
       "default": 50,
-      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' or section.settings.arrangement_mobile == 'coverflow' }}"
     },
     {
       "type": "range",
@@ -869,12 +930,12 @@
       "step": 5,
       "unit": "t:sections.gallery.settings.coverflow_center.unit",
       "default": 80,
-      "visible_if": "{{ section.settings.arrangement == 'coverflow' }}"
+      "visible_if": "{{ section.settings.arrangement == 'coverflow' or section.settings.arrangement_mobile == 'coverflow' }}"
     },
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_6.content",
-      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+      "visible_if": "{{ section.settings.arrangement == 'stack' or section.settings.arrangement_mobile == 'stack' }}"
     },
     {
       "type": "range",
@@ -886,7 +947,7 @@
       "step": 1,
       "unit": "t:sections.gallery.settings.stack_peek.unit",
       "default": 14,
-      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+      "visible_if": "{{ section.settings.arrangement == 'stack' or section.settings.arrangement_mobile == 'stack' }}"
     },
     {
       "type": "range",
@@ -898,7 +959,7 @@
       "step": 5,
       "unit": "t:sections.gallery.settings.stack_depth.unit",
       "default": 50,
-      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+      "visible_if": "{{ section.settings.arrangement == 'stack' or section.settings.arrangement_mobile == 'stack' }}"
     },
     {
       "type": "range",
@@ -908,12 +969,12 @@
       "max": 8,
       "step": 1,
       "default": 4,
-      "visible_if": "{{ section.settings.arrangement == 'stack' }}"
+      "visible_if": "{{ section.settings.arrangement == 'stack' or section.settings.arrangement_mobile == 'stack' }}"
     },
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_7.content",
-      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+      "visible_if": "{{ section.settings.arrangement == 'ring' or section.settings.arrangement_mobile == 'ring' }}"
     },
     {
       "type": "range",
@@ -925,26 +986,26 @@
       "step": 10,
       "unit": "t:sections.gallery.settings.ring_arc.unit",
       "default": 360,
-      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+      "visible_if": "{{ section.settings.arrangement == 'ring' or section.settings.arrangement_mobile == 'ring' }}"
     },
     {
       "type": "checkbox",
       "id": "ring_upright",
       "label": "t:sections.gallery.settings.ring_upright.label",
       "default": false,
-      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+      "visible_if": "{{ section.settings.arrangement == 'ring' or section.settings.arrangement_mobile == 'ring' }}"
     },
     {
       "type": "checkbox",
       "id": "ring_flip",
       "label": "t:sections.gallery.settings.ring_flip.label",
       "default": false,
-      "visible_if": "{{ section.settings.arrangement == 'ring' }}"
+      "visible_if": "{{ section.settings.arrangement == 'ring' or section.settings.arrangement_mobile == 'ring' }}"
     },
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_8.content",
-      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+      "visible_if": "{{ section.settings.arrangement == 'helix' or section.settings.arrangement_mobile == 'helix' }}"
     },
     {
       "type": "select",
@@ -961,7 +1022,7 @@
         }
       ],
       "default": "y",
-      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+      "visible_if": "{{ section.settings.arrangement == 'helix' or section.settings.arrangement_mobile == 'helix' }}"
     },
     {
       "type": "range",
@@ -971,7 +1032,7 @@
       "max": 24,
       "step": 1,
       "default": 10,
-      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+      "visible_if": "{{ section.settings.arrangement == 'helix' or section.settings.arrangement_mobile == 'helix' }}"
     },
     {
       "type": "range",
@@ -983,12 +1044,12 @@
       "step": 4,
       "unit": "t:sections.gallery.settings.helix_pitch.unit",
       "default": 0,
-      "visible_if": "{{ section.settings.arrangement == 'helix' }}"
+      "visible_if": "{{ section.settings.arrangement == 'helix' or section.settings.arrangement_mobile == 'helix' }}"
     },
     {
       "type": "header",
       "content": "t:sections.gallery.settings.header_9.content",
-      "visible_if": "{{ section.settings.arrangement == 'sphere' }}"
+      "visible_if": "{{ section.settings.arrangement == 'sphere' or section.settings.arrangement_mobile == 'sphere' }}"
     },
     {
       "type": "select",
@@ -1005,7 +1066,7 @@
         }
       ],
       "default": "camera",
-      "visible_if": "{{ section.settings.arrangement == 'sphere' }}"
+      "visible_if": "{{ section.settings.arrangement == 'sphere' or section.settings.arrangement_mobile == 'sphere' }}"
     },
     {
       "type": "header",

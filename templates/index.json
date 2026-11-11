@@ -100,7 +100,8 @@
       "settings": {
         "heading": "Scopri i nostri migliori prodotti",
         "intro": "",
-        "arrangement": "helix",
+        "arrangement": "list",
+        "arrangement_mobile": "helix",
         "loop": true,
         "axis": "x",
         "radius": 0,

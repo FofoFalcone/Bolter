@@ -660,6 +660,13 @@
             "sphere": "Sphere"
           }
         },
+        "arrangement_mobile": {
+          "label": "Mobile arrangement",
+          "info": "Below 750px wide. Settings shared by both arrangements (such as radius and axis) apply to both.",
+          "options": {
+            "same": "Same as desktop"
+          }
+        },
         "loop": {
           "label": "Infinite scrolling"
         },
