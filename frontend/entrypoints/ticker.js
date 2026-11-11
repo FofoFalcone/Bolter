@@ -11,9 +11,11 @@
  * - Accessibilità: pulsante di pausa (WCAG 2.2.2), con il focus da tastiera la striscia si ferma e mostra l'elemento.
  *   Con prefers-reduced-motion: reduce nessuna animazione né copia: resta la lista che scorre a mano, come senza JS.
  * - Theme editor: selezionando un blocco la striscia si ferma e lo mostra.
+ * - Trascinamento col tocco: niente inerzia nativa fantasma dopo uno swipe veloce (frontend/scripts/touch-fling.js).
  */
 
 import { animate } from 'motion/mini';
+import { preventTouchFling } from '@/scripts/touch-fling.js';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: no-preference)';
 const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)';
@@ -504,6 +506,8 @@ class TickerSection extends HTMLElement {
       event.stopPropagation();
     }, { signal, capture: true });
     viewport.addEventListener('dragstart', (event) => event.preventDefault(), { signal });
+    // Chrome Android: senza, il primo tocco su un link dopo uno swipe veloce non diventa un clic
+    preventTouchFling(viewport, () => press !== null && moved, signal);
   }
 
   setupCursor(SpringValue, signal) {

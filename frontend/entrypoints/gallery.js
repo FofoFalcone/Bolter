@@ -18,6 +18,7 @@
  * - Griglia ripetuta: le celle oltre la prima copia sono cloni degli elementi (aria-hidden,
  *   fuori dall'ordine di tabulazione), ricreati quando cambia la dimensione della scena.
  * - Theme editor: la selezione di un blocco porta in primo piano l'elemento corrispondente.
+ * - Swipe col tocco: niente inerzia nativa fantasma che "mangia" il tocco successivo (frontend/scripts/touch-fling.js).
  * - Card prodotto: il clic sulla card in primo piano apre l'anteprima rapida (<quick-view> della section,
  *   frontend/entrypoints/quick-view.js) partendo dalla card; il contenuto viene richiesto in anticipo
  *   quando il puntatore o il focus arrivano sulla card in primo piano.
@@ -28,6 +29,7 @@
 import { frame } from 'motion';
 import { normalizeIndex } from '@/scripts/gallery-arrangements.js';
 import { SpringValue } from '@/scripts/spring-value.js';
+import { preventTouchFling } from '@/scripts/touch-fling.js';
 
 // Percorsi letterali: Vite risolve gli import dinamici solo se il nome del file è scritto per intero
 const ARRANGEMENTS = {
@@ -145,6 +147,8 @@ class AnimatedGallery extends HTMLElement {
     this.stage.addEventListener('pointerup', this.onPointerUp, { signal });
     this.stage.addEventListener('pointercancel', this.onPointerUp, { signal });
     this.stage.addEventListener('dragstart', (event) => event.preventDefault(), { signal });
+    // Chrome Android: senza, il primo tocco su una card dopo uno swipe veloce non diventa un clic
+    preventTouchFling(this.stage, () => Boolean(this.pointer?.moved), signal);
     this.stage.addEventListener('wheel', this.onWheel, { passive: false, signal });
     this.addEventListener('click', this.onClickCapture, { capture: true, signal });
     this.addEventListener('click', this.onClick, { signal });

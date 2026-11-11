@@ -5,7 +5,10 @@
  * - Cursore nativo (visivamente nascosto): tastiera e lettori di schermo, aria-valuetext con la percentuale.
  * - Puntatore: clic/tocco sposta il divisore nel punto (animato), trascinando lo segue (senza animazione).
  *   Il trascinamento parte solo da un movimento orizzontale: in verticale scorre la pagina (touch-action: pan-y).
+ *   Niente inerzia nativa fantasma dopo uno swipe veloce (frontend/scripts/touch-fling.js).
  */
+
+import { preventTouchFling } from '@/scripts/touch-fling.js';
 
 const EASING_MS = 220;
 
@@ -23,6 +26,8 @@ class BeforeAfter extends HTMLElement {
     for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
       this.frame.addEventListener(type, this.onPointerEnd, { signal });
     }
+    // Chrome Android: senza, il tocco subito dopo uno swipe veloce non sposta il divisore
+    preventTouchFling(this.frame, () => Boolean(this.pointer?.dragging), signal);
   }
 
   disconnectedCallback() {

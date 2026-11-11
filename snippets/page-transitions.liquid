@@ -15,7 +15,7 @@
       La "foto" di partenza resta piena per tutto il volo e l'arrivo le compare sopra (page-transition-media-in): se
       all'arrivo l'immagine non è ancora caricata, holdUntilLoaded mette in pausa quell'animazione finché non è pronta
       (al massimo HOLD_LIMIT ms, poi si vede il riquadro con il suo riflesso di caricamento). Un'animazione in pausa
-      tiene aperta la transizione, ma la pagina sotto è già viva. Il primo rendering col ritorno alla card aspetta
+      tiene aperta la transizione (vedi sotto: un tocco la interrompe). Il primo rendering col ritorno alla card aspetta
       la fine di <main> (#MainEnd nel layout, link "expect" aggiunto qui solo in quel caso: expect si sblocca appena
       l'elemento compare, quindi #MainContent non basterebbe): senza, la card può non esistere ancora in pagereveal;
     · uscendo da un <dialog> aperto (anteprima rapida) header e barra annunci non si nominano in nessuna delle due
@@ -34,6 +34,13 @@
     sinistra ed è portato al suo posto dal browser con `transform`, e `scale` si applica dopo `transform`, attorno al
     centro di quel riquadro iniziale: la tessera arrivava dall'angolo in alto a sinistra crescendo e ci tornava
     rimpicciolendo. L'immagine dentro il gruppo è già al suo posto e scala attorno al proprio centro.
+  - Un tocco o un clic durante l'arrivo interrompe la transizione (skipTransition al pointerdown): finché è aperta,
+    Chrome manda pointerdown, pointerup e click a <html> e la pagina sotto non riceve nulla. Segnalato dall'utente il
+    2026-11-11 (pagina prodotto su Android: il primo tocco sulla galleria non apriva la lightbox; con "Iride" da 800 ms
+    più l'attesa dell'immagine condivisa) e riprodotto in Chrome mobile con tocchi via DevTools Protocol.
+    `::view-transition { pointer-events: none }` non basta (provato). Col tocco il clic arriva poi all'elemento
+    toccato; col mouse arriva ancora a <html> (antenato comune di pointerdown e pointerup), ma la transizione
+    finisce subito e il clic successivo funziona.
   - Mista: l'effetto si sceglie a caso lasciando la pagina (pageswap), mai uguale al precedente, e passa alla
     pagina nuova in sessionStorage (così anche la pagina vecchia sa se usare l'immagine condivisa).
   - Pagina prodotto: <link rel="expect"> rimanda il primo rendering finché esiste l'immagine principale
@@ -281,7 +288,13 @@
         {%- endif %}
 
         name(pairs, event.viewTransition.ready);
+        var transition = event.viewTransition;
+        function interrupt() {
+          transition.skipTransition();
+        }
+        addEventListener('pointerdown', interrupt, true);
         function reset() {
+          removeEventListener('pointerdown', interrupt, true);
           delete root.dataset.pageTransitionDirection;
           delete root.dataset.pageTransitionUnderDialog;
           if (SETTING === 'mixed') root.dataset.pageTransition = SETTING;
