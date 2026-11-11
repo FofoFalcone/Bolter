@@ -11,6 +11,9 @@ dist/
 .build-check/
 .build-check-baseline/
 
+# Clone del repository di consegna (npm run deploy:branch): ha un proprio git
+.deploy/
+
 # File locali di Shopify CLI
 .shopify-cli.json
 

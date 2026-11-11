@@ -20,6 +20,7 @@ npm run start:watch  # watch, poi shopify theme dev sull'ambiente `local` (tools
 npm run start:events # come start:watch, con l'inspector degli standard storefront events
 npm run start:sync   # come start:watch, con --theme-editor-sync: le modifiche del theme editor finiscono nei JSON locali
 npm run start:measure # come start:watch, ma build minificata e senza sourcemap (prima misura con Lighthouse da DevTools)
+npm run deploy:branch -- <branch> [--push]  # consegna su un branch del repository GitHub di consegna (clone in .deploy/, tools/deploy-branch.mjs)
 npm run shopify:push:dev   # build + push sul tema condiviso (ID in shopify.theme.toml)
 npm run shopify:push:prod  # build + push in PRODUZIONE
 ```
@@ -50,6 +51,7 @@ Standard storefront events and actions (giugno 2026): helper in `frontend/script
 - **Mai eseguire push o comandi che scrivono sullo store** (`shopify theme push`, `shopify:push:*`, `shopify theme publish`, `delete`, `rename`) senza richiesta esplicita dell'utente nel messaggio corrente. Per la produzione chiedi sempre conferma.
   Questa regola è anche imposta tecnicamente in `.claude/settings.json`: push in produzione, `--live`/`--allow-live`, `publish`, `delete` e `rename` sono bloccati (regole `deny` + hook `PreToolUse`); il push sul tema di sviluppo richiede conferma. Se un comando viene bloccato, non cercare di aggirarlo: indica all'utente il comando da eseguire manualmente.
 - **Mai modificare `config/settings_data.json`** salvo richiesta esplicita: contiene le personalizzazioni del merchant.
+- **Consegna ai clienti** (`npm run deploy:branch`, `tools/deploy-branch.mjs`): repository GitHub privato dell'utente, un branch per negozio collegato con l'integrazione GitHub di Shopify; il cliente non ha accesso a GitHub (clausola "Repository di consegna" nei contratti). Lo script costruisce direttamente nel clone `.deploy/` (`BOLTER_THEME_ROOT` → `themeRoot` di vite-plugin-shopify), quindi non tocca `assets/`. Sul branch i file del negozio (`config/settings_data.json`, `templates/**/*.json`, `sections/*.json`) restano quelli salvati da Shopify, i testi `locales/*.json` si uniscono chiave per chiave (vince il testo del merchant). `--push` scrive sullo store tramite GitHub: come gli altri push, solo su richiesta esplicita dell'utente.
 - **Licenze**: il tema è proprietario ([LICENSE](LICENSE)). Una dipendenza che finisce nei bundle o nei file del tema va aggiunta a [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) e, se è JS, a `LIBRARIES` in `tools/license-banner.mjs` (intestazione `/*! … */` nei chunk che la contengono); poi `npm run license`. Codice preso da esempi esterni: solo con licenza verificata e citato negli avvisi; dagli esempi Motion+ solo idee.
 - **`shopify.theme.toml`**: l'ambiente `local` (senza theme ID) è per `theme dev`; `development` riceve solo build. Non puntare `theme dev` al tema condiviso.
 - Prima di dichiarare un task completato: `npm run build:check` deve riuscire e `npm run lint` terminare senza **nuovi** errori. Se non hai verificato qualcosa (es. comportamento nel browser), dillo esplicitamente.

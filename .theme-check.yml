@@ -4,6 +4,7 @@ extends: theme-check:recommended # Parte dal set di regole consigliato da Shopif
 # Escludi le cartelle che non contengono Liquid
 ignore:
   - node_modules/** # Ignora le dipendenze Node: non contengono Liquid, quindi non ha senso controllare questa cartella.
+  - .deploy/** # Clone del repository di consegna (npm run deploy:branch): copia del tema, già controllata qui
   - frontend/** # Ignora i sorgenti Vite (JS/CSS): Theme Check analizza solo Liquid, non ha senso controllare frontend/.
 
 # Personalizza le regole (opzionale)

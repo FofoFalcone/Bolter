@@ -16,6 +16,7 @@ CLAUDE.md
 docs/*
 tools/*
 .build-check/*
+.deploy/*
 
 # Sorgenti Vite (Shopify deve vedere solo i file compilati in /assets)
 frontend/*

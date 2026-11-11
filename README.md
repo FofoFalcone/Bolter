@@ -198,6 +198,7 @@ npm run shopify:pull
 | `npm run build:check`       | Build di verifica in `.build-check/`: non tocca `assets/` né `vite-tag` (sicura con theme dev attivo) |
 | `npm run lint`              | Theme Check (esegue la build solo se `vite-tag.liquid` manca)        |
 | `npm run icons`             | Rigenera `snippets/icon.liquid` dalle Heroicons in `tools/icons.json` |
+| `npm run deploy:branch -- <branch> [--push]` | Consegna il tema compilato su un branch del repository di consegna (`.deploy/`, vedi `tools/deploy-branch.mjs`): conserva impostazioni, template e testi salvati dall'editor del negozio |
 | `npm run license`           | Rigenera `snippets/license.liquid` da `LICENSE` e `THIRD_PARTY_NOTICES.md` (le licenze che viaggiano con il tema) |
 | `npm run schema:i18n`       | Sposta i testi degli schema in `locales/*.schema.json` (chiavi `t:`) ed elenca le traduzioni inglesi mancanti |
 | `npm run lint:fix`          | Esegue Theme Check con correzione automatica (`--auto-correct`)      |
@@ -234,6 +235,118 @@ npm run shopify:push:dev     # esegue la build in automatico
 npm run lint
 npm run shopify:push:prod    # esegue la build in automatico
 ```
+
+---
+
+## Installazione per un nuovo cliente
+
+Il tema arriva al negozio del cliente da un **repository GitHub privato di consegna, tuo**, con un branch per negozio collegato tramite l'integrazione GitHub di Shopify. Il cliente non ha mai accesso a GitHub né ai sorgenti (`frontend/`): riceve solo il tema compilato, e quello che salva dall'editor del tema resta sul suo branch. È la procedura prevista dalla clausola "Repository di consegna" (articolo 4) dei contratti di licenza.
+
+```
+progetto Bolter (sorgenti, privato)
+   └─ npm run deploy:branch ─▶ repository di consegna (privato, tuo)
+                                 ├─ branch cliente-x          ─▶ tema pubblicato del negozio X
+                                 ├─ branch cliente-x-staging  ─▶ tema di prova del negozio X
+                                 └─ branch cliente-y          ─▶ negozio Y
+```
+
+### 0. Una volta sola
+
+1. **Account Shopify Partner** con accesso al Dev Dashboard (se Shopify la chiede, completa la verifica dell'identità: serve per inviare richieste di accesso ai negozi).
+2. **Repository di consegna**: crea su GitHub un repository **privato** nel tuo account o in una tua organizzazione (es. `bolter-consegne`), separato da questo. Mai nell'account del cliente: chi possiede l'account può toglierti l'accesso e ripristinare un repository cancellato per 90 giorni.
+3. **App GitHub di Shopify** ([documentazione](https://shopify.dev/docs/api/github-app)): installala sullo stesso account e, quando GitHub lo chiede, limitane l'accesso al solo repository di consegna.
+4. **Clone locale** nella cartella `.deploy/` del progetto (è esclusa da git, Shopify CLI e Theme Check):
+
+   ```bash
+   git clone git@github.com:<tuo-account>/bolter-consegne.git .deploy
+   ```
+
+### 1. Prima di toccare il negozio
+
+- [ ] Contratto firmato, con la seconda firma sulle clausole da approvare specificamente, e allegati A (consegna), B (GDPR) e C (impegno per sviluppatori terzi, se servirà). Cliente estero: variante bilingue e partita IVA verificata nel [VIES](https://ec.europa.eu/taxation_customs/vies/).
+- [ ] Pagati attivazione e primo canone: da lì la licenza è efficace (articolo 6).
+- [ ] Dal cliente: indirizzo **permanente** `negozio.myshopify.com` (non il dominio personalizzato) e **codice di richiesta collaboratore** a 4 cifre (Impostazioni → Utenti → Sicurezza; *Settings → Users → Security*).
+- [ ] Personalizzazioni dell'Allegato A sviluppate e provate sul **tuo** store di sviluppo, come sempre (`npm run start:watch`), e committate.
+
+### 2. Accesso collaboratore al negozio
+
+Dal [Dev Dashboard](https://shopify.dev/docs/storefronts/themes/tools/collaborator-accounts): **Stores** → **Request store access** → indirizzo `myshopify.com` → codice di richiesta → permessi → **Send request**. Il cliente approva dalla mail o dalla Home del suo admin; il negozio compare tra i tuoi con stato **Active**.
+
+- Permessi: quelli sui **temi** sono indispensabili (servono per collegare il branch); aggiungi solo ciò che serve per configurare il negozio (es. prodotti e navigazione in sola lettura per provarlo).
+- L'accesso **scade dopo 90 giorni senza accessi** da parte tua: entra almeno una volta ogni tre mesi. Il contratto chiede al cliente di mantenerlo fino alla verifica di fine rapporto.
+
+### 3. Prima consegna sul branch
+
+Un branch per negozio, con nomi stabili: `cliente-x` per il tema pubblicato, `cliente-x-staging` per provare gli aggiornamenti.
+
+```bash
+git status                                    # tutto committato: lo script si ferma se non lo è
+npm run lint                                  # 0 errori
+npm run deploy:branch -- cliente-x            # prepara il commit nel branch, non invia nulla
+git -C .deploy show --stat                    # controlla cosa parte
+npm run deploy:branch -- cliente-x --push     # invia a GitHub
+```
+
+Alla prima consegna impostazioni (`config/settings_data.json`), template e gruppi di section arrivano dal progetto: sono il punto di partenza del cliente, con stile e schemi di colori del tuo store di sviluppo. Collezioni, menu, prodotti e immagini scelti lì non esistono nel negozio del cliente: nelle section restano vuoti finché non li riassegni dall'editor (passo 5).
+
+### 4. Collegare il branch al negozio
+
+Nell'admin del cliente, con il tuo accesso collaboratore: **Negozio online → Temi** (*Online Store → Themes*) → nella **Libreria temi** **Aggiungi tema → Collega da GitHub** (*Add theme → Connect from GitHub*) → il tuo account → il repository di consegna → il branch `cliente-x`.
+
+Il tema compare nella libreria con repository, branch e ora dell'ultimo commit. Da quel momento:
+
+- ogni `npm run deploy:branch -- cliente-x --push` aggiorna il tema nel negozio;
+- ogni modifica fatta dall'editor del tema viene salvata da Shopify come commit sul branch (non si può disattivare): lo script la ritrova e la conserva.
+
+Per il tema di prova ripeti i passi 3 e 4 con `cliente-x-staging` e lascialo **non pubblicato**.
+
+### 5. Configurare e pubblicare
+
+1. Dall'editor del tema: logo, menu, collezioni e prodotti delle section, immagini, schema di colori, testi; app del cliente con app block ed embed (le app che modificano i file del tema richiedono il tuo consenso, articolo 4).
+2. Controlli prima di pubblicare: anteprima su telefono e computer, ricerca, filtri, carrello e checkout, lingue e mercati attivi, pagine legali (privacy, cookie, condizioni di vendita: responsabilità del cliente).
+3. Pubblica il tema collegato (**Azioni → Pubblica**): resta collegato al branch anche dopo la pubblicazione.
+
+### 6. Aggiornamenti
+
+```bash
+npm run deploy:branch -- cliente-x-staging --push   # prima sul tema di prova
+npm run deploy:branch -- cliente-x --push           # poi su quello pubblicato
+```
+
+Ogni consegna aggiorna il codice e lascia sul branch quello che è del negozio:
+
+| File sul branch | Cosa succede a ogni consegna |
+|---|---|
+| Codice (Liquid, CSS/JS compilati, `settings_schema.json`, `*.schema.json`) | sostituito con quello del progetto; i file non più presenti vengono tolti |
+| `config/settings_data.json`, `templates/**/*.json`, `sections/*.json` | restano quelli del negozio (con le modifiche dell'editor); il progetto li fornisce solo se mancano |
+| `locales/*.json` (testi del negozio) | uniti chiave per chiave: arrivano le chiavi nuove, restano i testi cambiati dal merchant |
+
+- Una section nuova in un template **esistente** non arriva da sola (il template è del negozio): aggiungila dall'editor, oppure sovrascrivi il file con `--reset templates/product.json`, sapendo che si perde la disposizione scelta dal cliente.
+- Lo script riparte sempre dal branch su GitHub: non fare commit a mano in `.deploy/` e non modificare i file su GitHub. Se l'invio viene rifiutato perché nel frattempo Shopify ha salvato una modifica dall'editor, rilancia il comando.
+- Gli avvisi `⚠` dicono quali testi del merchant hanno vinto su un testo cambiato anche nel progetto: controllali.
+
+### 7. Fine del rapporto
+
+Segue l'articolo 8 del contratto (30 giorni, 7 in caso di risoluzione per inadempimento).
+
+1. Se il cliente la chiede, esporta le sue impostazioni, template e testi, senza codice, in una cartella **fuori** dal progetto e mandagliela:
+
+   ```bash
+   npm run deploy:branch -- cliente-x --export ../consegne/cliente-x
+   ```
+
+2. Il cliente pubblica un altro tema, elimina il tuo e tutte le copie, e ti manda la dichiarazione firmata con la schermata della pagina Temi. Verifica con il tuo accesso collaboratore che la libreria non contenga più il tema né sue copie.
+3. Cancella i branch del cliente dal repository di consegna:
+
+   ```bash
+   git -C .deploy push origin --delete cliente-x cliente-x-staging
+   git -C .deploy checkout --detach
+   git -C .deploy branch -D cliente-x cliente-x-staging
+   ```
+
+4. Rimuovi il tuo accesso dal Dev Dashboard: **Stores** → menu **⋯** del negozio → **Remove access**.
+
+Se il tema resta in uso oltre il termine, non cancellare nulla prima di aver raccolto le prove (schermate della pagina Temi e del sito pubblico, dove gli avvisi `/*! Bolter Theme … */` nei file CSS/JS lo identificano): servono per le penali e le azioni dell'articolo 9.
 
 ---
 

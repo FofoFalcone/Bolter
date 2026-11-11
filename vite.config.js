@@ -46,6 +46,9 @@ export default defineConfig(({ mode }) => {
       // Tailwind CSS v4: configurazione CSS-first in frontend/entrypoints/theme.css (@theme, @source).
       tailwindcss(),
       shopify({
+        // Cartella del tema in cui scrivere assets/ e snippets/vite-tag.liquid: il progetto, oppure il branch di
+        // consegna di tools/deploy-branch.mjs (npm run deploy:branch), che così non tocca gli asset locali.
+        themeRoot: process.env.BOLTER_THEME_ROOT || './',
         sourceCodeDir: 'frontend',
         entrypointsDir: 'frontend/entrypoints',
       }),
@@ -66,7 +69,7 @@ export default defineConfig(({ mode }) => {
       // Watch: non osservare i file che la build stessa produce, altrimenti ogni build
       // ne avvia un'altra (assets/ non viene svuotata in watch, quindi Vite non la esclude da solo).
       watch: isWatch
-        ? { exclude: ['assets/**', 'snippets/vite-tag.liquid', '.build-check/**', '.build-check-baseline/**', 'node_modules/**'] }
+        ? { exclude: ['assets/**', 'snippets/vite-tag.liquid', '.build-check/**', '.build-check-baseline/**', '.deploy/**', 'node_modules/**'] }
         : null,
 
       rollupOptions: {
