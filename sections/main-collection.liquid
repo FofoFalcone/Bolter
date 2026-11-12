@@ -218,20 +218,26 @@
                   {%- liquid
                     assign loading = 'lazy'
                     assign fetchpriority = 'auto'
+                    # Card dopo la prima riga: immagini inserite quando la card stessa è a uno schermo dalla vista
+                    # (data-deferred-root, frontend/scripts/deferred-scripts.js). Con il solo lazy Chrome le
+                    # scaricava tutte all'apertura insieme alla foto LCP (Lighthouse mobile del 2026-11-12).
+                    assign defer_media = true
                     if above_fold and paginate.current_page == 1 and forloop.index <= columns_lg
                       assign loading = 'eager'
+                      assign defer_media = false
                       if forloop.first and show_image == false
                         assign fetchpriority = 'high'
                       endif
                     endif
                   -%}
-                  <li>
+                  <li data-animate-scroll="fade-up"{% if defer_media %} data-deferred-root{% endif %}>
                     {% render 'product-card',
                       product: product,
                       sizes: sizes,
                       full_width: full_width,
                       loading: loading,
                       fetchpriority: fetchpriority,
+                      defer_media: defer_media,
                       event_context: 'collection',
                       link_collection: collection,
                       quick_view: s.quick_view

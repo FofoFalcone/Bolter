@@ -51,9 +51,6 @@
       class="{{ grid_class }}"
       style="--columns: {{ columns }}; --columns-md: {{ columns_md }};"
       role="list"
-      {% unless section.index == 1 %}
-        data-animate-stagger="fade-up"
-      {% endunless %}
     >
       {%- if s.collections != blank -%}
         {%- for item in s.collections -%}
@@ -67,7 +64,7 @@
               endif
             endif
           -%}
-          <li>
+          <li data-animate-scroll="fade-up">
             {% render 'collection-card',
               collection: item,
               ratio_class: ratio_class,
@@ -81,7 +78,7 @@
         {%- endfor -%}
       {%- else -%}
         {%- for i in (1..columns) -%}
-          <li class="flex flex-col gap-3">
+          <li class="flex flex-col gap-3" data-animate-scroll="fade-up">
             <span class="block overflow-hidden rounded-lg bg-surface {{ ratio_class }}">
               {%- assign placeholder = 'collection-' | append: i -%}
               {{ placeholder | placeholder_svg_tag: 'size-full fill-subtle' }}

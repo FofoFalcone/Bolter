@@ -76,10 +76,16 @@ function getObserver() {
   return observer;
 }
 
-/** Esegue `action` quando la section che contiene `element` si avvicina alla vista. False se non c'è nulla da osservare. */
+/**
+ * Esegue `action` quando il contenitore di `element` si avvicina alla vista. False se non c'è nulla da osservare.
+ * Contenitore: il più vicino [data-deferred-root], altrimenti la section (<template> e <noscript> non hanno
+ * dimensioni). [data-deferred-root] serve dove la section è lunga e già in vista, come la griglia di una collezione:
+ * osservando la section le 24 card partirebbero tutte insieme all'apertura (Lighthouse mobile del 2026-11-12,
+ * ~270 KB di immagini sotto la piega nella stessa finestra della foto LCP). Mai in un carosello orizzontale: il
+ * margine è solo verticale, le slide fuori schermo a destra non arriverebbero finché non sono già visibili.
+ */
 function whenNear(element, action) {
-  // Si osserva la section che contiene l'elemento (<template> e <noscript> non hanno dimensioni)
-  const target = element.closest('.shopify-section') ?? element.parentElement;
+  const target = element.closest('[data-deferred-root]') ?? element.closest('.shopify-section') ?? element.parentElement;
   if (!target) return false;
   if (!pending.has(target)) {
     pending.set(target, []);
@@ -96,6 +102,29 @@ function whenIdle(callback) {
       : setTimeout(callback, 200);
   if (document.readyState === 'complete') schedule();
   else window.addEventListener('load', schedule, { once: true });
+}
+
+/**
+ * Esegue `load` una volta sola, alla prima di due condizioni: una delle section che contengono `elements` arriva a
+ * meno di uno schermo dalla vista, oppure la pagina ha finito di caricare ed è libera.
+ * Per i moduli importati da theme.js che servono a contenuti sotto la prima schermata (animazioni d'ingresso,
+ * selettore varianti delle card): un import() parte con priorità alta e, nel Lighthouse mobile del 2026-11-12, i
+ * moduli Motion e product-card.js si scaricavano insieme alla foto LCP della hero. Così restano fuori da quella
+ * finestra ma sono pronti prima che l'utente arrivi ai contenuti, anche scorrendo subito.
+ */
+export function loadWhenNeeded(elements, load) {
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+    load();
+  };
+  if (!('IntersectionObserver' in window)) {
+    run();
+    return;
+  }
+  for (const element of elements) whenNear(element, run);
+  whenIdle(run);
 }
 
 /** Avvia il caricamento differito dei template di script in `root` (default: tutto il documento). */

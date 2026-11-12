@@ -135,7 +135,7 @@
                     endif
                   endif
                 -%}
-                <li class="collection-tabs__item">
+                <li class="collection-tabs__item"{% if first_panel %} data-animate-scroll="fade-up"{% endif %}>
                   {% render 'product-card',
                     product: product,
                     card_id: card_id,

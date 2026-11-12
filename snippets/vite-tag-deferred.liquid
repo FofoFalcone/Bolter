@@ -15,7 +15,8 @@
 
   Parametri:
   - entry: entrypoint JS (es. 'carousel.js')
-  - section_index: section.index della section (opzionale)
+  - section_index: section.index della section (opzionale). Nelle section group (header, footer) section.index
+    conta dall'inizio del gruppo: non passarlo per le section che stanno sempre sotto la piega (footer).
   - when: 'near' (default) o 'idle' (es. carrello a cassetto: deve essere pronto prima del primo clic, ovunque sia)
 
   Uso: {% render 'vite-tag-deferred', entry: 'carousel.js', section_index: section.index %}

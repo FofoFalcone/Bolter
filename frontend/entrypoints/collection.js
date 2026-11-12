@@ -28,6 +28,7 @@
 import { withCollectionUpdateEvent, withSearchUpdateEvent } from '@/scripts/standard-events.js';
 import '@/scripts/price-range.js';
 import { wrapFocus } from '@/scripts/focus-wrap.js';
+import { initDeferredMedia } from '@/scripts/deferred-scripts.js';
 
 const PRICE_DELAY = 600; // ms dopo l'ultima cifra digitata
 const desktop = window.matchMedia('(min-width: 990px)');
@@ -313,6 +314,12 @@ class ProductFacets extends HTMLElement {
     const results = this.querySelector('[data-facets-results]');
     if (results && !reducedMotion.matches) {
       results.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    }
+    // Immagini delle card differite (data-deferred-root): la Section Rendering le manda nel <noscript>
+    if (results) initDeferredMedia(results);
+    // Card dei nuovi risultati: quelle in vista restano ferme, le altre compaiono allo scroll (animations.js)
+    if (results?.querySelector('[data-animate-scroll]')) {
+      import('@/scripts/animations.js').then(({ initAnimations }) => initAnimations(results));
     }
     // Card con il selettore colore arrivate con i nuovi risultati: il JS si scarica solo se servono
     if (results?.querySelector('product-card [data-card-swatches]')) import('@/scripts/product-card.js');

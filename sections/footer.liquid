@@ -383,7 +383,12 @@
 </footer>
 
 {%- if has_newsletter -%}
-  {% render 'vite-tag-deferred', entry: 'contact-form.js', section_index: section.index %}
+  {%- comment -%}
+    Senza section_index: nel gruppo footer section.index conta dal gruppo, quindi il footer vale 1 e lo script
+    partiva subito con priorità alta come se fosse la prima section della pagina (Lighthouse mobile, 2026-11-12).
+    Il footer viene sempre dopo <main>: si carica quando si avvicina alla vista.
+  {%- endcomment -%}
+  {% render 'vite-tag-deferred', entry: 'contact-form.js' %}
 {%- endif -%}
 
 {% schema %}

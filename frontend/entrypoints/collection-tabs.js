@@ -105,6 +105,9 @@ class CollectionTabs extends HTMLElement {
     if (shouldAnimate) {
       const grid = this.panels[index].querySelector('.collection-tabs__grid');
       const items = grid.querySelectorAll('.collection-tabs__item');
+      // Le card del primo pannello compaiono anche allo scroll (data-animate-scroll, animations.js): entrate con il
+      // cambio di tab, non devono animarsi una seconda volta quando arrivano nello schermo
+      items.forEach((item) => item.removeAttribute('data-animate-scroll'));
       // Onda dal centro della griglia (esempio Motion "Stagger grid")
       animate(
         items,

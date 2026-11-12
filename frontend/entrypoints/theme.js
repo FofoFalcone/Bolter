@@ -22,7 +22,7 @@ import { initScrollbarWidth } from '../scripts/scrollbar-width.js';
 // Esc nasconde i tooltip CSS (utility `tooltip`)
 import { initTooltips } from '../scripts/tooltips.js';
 // JS e immagini delle section caricati quando servono (snippets/vite-tag-deferred.liquid, snippets/deferred-media.liquid)
-import { initDeferredScripts, initDeferredMedia } from '../scripts/deferred-scripts.js';
+import { initDeferredScripts, initDeferredMedia, loadWhenNeeded } from '../scripts/deferred-scripts.js';
 
 // Nessuna misura del layout all'avvio: il modulo gira mentre la pagina fa il primo layout, e ogni lettura lo
 // forzerebbe. Le misure arrivano dai ResizeObserver, le cui callback girano nell'ordine di creazione: header
@@ -46,16 +46,28 @@ function onDOMReady(fn) {
 /**
  * Motion viene caricato solo se la pagina (o la section) contiene elementi animati:
  * Vite lo separa in un chunk dedicato, quindi le pagine senza animazioni non lo scaricano.
+ * Arriva quando una section animata si avvicina alla vista o a pagina caricata (loadWhenNeeded): gli elementi animati
+ * non sono mai nella prima schermata (CLAUDE.md), quindi non serve scaricarlo insieme alla foto LCP.
+ * initAnimations salta gli elementi già pronti: più chiamate sulla stessa section non li animano due volte.
  */
-async function loadAnimations(root = document) {
-  if (!root.querySelector(ANIMATE_SELECTOR)) return;
-  const { initAnimations } = await import('../scripts/animations.js');
-  initAnimations(root);
+function loadAnimations(root = document) {
+  const elements = root.querySelectorAll(ANIMATE_SELECTOR);
+  const reveals = root.querySelectorAll('[data-animate-scroll]');
+  if (!elements.length && !reveals.length) return;
+  // [data-animate-scroll] (card delle griglie): la griglia è già in vista, ma questi elementi non sono nascosti dal
+  // CSS, quindi basta arrivare a pagina caricata. Prima di allora le card visibili restano semplicemente ferme.
+  loadWhenNeeded(elements, () =>
+    import('../scripts/animations.js').then(({ initAnimations }) => initAnimations(root)),
+  );
 }
 
-/** Selettore colore delle card prodotto: il JS si scarica solo se in pagina c'è una card che lo usa. */
+/**
+ * Selettore colore delle card prodotto: il JS si scarica solo se in pagina c'è una card che lo usa, quando la card si
+ * avvicina alla vista o a pagina caricata. Prima del JS la card resta un link alla pagina prodotto.
+ */
 function loadProductCards(root = document) {
-  if (root.querySelector('product-card [data-card-swatches]')) import('../scripts/product-card.js');
+  const cards = root.querySelectorAll('product-card:has([data-card-swatches])');
+  if (cards.length) loadWhenNeeded(cards, () => import('../scripts/product-card.js'));
 }
 
 /**

@@ -51,8 +51,13 @@
       {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
-    {%- if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
+    {%- comment -%}
+      Senza descrizione propria (es. /collections/all, collezioni senza testo) si usa quella del negozio
+      (Preferenze → descrizione della home), come già meta-tags per Open Graph: Lighthouse SEO la segnala mancante.
+    {%- endcomment -%}
+    {%- assign meta_description = page_description | default: shop.description -%}
+    {%- if meta_description != blank %}
+      <meta name="description" content="{{ meta_description | escape }}">
     {%- endif %}
     <link rel="canonical" href="{{ seo_canonical }}">
     <meta name="robots" content="max-image-preview:large">

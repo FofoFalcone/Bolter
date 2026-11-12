@@ -15,7 +15,8 @@
  * - paese/lingua: filtro dell'elenco dei paesi;
  * - theme editor: selezionando un blocco Mega menu (o una sua card) il pannello si apre;
  * - altezza dell'header in --header-height su :root (default in frontend/styles/tokens.css);
- * - avatar di <shopify-account> da cliente connesso (account-avatar.js).
+ * - avatar di <shopify-account> da cliente connesso (account-avatar.js);
+ * - <shopify-account> montato all'intenzione per i clienti non connessi (account-deferred.js).
  * Animazioni solo CSS (frontend/styles/header.css e utility nel markup): nessuna libreria su ogni pagina.
  *
  * Layout: niente misure all'avvio (connectedCallback gira mentre la pagina fa il primo layout, e ogni lettura lo
@@ -25,6 +26,7 @@
  */
 
 import { refineAccountAvatar } from './account-avatar.js';
+import { setupDeferredAccount } from './account-deferred.js';
 import { wrapFocus } from './focus-wrap.js';
 
 const DESKTOP_QUERY = '(min-width: 990px)'; // = breakpoint lg: da qui menu orizzontale, sotto il cassetto
@@ -69,6 +71,7 @@ class SiteHeader extends HTMLElement {
     this.setupLocalizationFilter(signal);
     this.setupSearch(signal);
     refineAccountAvatar(this);
+    setupDeferredAccount(this, signal, () => refineAccountAvatar(this));
 
     document.addEventListener('shopify:block:select', (event) => this.onBlockSelect(event, true), { signal });
     document.addEventListener('shopify:block:deselect', (event) => this.onBlockSelect(event, false), { signal });

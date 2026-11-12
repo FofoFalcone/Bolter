@@ -69,7 +69,7 @@
           aria-label="{{ heading | escape }}"
         >
           {%- for recommended in recommendations.products -%}
-            <li class="{{ item_class }}" data-recommendation-item>
+            <li class="{{ item_class }}" data-recommendation-item data-animate-scroll="fade-up">
               {% render 'product-card',
                 product: recommended,
                 sizes: sizes,

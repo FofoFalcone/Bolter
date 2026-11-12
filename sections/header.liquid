@@ -265,9 +265,23 @@
         data-lenis-prevent: il foglio dell'account scorre da solo. Senza JS resta un link normale.
       {%- endcomment -%}
       {%- if account_enabled -%}
+        {%- comment -%}
+          Cliente non connesso: il componente prepara all'avvio il login con Shop nel suo foglio chiuso (login-form,
+          shop-login, iframe di shop.app con ~30 script e un font da 65 KB: 4 task da ~60 ms, TBT 740 ms nel Lighthouse
+          mobile del 2026-11-12). Resta in un <template> e lo monta frontend/scripts/account-deferred.js all'intenzione
+          (mouse sopra, clic, tocco); fino ad allora si vede il link, identico al pulsante del componente.
+          Da connesso (avatar) e nel theme editor il componente è nella pagina da subito.
+        {%- endcomment -%}
+        {%- liquid
+          assign account_deferred = true
+          if customer or request.design_mode
+            assign account_deferred = false
+          endif
+        -%}
         <a
           href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
-          class="button button-subtle button-sm button-icon js:hidden overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
+          {% if account_deferred %}data-account-fallback{% endif %}
+          class="button button-subtle button-sm button-icon {% unless account_deferred %}js:hidden {% endunless %}overlay-light:text-white overlay-light:hover:bg-white/15 overlay-light:focus-visible:outline-white"
         >
           {% render 'icon', name: 'user', size: 24, style: 'solid' %}
           <span class="sr-only">
@@ -278,6 +292,7 @@
             {%- endif -%}
           </span>
         </a>
+        {%- capture account_component -%}
         <shopify-account
           class="hidden js:flex overlay-light:[--account-accent:white]"
           menu="{{ section.settings.customer_account_menu.handle | default: 'customer-account-main-menu' }}"
@@ -293,6 +308,12 @@
             </span>
           {%- endunless -%}
         </shopify-account>
+        {%- endcapture -%}
+        {%- if account_deferred -%}
+          <template data-account-template>{{ account_component }}</template>
+        {%- else -%}
+          {{ account_component }}
+        {%- endif -%}
       {%- endif -%}
 
       {%- comment -%}

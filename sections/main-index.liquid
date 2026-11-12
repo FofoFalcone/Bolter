@@ -186,17 +186,21 @@
         {%- if image != blank -%}
           <picture>
             {%- if mobile_image != blank -%}
+              {%- comment -%}
+                Multipli di 375 fino a 1500 più la larghezza originale, se è tra due passi: con un ritaglio da
+                486 px restava solo la versione da 375 e un telefono a densità 1,75 la ingrandiva quasi del doppio.
+              {%- endcomment -%}
               {%- capture mobile_srcset -%}
                 {%- for width in (1..4) -%}
                   {%- assign w = width | times: 375 -%}
-                  {%- if w <= mobile_image.width -%}
+                  {%- if w < mobile_image.width -%}
                     {{- mobile_image | image_url: width: w }} {{ w }}w,
                   {%- endif -%}
                 {%- endfor -%}
+                {%- if mobile_image.width <= 1500 -%}
+                  {{- mobile_image | image_url: width: mobile_image.width }} {{ mobile_image.width }}w,
+                {%- endif -%}
               {%- endcapture -%}
-              {%- if mobile_srcset == blank -%}
-                {%- capture mobile_srcset -%}{{ mobile_image | image_url: width: mobile_image.width }} {{ mobile_image.width }}w{%- endcapture -%}
-              {%- endif -%}
               <source
                 media="(max-width: 749px)"
                 srcset="{{ mobile_srcset | remove_last: ',' }}"

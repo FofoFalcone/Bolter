@@ -2,7 +2,7 @@
   Elenco delle collezioni (templates/list-collections.json, URL /collections): titolo, griglia di card e paginazione.
   Ordine: quello scelto nelle impostazioni, oppure quello di un menu (l'unico modo per un ordine su misura, secondo la
   documentazione Shopify); con il menu niente paginazione, compaiono solo le collezioni che contiene.
-  Prima riga eager, prima immagine LCP se la section è la prima della pagina. Above the fold: niente data-animate.
+  Prima riga eager, prima immagine LCP se la section è la prima della pagina. Card con data-animate-scroll: quelle già nello schermo restano ferme, le altre compaiono allo scroll.
 {%- endcomment -%}
 {% render 'section-colors', section_id: section.id, scheme: section.settings.color_scheme %}
 {%- liquid
@@ -81,7 +81,7 @@
               endif
             endif
           -%}
-          <li>
+          <li data-animate-scroll="fade-up">
             {% render 'collection-card',
               collection: link.object,
               ratio_class: ratio_class,
@@ -109,7 +109,7 @@
                 endif
               endif
             -%}
-            <li>
+            <li data-animate-scroll="fade-up">
               {% render 'collection-card',
                 collection: collection,
                 ratio_class: ratio_class,

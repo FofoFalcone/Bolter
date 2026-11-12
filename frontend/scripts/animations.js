@@ -22,6 +22,10 @@
  *                                 Su un contenitore display:grid l'onda parte dal centro
  *                                 (o dall'angolo) della griglia, calcolando colonne e righe.
  *
+ *   <li data-animate-scroll="fade-up">…</li>
+ *     → compare allo scroll, ma resta fermo e visibile se è già nello schermo all'avvio (vedi setupReveal):
+ *       per gli elementi di una griglia lunga che inizia nella prima schermata.
+ *
  * Preset disponibili: vedi PRESETS qui sotto.
  *
  * Lo stato iniziale nascosto è gestito in CSS (frontend/styles/animations.css),
@@ -112,12 +116,90 @@ function observe(el, prepare) {
 
 // Theme editor: una section rimossa o ricaricata non resta nell'observer condiviso
 document.addEventListener('shopify:section:unload', (event) => {
-  if (!observer) return;
   event.target.querySelectorAll?.('[data-animate-ready]').forEach((el) => {
-    observer.unobserve(el);
+    observer?.unobserve(el);
     starters.delete(el);
+    revealObserver?.unobserve(el);
+    revealPending.delete(el);
   });
 });
+
+/**
+ * Comparsa allo scroll per elementi che possono stare anche nella prima schermata (card delle griglie):
+ * <li data-animate-scroll="fade-up">.
+ * A differenza di data-animate il CSS non nasconde nulla: alla prima notifica dell'observer gli elementi già nello
+ * schermo restano fermi e visibili (foto LCP, prima riga, pagina riaperta più in basso), gli altri vengono nascosti
+ * (fuori schermo, nessun salto visibile) e compaiono quando ci si arriva. Senza JS, prima che il modulo arrivi o con
+ * movimento ridotto sono semplicemente visibili.
+ * Con initAnimations(root, { animateInView: true }) (contenuti appena inseriti, es. prodotti consigliati) anche quelli
+ * già nello schermo entrano con l'animazione invece di restare fermi.
+ * Gli elementi che entrano nello stesso momento (una riga della griglia) partono in sequenza, da sinistra a destra.
+ * Un componente che anima da sé un elemento (es. il cambio di tab di collection-tabs) toglie data-animate-scroll:
+ * l'elemento smette di essere seguito qui, senza una seconda animazione.
+ */
+const REVEAL_MAX_DELAY = 0.32;
+let revealObserver = null;
+/** Elemento → 'first' / 'enter' (prima notifica non ancora arrivata) o 'waiting' (nascosto, fuori schermo). */
+const revealPending = new Map();
+
+function stopReveal(el) {
+  revealObserver.unobserve(el);
+  revealPending.delete(el);
+}
+
+function onReveal(entries) {
+  const entering = [];
+  for (const entry of entries) {
+    const el = entry.target;
+    const state = revealPending.get(el);
+    if (!state) continue;
+    if (!el.hasAttribute('data-animate-scroll')) {
+      stopReveal(el);
+      continue;
+    }
+    if (state !== 'waiting') {
+      // Prima notifica: qualsiasi parte nello schermo → resta com'è (o entra subito con animateInView)
+      const { top, bottom } = entry.boundingClientRect;
+      if (top < window.innerHeight && bottom > 0) {
+        stopReveal(el);
+        if (state === 'enter') entering.push(entry);
+      } else {
+        revealPending.set(el, 'waiting');
+        el.style.opacity = '0';
+      }
+      continue;
+    }
+    if (!entry.isIntersecting) continue;
+    stopReveal(el);
+    entering.push(entry);
+  }
+
+  // Ordine di lettura (riga, poi colonna) dalle misure già fornite dall'observer: nessuna lettura del layout
+  entering.sort(
+    (a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left,
+  );
+  entering.forEach(({ target }, index) => {
+    animate(target, getPreset(target.dataset.animateScroll, target), {
+      duration: readNumber(target, 'data-animate-duration', DEFAULTS.duration),
+      delay: Math.min(index * DEFAULTS.interval, REVEAL_MAX_DELAY),
+      ease: DEFAULTS.ease,
+    });
+  });
+}
+
+function setupReveal(el, animateInView) {
+  revealObserver ??= new IntersectionObserver(onReveal, {
+    rootMargin: VIEW_OPTIONS.margin,
+    threshold: VIEW_OPTIONS.amount,
+  });
+  // Contenuto appena inserito: nascosto subito, la prima notifica arriva al fotogramma successivo
+  if (animateInView) el.style.opacity = '0';
+  revealPending.set(el, animateInView ? 'enter' : 'first');
+  revealObserver.observe(el);
+}
+
+/** Ritorno con avanti/indietro senza bfcache: la pagina è già stata vista, e la foto della pagina prodotto torna sulla card. */
+const isRevisit = () => performance.getEntriesByType?.('navigation')[0]?.type === 'back_forward';
 
 function setupSingle(el) {
   const keyframes = getPreset(el.dataset.animate, el);
@@ -175,7 +257,7 @@ function readGrid(container, count) {
  * Inizializza le animazioni dentro `root` (document o una section ricaricata
  * dal theme editor). Gli elementi già inizializzati vengono saltati.
  */
-export function initAnimations(root = document) {
+export function initAnimations(root = document, { animateInView = false } = {}) {
   // Con movimento ridotto non animiamo: il CSS lascia già gli elementi visibili.
   if (prefersReducedMotion()) return;
 
@@ -189,5 +271,12 @@ export function initAnimations(root = document) {
     if (container.hasAttribute('data-animate-ready')) return;
     container.setAttribute('data-animate-ready', '');
     setupStagger(container);
+  });
+
+  if (isRevisit()) return;
+  root.querySelectorAll('[data-animate-scroll]').forEach((el) => {
+    if (el.hasAttribute('data-animate-ready')) return;
+    el.setAttribute('data-animate-ready', '');
+    setupReveal(el, animateInView);
   });
 }
